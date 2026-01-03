@@ -1,0 +1,102 @@
+<% content_for :title, "Your Projects • Reboot" %>
+<% content_for :page, "projects" %>
+
+<header class="topbar">
+  <nav class="nav">
+    <a class="nav__item nav__item--active" href="/projects">Projects</a>
+    <a class="nav__item" href="#" aria-disabled="true">Shop</a>
+    <a class="nav__item" href="#" aria-disabled="true">Purchases</a>
+    <a class="nav__item" href="#" aria-disabled="true">FAQ</a>
+  </nav>
+  <div class="topbar__right">
+    <span id="user-display" class="muted" style="margin-right: 8px;"></span>
+    <button id="signout-btn" class="btn btn--ghost">Sign out</button>
+    <div class="coins" title="Your screws">123 🪛</div>
+  </div>
+</header>
+
+<main class="container">
+  <h1 class="page-title">Your Projects</h1>
+  <section class="grid">
+    <aside class="projects-list">
+      <% if @projects.any? %>
+        <% @projects.each_with_index do |project, index| %>
+          <div class="project-row <%= index.odd? ? 'project-row--alt' : '' %>" 
+               data-id="<%= project.id %>"
+               data-status="<%= project.status %>" 
+               data-description="<%= project.description %>">
+            <div class="project-row__title"><%= project.name %></div>
+            <div class="pill pill--status"><%= project.status.humanize %></div>
+            <div class="pill pill--time"><%= project.hours.to_i %>h</div>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="card" style="text-align: center; padding: 40px;">
+          <p class="muted">No projects yet.</p>
+          <button id="create-project-btn" class="btn btn--primary" style="margin-top: 16px;">Create your first project</button>
+        </div>
+      <% end %>
+    </aside>
+
+    <section class="project-detail card">
+      <header class="project-detail__header">
+        <h2 class="project-detail__title">Select a project</h2>
+        <div class="project-detail__actions">
+          <button class="btn">write journal</button>
+          <button class="btn">edit</button>
+        </div>
+      </header>
+
+      <div class="project-detail__content">
+        <div class="detail-panel">
+          <div class="detail-row">
+            <div class="detail-label">Description</div>
+            <div class="detail-value">—</div>
+          </div>
+
+          <div class="detail-row">
+            <div class="detail-label">Project Status</div>
+            <div class="detail-value" id="project-status">
+              <span class="dot"></span>
+              Pending
+              <span class="spacer"></span>
+              <span class="dot"></span>
+              In Review
+              <span class="spacer"></span>
+              <span class="dot"></span>
+              Approved
+            </div>
+          </div>
+
+          <div class="detail-group">
+            <div class="detail-subtitle">Project Tracking</div>
+            <div class="tracking-table">
+              <div class="tracking-row tracking-row--head">
+                <div>Project</div>
+                <div>Raw</div>
+                <div>Approved</div>
+              </div>
+              <div class="tracking-row">
+                <div>moonshot</div>
+                <div>15h</div>
+                <div>—</div>
+              </div>
+              <div class="tracking-row">
+                <div>journal entries</div>
+                <div>0h</div>
+                <div>0h</div>
+              </div>
+            </div>
+          </div>
+
+          <button class="btn btn--accent btn--block">Request review</button>
+
+          <div class="detail-group">
+            <div class="detail-subtitle">Project Reviews</div>
+            <p class="muted">No reviews yet.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+</main>

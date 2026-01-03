@@ -10,9 +10,29 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_03_140000) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_03_170000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "projects", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "name", null: false
+    t.text "description"
+    t.string "status", default: "pending", null: false
+    t.string "code_url"
+    t.string "playable_url"
+    t.string "screenshot_url"
+    t.decimal "hours", precision: 8, scale: 2, default: "0.0"
+    t.decimal "approved_hours", precision: 8, scale: 2, default: "0.0"
+    t.string "airtable_id"
+    t.datetime "submitted_at"
+    t.datetime "reviewed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["airtable_id"], name: "index_projects_on_airtable_id", unique: true
+    t.index ["status"], name: "index_projects_on_status"
+    t.index ["user_id"], name: "index_projects_on_user_id"
+  end
 
   create_table "shop_items", force: :cascade do |t|
     t.string "name"
@@ -56,10 +76,17 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_03_140000) do
     t.datetime "idv_verified_at"
     t.string "hca_token"
     t.datetime "hca_token_expires_at"
+    t.string "role", default: "user", null: false
+    t.string "first_name"
+    t.string "last_name"
+    t.date "birthday"
+    t.decimal "balance", precision: 10, scale: 2, default: "0.0"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["provider", "uid"], name: "index_users_on_provider_and_uid", unique: true
+    t.index ["role"], name: "index_users_on_role"
   end
 
+  add_foreign_key "projects", "users"
   add_foreign_key "shop_orders", "shop_items"
   add_foreign_key "shop_orders", "users"
 end

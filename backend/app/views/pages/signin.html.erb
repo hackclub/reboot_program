@@ -1,0 +1,27 @@
+<% content_for :title, "Sign in • Reboot" %>
+<% content_for :page, "signin" %>
+
+<header class="topbar">
+  <nav class="nav">
+    <a class="nav__item" href="/projects">Projects</a>
+    <a class="nav__item" href="#" aria-disabled="true">Shop</a>
+    <a class="nav__item" href="#" aria-disabled="true">Purchases</a>
+    <a class="nav__item" href="#" aria-disabled="true">FAQ</a>
+  </nav>
+</header>
+
+<main class="container container--center">
+  <section class="card signin">
+    <h1 class="heading">Welcome to Reboot</h1>
+    <p class="muted">Sign in with your Hack Club account to continue.</p>
+
+    <%= form_tag("/auth/hack_club", method: :post, style: "margin-top: 24px;") do %>
+      <button type="submit" class="btn btn--hca btn--block">Sign in with Hack Club</button>
+    <% end %>
+
+    <p class="muted" style="margin-top: 16px; font-size: 14px; text-align: center;">
+      Don't have an account? 
+      <a href="https://hackclub.com" target="_blank" style="color: var(--accent);">Join Hack Club</a>
+    </p>
+  </section>
+</main>

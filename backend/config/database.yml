@@ -2,67 +2,18 @@ default: &default
   adapter: postgresql
   encoding: unicode
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  username: <%= ENV.fetch("DB_USERNAME", "postgres") %>
+  password: <%= ENV.fetch("DB_PASSWORD", "postgres") %>
+  host: <%= ENV.fetch("DB_HOST", "localhost") %>
 
 development:
-  primary:
-    <<: *default
-    database: b_development
-    username: <%= ENV.fetch("DB_USERNAME", "postgres") %>
-    password: <%= ENV.fetch("DB_PASSWORD", "postgres") %>
-    host: <%= ENV.fetch("DB_HOST", "localhost") %>
-  cache:
-    <<: *default
-    database: b_development
-    username: <%= ENV.fetch("DB_USERNAME", "postgres") %>
-    password: <%= ENV.fetch("DB_PASSWORD", "postgres") %>
-    host: <%= ENV.fetch("DB_HOST", "localhost") %>
-    migrations_paths: db/cache_migrate
-  queue:
-    <<: *default
-    database: b_development
-    username: <%= ENV.fetch("DB_USERNAME", "postgres") %>
-    password: <%= ENV.fetch("DB_PASSWORD", "postgres") %>
-    host: <%= ENV.fetch("DB_HOST", "localhost") %>
-    migrations_paths: db/queue_migrate
-  cable:
-    <<: *default
-    database: b_development
-    username: <%= ENV.fetch("DB_USERNAME", "postgres") %>
-    password: <%= ENV.fetch("DB_PASSWORD", "postgres") %>
-    host: <%= ENV.fetch("DB_HOST", "localhost") %>
-    migrations_paths: db/cable_migrate
+  <<: *default
+  database: reboot_development
 
 test:
-  primary:
-    adapter: sqlite3
-    database: db/test.sqlite3
-    pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-  cache:
-    adapter: sqlite3
-    database: db/test_cache.sqlite3
-    pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-    migrations_paths: db/cache_migrate
-  queue:
-    adapter: sqlite3
-    database: db/test_queue.sqlite3
-    pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-    migrations_paths: db/queue_migrate
-  cable:
-    adapter: sqlite3
-    database: db/test_cable.sqlite3
-    pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-    migrations_paths: db/cable_migrate
+  <<: *default
+  database: reboot_test
 
 production:
-  primary: &production_primary
-    <<: *default
-    url: <%= ENV["DATABASE_URL"] %>
-  cache:
-    <<: *production_primary
-    migrations_paths: db/cache_migrate
-  queue:
-    <<: *production_primary
-    migrations_paths: db/queue_migrate
-  cable:
-    <<: *production_primary
-    migrations_paths: db/cable_migrate
+  <<: *default
+  url: <%= ENV["DATABASE_URL"] %>

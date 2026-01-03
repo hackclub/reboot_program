@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title><%= content_for?(:title) ? yield(:title) : "Reboot" %></title>
+    <%= csrf_meta_tags %>
+    <meta name="csrf-token" content="<%= form_authenticity_token %>">
+    <link rel="stylesheet" href="/stylesheets/application.css">
+    <script defer src="/javascripts/application.js"></script>
+  </head>
+  <body data-page="<%= content_for?(:page) ? yield(:page) : '' %>">
+    <% if flash[:error] %>
+      <div class="flash flash--error"><%= flash[:error] %></div>
+    <% end %>
+    <% if flash[:success] %>
+      <div class="flash flash--success"><%= flash[:success] %></div>
+    <% end %>
+
+    <%= yield %>
+  </body>
+</html>

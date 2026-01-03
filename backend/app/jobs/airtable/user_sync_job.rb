@@ -16,11 +16,28 @@ class Airtable::UserSyncJob < Airtable::BaseSyncJob
   # @return [Hash] Airtable field values
   def field_mapping(user)
     {
-      "Slack ID" => user.slack_id,
-      "Slack Username" => user.slack_username,
-      "Email" => user.email,
-      "Projects" => user.projects,
-      "Created At" => user.created_at&.iso8601
+      "slack_id" => user.slack_id,
+      "slack_username" => user.slack_username,
+      "email" => user.email,
+      "name" => user.first_name,
+      "last_name" => user.last_name,
+      "age" => calculate_age(user.birthday),
+      "balance" => user.balance.to_f,
+      "Projects" => user.projects.pluck(:name).join(", ")
     }
+  end
+
+  private
+
+  # Calculates age from birthday.
+  # @param birthday [Date, nil] the user's birthday
+  # @return [Integer, nil] age in years or nil if no birthday
+  def calculate_age(birthday)
+    return nil if birthday.nil?
+
+    today = Date.current
+    age = today.year - birthday.year
+    age -= 1 if today < birthday + age.years
+    age
   end
 end
