@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sign in • Reboot</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script defer src="./app.js"></script>
+  </head>
+  <body data-page="signin">
+    <header class="topbar">
+      <nav class="nav">
+        <a class="nav__item nav__item--active" href="./projects.html">Projects</a>
+        <a class="nav__item" href="#" aria-disabled="true">Shop</a>
+        <a class="nav__item" href="#" aria-disabled="true">Purchases</a>
+        <a class="nav__item" href="#" aria-disabled="true">FAQ</a>
+      </nav>
+      <div class="coins" title="Your screws">123 🪛</div>
+    </header>
+
+    <main class="container container--center">
+      <section class="card signin">
+        <h1 class="heading">Welcome back</h1>
+        <p class="muted">Sign in to continue to your projects.</p>
+        <form id="signin-form" class="form">
+          <label class="form__label" for="email">Email</label>
+          <input id="email" name="email" type="email" class="form__input" placeholder="you@example.com" required />
+
+          <label class="form__label" for="name">Display name</label>
+          <input id="name" name="name" type="text" class="form__input" placeholder="Your name" required />
+
+          <button type="submit" class="btn btn--primary">Sign in</button>
+        </form>
+      </section>
+    </main>
+  </body>
+</html>
+
+

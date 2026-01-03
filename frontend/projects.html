@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Your Projects • Reboot</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script defer src="./app.js"></script>
+  </head>
+  <body data-page="projects">
+    <header class="topbar">
+      <nav class="nav">
+        <a class="nav__item nav__item--active" href="./projects.html">Projects</a>
+        <a class="nav__item" href="#" aria-disabled="true">Shop</a>
+        <a class="nav__item" href="#" aria-disabled="true">Purchases</a>
+        <a class="nav__item" href="#" aria-disabled="true">FAQ</a>
+      </nav>
+      <div class="topbar__right">
+        <button id="signout-btn" class="btn btn--ghost">Sign out</button>
+        <div class="coins" title="Your screws">123 🪛</div>
+      </div>
+    </header>
+
+    <main class="container">
+      <h1 class="page-title">Your Projects</h1>
+      <section class="grid">
+        <aside class="projects-list">
+          <div class="project-row" data-status="pending" data-description="Kickoff and planning.">
+            <div class="project-row__title">ProjectA</div>
+            <div class="pill pill--status">pending</div>
+            <div class="pill pill--time">15h</div>
+          </div>
+          <div class="project-row project-row--alt" data-status="in-review" data-description="Submitted for review.">
+            <div class="project-row__title">ProjectB</div>
+            <div class="pill pill--status">in review</div>
+            <div class="pill pill--time">9h</div>
+          </div>
+          <div class="project-row project-row--alt" data-status="approved" data-description="Approved by admin.">
+            <div class="project-row__title">ProjectC</div>
+            <div class="pill pill--status">approved</div>
+            <div class="pill pill--time">22h</div>
+          </div>
+        </aside>
+
+        <section class="project-detail card">
+          <header class="project-detail__header">
+            <h2 class="project-detail__title">ProjectA</h2>
+            <div class="project-detail__actions">
+              <button class="btn">write journal</button>
+              <button class="btn">edit</button>
+            </div>
+          </header>
+
+          <div class="project-detail__content">
+            <div class="detail-panel">
+              <div class="detail-row">
+                <div class="detail-label">Description</div>
+                <div class="detail-value">pippo</div>
+              </div>
+
+              <div class="detail-row">
+                <div class="detail-label">Project Status</div>
+                <div class="detail-value" id="project-status">
+                  <span class="dot"></span>
+                  Pending
+                  <span class="spacer"></span>
+                  <span class="dot"></span>
+                  In Review
+                  <span class="spacer"></span>
+                  <span class="dot"></span>
+                  Approved
+                </div>
+              </div>
+
+              <div class="detail-group">
+                <div class="detail-subtitle">Project Tracking</div>
+                <div class="tracking-table">
+                  <div class="tracking-row tracking-row--head">
+                    <div>Project</div>
+                    <div>Raw</div>
+                    <div>Approved</div>
+                  </div>
+                  <div class="tracking-row">
+                    <div>moonshot</div>
+                    <div>15h</div>
+                    <div>—</div>
+                  </div>
+                  <div class="tracking-row">
+                    <div>journal entries</div>
+                    <div>0h</div>
+                    <div>0h</div>
+                  </div>
+                </div>
+              </div>
+
+              <button class="btn btn--accent btn--block">Request review</button>
+
+              <div class="detail-group">
+                <div class="detail-subtitle">Project Reviews</div>
+                <p class="muted">No reviews yet.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </section>
+    </main>
+  </body>
+</html>
+
+

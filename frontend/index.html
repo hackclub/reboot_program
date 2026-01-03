@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Reboot</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script defer src="./app.js"></script>
+    <script>
+      // Redirect based on auth state
+      document.addEventListener("DOMContentLoaded", () => {
+        if (window.RebootAuth && window.RebootAuth.getAuthUser()) {
+          window.location.replace("./projects.html");
+        } else {
+          window.location.replace("./signin.html");
+        }
+      });
+    </script>
+  </head>
+  <body></body>
+  <!-- Empty body on purpose; this page immediately redirects -->
+</html>
+
+
