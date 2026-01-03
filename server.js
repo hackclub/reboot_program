@@ -4,15 +4,40 @@ import path from 'path';
 import url from 'url';
 import crypto from 'crypto';
 
-const hostname = '127.0.0.1';
-const port = 3000;
+const hostname = process.env.HOST || '0.0.0.0';
+const port = parseInt(process.env.PORT || '3000', 10);
 
 const projectRoot = process.cwd();
 const publicDirectory = path.join(projectRoot, 'frontend');
 
+// Load environment variables //testfrom .env if present (no external deps)
+async function loadEnvFromDotfile() {
+	try {
+		const envPath = path.join(projectRoot, '.env');
+		const raw = await fs.readFile(envPath, 'utf8');
+		raw.split('\n').forEach((line) => {
+			const trimmed = line.trim();
+			if (!trimmed || trimmed.startsWith('#')) return;
+			const eq = trimmed.indexOf('=');
+			if (eq === -1) return;
+			const key = trimmed.slice(0, eq).trim();
+			let value = trimmed.slice(eq + 1).trim();
+			if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+				value = value.slice(1, -1);
+			}
+			if (!(key in process.env)) {
+				process.env[key] = value;
+			}
+		});
+	} catch {
+		// .env is optional
+	}
+}
+await loadEnvFromDotfile();
+
 // Admin credentials and session settings (override via env variables)
 const BASIC_AUTH_USER = process.env.BASIC_AUTH_USER || 'admin';
-const BASIC_AUTH_PASS = process.env.BASIC_AUTH_PASS || 'FinalFantasy7';
+const BASIC_AUTH_PASS = process.env.BASIC_AUTH_PASS || 'admin';
 const SESSION_SECRET = process.env.SESSION_SECRET || 'dev-session-secret';
 const SESSION_MAX_AGE_SECONDS = 7 * 24 * 60 * 60; // 7 days
 const SESSION_COOKIE_NAME = 'reboot_session';
@@ -135,6 +160,13 @@ const server = http.createServer(async (req, res) => {
 		const pathname = parsed.pathname || '/';
 		const cookies = parseCookies(req.headers['cookie']);
 		const session = verifySessionCookie(cookies[SESSION_COOKIE_NAME]);
+
+		// Public health endpoint (no auth) for platforms
+		if (pathname === '/healthz') {
+			res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' });
+			res.end('ok');
+			return;
+		}
 
 		// Logout route
 		if (pathname === '/__logout') {
