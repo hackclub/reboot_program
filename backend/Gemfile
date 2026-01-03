@@ -48,3 +48,9 @@ end
 
 gem "norairrecord", "~> 0.5.1"
 gem "faraday", "~> 1.10"  # norairrecord requires Faraday 1.x API
+
+# Authentication
+gem "jwt"
+
+gem "omniauth", "~> 2.1"
+gem "omniauth-hack_club"

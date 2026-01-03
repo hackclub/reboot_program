@@ -1,0 +1,11 @@
+# Adds OAuth provider fields to support token-based authentication
+class AddAuthFieldsToUsers < ActiveRecord::Migration[8.0]
+  def change
+    add_column :users, :email, :string
+    add_column :users, :provider, :string
+    add_column :users, :uid, :string
+
+    add_index :users, :email, unique: true
+    add_index :users, [:provider, :uid], unique: true
+  end
+end
