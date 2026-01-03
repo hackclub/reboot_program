@@ -1,6 +1,7 @@
 # Represents a user in the system, synced TO Airtable.
 class User < ApplicationRecord
   has_many :shop_orders, dependent: :destroy
+  has_many :projects, dependent: :destroy
 
   ROLES = %w[user admin].freeze
 

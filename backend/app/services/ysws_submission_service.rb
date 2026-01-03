@@ -37,15 +37,26 @@ class YswsSubmissionService
   # Fetches user PII from Hack Club Auth using the provided token.
   # @return [Hash, nil] user info or nil if fetch fails
   def fetch_user_pii
-    response = Faraday.get(ENV.fetch("HACK_CLUB_API_URL", "https://hackclub.com/api/v1/users/me")) do |req|
-      req.headers["Authorization"] = "Bearer #{@hca_token}"
-    end
+    result = HackClubAuthService.me(@hca_token)
+    return nil if result.nil?
 
-    return nil unless response.success?
-
-    JSON.parse(response.body).with_indifferent_access
-  rescue Faraday::Error, JSON::ParserError
-    nil
+    # Extract identity info for PII
+    identity = result["identity"] || {}
+    {
+      email: identity["email"],
+      first_name: identity["first_name"],
+      last_name: identity["last_name"],
+      birthday: identity["birthday"],
+      github_username: identity["github_username"],
+      address: {
+        line1: identity.dig("address", "line1"),
+        line2: identity.dig("address", "line2"),
+        city: identity.dig("address", "city"),
+        state: identity.dig("address", "state"),
+        country: identity.dig("address", "country"),
+        zip: identity.dig("address", "zip")
+      }
+    }.with_indifferent_access
   end
 
   # Creates a new record in the YSWS Airtable table.
