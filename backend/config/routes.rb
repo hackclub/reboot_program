@@ -7,10 +7,18 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v1 do
+      # Authentication
       post "auth/token", to: "auth#token"
       get "auth/me", to: "auth#me"
 
+      # YSWS submissions
       post "ysws/submit", to: "ysws#submit"
+
+      # Admin endpoints
+      namespace :admin do
+        resources :users, only: [:index, :show, :update, :destroy]
+        resources :shop_orders, only: [:index, :show, :update]
+      end
     end
   end
 
