@@ -177,6 +177,36 @@ const server = http.createServer(async (req, res) => {
 			return;
 		}
 
+		// Serve a tiny built-in placeholder image at /img/placeholder.png
+		if (pathname === '/img/placeholder.png') {
+			// 1x1 opaque beige PNG (base64)
+			const base64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNgYAAAAAMAASsJTYQAAAAASUVORK5CYII=';
+			const buf = Buffer.from(base64, 'base64');
+			res.writeHead(200, { 'Content-Type': 'image/png', 'Cache-Control': 'no-store' });
+			res.end(buf);
+			return;
+		}
+
+		// Serve signin hero assets from repository root: /img/signin/*
+		if (pathname && pathname.startsWith('/img/signin/')) {
+			// Decode URL-encoded path segments (e.g., spaces as %20)
+			const requestedRaw = pathname.slice('/img/signin/'.length);
+			const requested = decodeURIComponent(requestedRaw);
+			const safe = requested.replace(/^(\.\.[/\\])+/, '');
+			const imgPath = path.join(projectRoot, 'img', 'signin', safe);
+			try {
+				const buf = await fs.readFile(imgPath);
+				const ext = path.extname(imgPath).toLowerCase();
+				const type = contentTypeByExtension[ext] || 'application/octet-stream';
+				res.writeHead(200, { 'Content-Type': type, 'Cache-Control': 'no-store' });
+				res.end(buf);
+			} catch {
+				res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+				res.end('Not Found');
+			}
+			return;
+		}
+
 		// If no valid session, fall back to Basic Auth popup; on success, set a session cookie
 		if (!session) {
 			const auth = req.headers['authorization'] || '';
