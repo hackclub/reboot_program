@@ -45,7 +45,7 @@
   // Require authentication, redirect to signin if not
   function requireAuth() {
     if (!isAuthenticated()) {
-      window.location.replace("/signin");
+      window.location.replace("/");
     }
   }
 
@@ -83,7 +83,7 @@
   function signOut() {
     clearToken();
     clearUser();
-    window.location.replace("/signin");
+    window.location.replace("/");
   }
 
   // Initialize signin page
@@ -111,7 +111,7 @@
       saveUser(data.user);
 
       // Clean URL and redirect
-      window.history.replaceState({}, document.title, "/signin");
+      window.history.replaceState({}, document.title, "/");
       window.location.replace("/projects");
     } catch (error) {
       console.error("Auth failed:", error);

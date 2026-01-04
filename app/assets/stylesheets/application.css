@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Crimson+Pro:ital,wght@0,400;1,400&display=swap');
+
 :root {
   --bg: #7d88a5;
   --bg-dark: #6f7a97;
@@ -320,4 +322,117 @@ body {
 .flash--success {
   background: #e8f5e9;
   color: #2e7d32;
+}
+
+/* Signin Page */
+[data-page="signin"] {
+  background: #f8f7f4;
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+}
+
+.signin-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.signin-flag {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 150px;
+  z-index: 10;
+}
+
+.signin-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 5;
+  margin-bottom: 50px;
+}
+
+.title-container {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 10px;
+}
+
+.signin-title {
+  font-family: 'Permanent Marker', cursive;
+  font-size: 140px;
+  margin: 0;
+  line-height: 1;
+  color: #000;
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: flex-start;
+}
+
+.title-re,
+.title-ot {
+  display: inline-block;
+}
+
+.title-o-wrapper {
+  display: inline-block;
+  position: relative;
+}
+
+.title-o {
+  display: inline-block;
+  position: relative;
+  top: -25px;
+}
+
+.signin-subtitle {
+  font-family: 'Crimson Pro', serif;
+  font-style: italic;
+  font-size: 32px;
+  margin-top: 10px;
+  margin-bottom: 40px;
+  color: #000;
+  text-align: center;
+}
+
+.signin-btn {
+  background: #d8d8d8;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 40px;
+  font-family: 'Crimson Pro', serif;
+  font-style: italic;
+  font-size: 28px;
+  cursor: pointer;
+  color: #000;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: transform 0.2s;
+}
+
+.signin-btn:hover {
+  transform: scale(1.05);
+}
+
+.signin-mole {
+   position: absolute;
+   bottom: 0;
+   left: 0;
+   width: clamp(150px, 20vw, 280px);
+   z-index: 2;
+}
+
+.signin-crane {
+   position: absolute;
+   top: -180px;
+   right: -320px;
+   height: 550px;
+   width: auto;
+   z-index: 3;
+   pointer-events: none;
 }
