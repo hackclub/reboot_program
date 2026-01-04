@@ -3,6 +3,7 @@ class Project < ApplicationRecord
   belongs_to :user
 
   STATUSES = %w[pending in-review approved rejected].freeze
+  BOLTS_PER_HOUR = 10
 
   validates :name, presence: true
   validates :status, inclusion: { in: STATUSES }

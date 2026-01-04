@@ -1,0 +1,50 @@
+<% content_for :title, "Admin • Users" %>
+<% content_for :page, "admin" %>
+
+<header class="topbar">
+  <nav class="nav">
+    <a class="nav__item" href="/projects">← Back to Projects</a>
+    <a class="nav__item nav__item--active" href="/admin">Admin</a>
+  </nav>
+  <div class="topbar__right">
+    <span class="muted">Admin: <%= @current_user.slack_username || @current_user.email %></span>
+  </div>
+</header>
+
+<main class="container">
+  <div style="display: flex; gap: 1rem; margin-bottom: 2rem; border-bottom: 1px solid #e0e0e0; padding-bottom: 1rem;">
+    <a href="/admin/projects" style="padding: 8px 16px; border-bottom: 2px solid transparent; color: #999; text-decoration: none; font-weight: 600;">Projects</a>
+    <a href="/admin/users" style="padding: 8px 16px; border-bottom: 2px solid #f25f2c; color: #f25f2c; text-decoration: none; font-weight: 600;">Users</a>
+    <a href="/admin/shop" style="padding: 8px 16px; border-bottom: 2px solid transparent; color: #999; text-decoration: none; font-weight: 600;">Shop</a>
+  </div>
+
+  <h1 class="page-title">Users (<%= @users.count %>)</h1>
+
+  <div class="admin-table">
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 1rem; padding: 12px 16px; background: #f9f9f7; font-weight: 600; border-radius: 8px 8px 0 0; font-size: 0.9rem;">
+      <div>Username</div>
+      <div>Email</div>
+      <div>Role</div>
+      <div>Balance</div>
+    </div>
+
+    <% @users.each do |user| %>
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 1rem; padding: 12px 16px; border-bottom: 1px solid #e0e0e0; align-items: center;">
+        <div>
+          <strong><%= user.slack_username || "—" %></strong>
+        </div>
+        <div class="muted">
+          <%= user.email || "—" %>
+        </div>
+        <div>
+          <span class="pill" style="<%= user.admin? ? 'background: #ff6b6b; color: white;' : 'background: #e0e0e0; color: #666;' %> padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; font-weight: 600;">
+            <%= user.role.humanize %>
+          </span>
+        </div>
+        <div>
+          <span style="font-weight: 600;"><%= user.balance.to_i %> 🪛</span>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</main>
