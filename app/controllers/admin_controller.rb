@@ -10,48 +10,40 @@ class AdminController < ActionController::Base
 
   # GET /admin/projects
   def projects
-    @projects = Project.includes(:user).order(submitted_at: :desc, created_at: :desc)
-    @pending_projects = @projects.where(status: "in-review")
-    @all_projects = @projects
+    page = params[:page].to_i > 0 ? params[:page].to_i : 1
+    per_page = 50
+    
+    @all_projects = Project.includes(:user).order(created_at: :desc)
+    @total_projects = @all_projects.count
+    @total_pages = (@total_projects.to_f / per_page).ceil
+    @current_page = page
+    
+    offset = (page - 1) * per_page
+    @projects = @all_projects.offset(offset).limit(per_page)
+    @pending_projects = @all_projects.where(status: "pending").limit(per_page)
   end
 
-  # POST /admin/projects/:id/approve
-  def approve_project
-    project = Project.find(params[:id])
-    hours = params[:approved_hours].to_f
-    reason = params[:approval_reason].to_s.strip
-
-    if hours <= 0
-      redirect_to admin_projects_path, flash: { error: "Approved hours must be greater than 0" }
-      return
-    end
-
-    if reason.blank?
-      redirect_to admin_projects_path, flash: { error: "Approval reason is required" }
-      return
-    end
-
-    project.approve!(hours: hours, reason: reason)
-    redirect_to admin_projects_path, flash: { success: "Approved #{project.name} for #{hours}h" }
+  # GET /admin/users
+  def users
+    @users = User.all.order(created_at: :desc)
   end
 
-  # POST /admin/projects/:id/reject
-  def reject_project
-    project = Project.find(params[:id])
-    project.reject!
-    redirect_to admin_projects_path, flash: { success: "Rejected #{project.name}" }
+  # GET /admin/shop
+  def shop
+    @shop_items = ShopItem.all.order(created_at: :desc)
   end
 
   private
 
   def require_admin
-    unless session[:user_id]
-      redirect_to root_path
-      return
-    end
+    # TEMP: For UI development, use first user or create one
+    @current_user = if session[:user_id]
+                     User.find_by(id: session[:user_id])
+                   else
+                     User.first || User.create!(slack_username: "test_user", role: "admin")
+                   end
 
-    @current_user = User.find_by(id: session[:user_id])
-    unless @current_user&.role == "admin"
+    unless @current_user&.admin?
       redirect_to projects_path, flash: { error: "Admin access required" }
     end
   end

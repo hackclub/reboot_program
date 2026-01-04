@@ -1,0 +1,88 @@
+<% content_for :title, "Admin • Shop" %>
+<% content_for :page, "admin" %>
+
+<header class="topbar">
+  <nav class="nav">
+    <a class="nav__item" href="/projects">← Back to Projects</a>
+    <a class="nav__item nav__item--active" href="/admin">Admin</a>
+  </nav>
+  <div class="topbar__right">
+    <span class="muted">Admin: <%= @current_user.slack_username || @current_user.email %></span>
+  </div>
+</header>
+
+<main class="container">
+  <div style="display: flex; gap: 1rem; margin-bottom: 2rem; border-bottom: 1px solid #e0e0e0; padding-bottom: 1rem;">
+    <a href="/admin/projects" style="padding: 8px 16px; border-bottom: 2px solid transparent; color: #999; text-decoration: none; font-weight: 600;">Projects</a>
+    <a href="/admin/users" style="padding: 8px 16px; border-bottom: 2px solid transparent; color: #999; text-decoration: none; font-weight: 600;">Users</a>
+    <a href="/admin/shop" style="padding: 8px 16px; border-bottom: 2px solid #f25f2c; color: #f25f2c; text-decoration: none; font-weight: 600;">Shop</a>
+  </div>
+
+  <h1 class="page-title">Shop Items</h1>
+
+  <div class="card" style="padding: 2rem; margin-bottom: 2rem; max-width: 600px;">
+    <h2 style="margin-top: 0; margin-bottom: 1.5rem;">Add New Item</h2>
+    
+    <form style="display: flex; flex-direction: column; gap: 1rem;">
+      <div>
+        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Item Name *</label>
+        <input type="text" placeholder="e.g. Sticker Pack" style="width: 100%; padding: 8px 12px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 0.9rem;" required>
+      </div>
+
+      <div>
+        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Description *</label>
+        <textarea placeholder="Describe the item" rows="3" style="width: 100%; padding: 8px 12px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 0.9rem; font-family: inherit;" required></textarea>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div>
+          <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Bolt Cost *</label>
+          <input type="number" min="0" placeholder="100" style="width: 100%; padding: 8px 12px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 0.9rem;" required>
+        </div>
+
+        <div>
+          <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Tier *</label>
+          <select style="width: 100%; padding: 8px 12px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 0.9rem;" required>
+            <option value="">Select tier</option>
+            <option value="economic">Economic</option>
+            <option value="standard">Standard</option>
+            <option value="quality">Quality</option>
+            <option value="advanced">Advanced</option>
+            <option value="professional">Professional</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Image URL</label>
+        <input type="url" placeholder="https://example.com/image.jpg" style="width: 100%; padding: 8px 12px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 0.9rem;">
+      </div>
+
+      <button type="button" class="btn btn--primary" style="cursor: not-allowed; opacity: 0.6;" disabled>Add Item</button>
+    </form>
+  </div>
+
+  <h2 style="margin: 2rem 0 1rem;">Current Items (<%= @shop_items.count %>)</h2>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem;">
+    <% @shop_items.each do |item| %>
+      <div class="card">
+        <% if item.image_url.present? %>
+          <img src="<%= item.image_url %>" style="width: 100%; height: 150px; object-fit: cover; border-radius: 6px 6px 0 0; margin: -20px -20px 16px -20px;">
+        <% else %>
+          <div style="width: 100%; height: 150px; background: #f0f0f0; border-radius: 6px; margin-bottom: 16px; display: flex; align-items: center; justify-content: center; font-size: 2rem;">🪛</div>
+        <% end %>
+        
+        <h3 style="margin: 0 0 0.5rem 0; font-size: 1rem;"><%= item.name %></h3>
+        <p class="muted" style="font-size: 0.9rem; margin: 0 0 0.75rem 0;"><%= item.description.presence || "No description" %></p>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #f0f0f0;">
+          <span style="font-weight: 600; color: #f25f2c;"><%= item.cost || "—" %> 🪛</span>
+          <% if item.status.present? %>
+            <span style="background: #e0e0e0; color: #666; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; font-weight: 600;"><%= item.status.humanize %></span>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</main>

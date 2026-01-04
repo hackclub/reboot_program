@@ -17,8 +17,8 @@ Rails.application.routes.draw do
   # Admin pages
   get "admin", to: "admin#index", as: :admin
   get "admin/projects", to: "admin#projects", as: :admin_projects
-  post "admin/projects/:id/approve", to: "admin#approve_project", as: :admin_approve_project
-  post "admin/projects/:id/reject", to: "admin#reject_project", as: :admin_reject_project
+  get "admin/users", to: "admin#users", as: :admin_users
+  get "admin/shop", to: "admin#shop", as: :admin_shop
 
   # OmniAuth callbacks (OmniAuth middleware handles POST /auth/:provider)
   get "auth/:provider/callback", to: "sessions#create"

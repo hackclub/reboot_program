@@ -4,15 +4,21 @@
 <header class="topbar">
   <nav class="nav">
     <a class="nav__item" href="/projects">← Back to Projects</a>
-    <a class="nav__item nav__item--active" href="/admin/projects">Admin: Projects</a>
+    <a class="nav__item nav__item--active" href="/admin/projects">Admin</a>
   </nav>
   <div class="topbar__right">
-    <span class="muted">Admin: <%= @current_user.email %></span>
+    <span class="muted">Admin: <%= @current_user.slack_username || @current_user.email %></span>
   </div>
 </header>
 
 <main class="container">
-  <h1 class="page-title">Project Reviews</h1>
+  <div style="display: flex; gap: 1rem; margin-bottom: 2rem; border-bottom: 1px solid #e0e0e0; padding-bottom: 1rem;">
+    <a href="/admin/projects" style="padding: 8px 16px; border-bottom: 2px solid #f25f2c; color: #f25f2c; text-decoration: none; font-weight: 600;">Projects</a>
+    <a href="/admin/users" style="padding: 8px 16px; border-bottom: 2px solid transparent; color: #999; text-decoration: none; font-weight: 600;">Users</a>
+    <a href="/admin/shop" style="padding: 8px 16px; border-bottom: 2px solid transparent; color: #999; text-decoration: none; font-weight: 600;">Shop</a>
+  </div>
+
+  <h1 class="page-title">All Projects (<%= @total_projects %>)</h1>
 
   <h2 style="margin: 20px 0 12px;">Pending Review (<%= @pending_projects.count %>)</h2>
   
@@ -24,8 +30,10 @@
             <div class="admin-row__title"><%= project.name %></div>
             <div class="admin-row__meta muted">
               by <%= project.user.slack_username || project.user.email %> • 
-              <%= project.hours %>h logged •
-              submitted <%= time_ago_in_words(project.submitted_at) %> ago
+              <%= project.hours %>h logged
+              <% if project.submitted_at %>
+                • submitted <%= time_ago_in_words(project.submitted_at) %> ago
+              <% end %>
             </div>
             <% if project.description.present? %>
               <p class="admin-row__desc"><%= project.description %></p>
@@ -40,17 +48,10 @@
             </div>
           </div>
           <div class="admin-row__actions">
-            <%= form_with url: admin_approve_project_path(project), method: :post, local: true, class: "admin-approve-form" do %>
-              <div class="admin-form">
-                <label>Hours:</label>
-                <input type="number" name="approved_hours" value="<%= project.hours %>" min="0" step="0.5" class="form__input" style="width: 80px;">
-              </div>
-              <textarea name="approval_reason" placeholder="Reason for hours (required)" rows="2" class="form__input" style="width: 100%; margin: 8px 0;" required></textarea>
-              <div class="admin-form">
-                <button type="submit" class="btn btn--primary">Approve</button>
-                <%= link_to "Reject", admin_reject_project_path(project), method: :post, class: "btn", data: { confirm: "Reject this project?" } %>
-              </div>
-            <% end %>
+            <div class="admin-form">
+              <label style="color: #999; font-size: 12px;">Status: <strong>Pending Review</strong></label>
+              <p style="color: #999; font-size: 12px; margin: 8px 0 0 0;">Awaiting backend approval</p>
+            </div>
           </div>
         </div>
       <% end %>
@@ -61,10 +62,10 @@
     </div>
   <% end %>
 
-  <h2 style="margin: 30px 0 12px;">All Projects (<%= @all_projects.count %>)</h2>
+  <h2 style="margin: 30px 0 12px;">All Projects (Page <%= @current_page %> of <%= @total_pages %>)</h2>
   
   <div class="admin-table">
-    <% @all_projects.each do |project| %>
+    <% @projects.each do |project| %>
       <div class="admin-row card" style="padding: 12px 16px;">
         <div class="admin-row__main">
           <strong><%= project.name %></strong>
@@ -75,6 +76,18 @@
           <span class="muted"><%= project.hours %>h → <%= project.approved_hours || "—" %>h</span>
         </div>
       </div>
+    <% end %>
+  </div>
+
+  <div style="display: flex; justify-content: center; gap: 1rem; margin-top: 2rem;">
+    <% if @current_page > 1 %>
+      <a href="/admin/projects?page=<%= @current_page - 1 %>" class="btn btn--ghost">← Previous</a>
+    <% end %>
+    
+    <span style="padding: 8px 16px; align-self: center;">Page <%= @current_page %> of <%= @total_pages %></span>
+    
+    <% if @current_page < @total_pages %>
+      <a href="/admin/projects?page=<%= @current_page + 1 %>" class="btn btn--ghost">Next →</a>
     <% end %>
   </div>
 </main>

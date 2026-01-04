@@ -5,8 +5,33 @@
     <a class="nav__item <%= 'nav__item--active' if content_for(:page) == 'faq' %>" href="/faq">FAQ</a>
   </nav>
   <div class="topbar__right">
-    <span id="user-display" class="muted" style="margin-right: 8px;"><%= @current_user&.slack_username %><% if @current_user&.admin? %> <span style="background: #ff6b6b; color: white; padding: 2px 6px; border-radius: 4px; font-size: 12px;">Admin</span><% end %></span>
+    <span id="user-display" class="muted" style="margin-right: 8px;">
+      <%= @current_user&.slack_username %>
+      <% if @current_user&.admin? %>
+        <span style="background: #ff6b6b; color: white; padding: 2px 6px; border-radius: 4px; font-size: 12px;">Admin</span>
+        <a href="/admin" class="admin-link">Admin Panel</a>
+      <% end %>
+    </span>
     <button id="signout-btn" class="btn btn--ghost">Sign out</button>
     <div class="coins" title="Your screws"><%= @current_user&.balance&.to_i || 0 %> 🪛</div>
   </div>
+  
+  <style>
+    .admin-link {
+      display: inline-block;
+      margin-left: 0.5rem;
+      padding: 4px 8px;
+      background: #5c7caf;
+      color: white;
+      border-radius: 4px;
+      font-size: 12px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: opacity 0.2s;
+    }
+    
+    .admin-link:hover {
+      opacity: 0.8;
+    }
+  </style>
 </header>

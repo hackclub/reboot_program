@@ -4,41 +4,214 @@
 <%= render "shared/navbar" %>
 
 <main class="container">
-  <div style="display: flex; justify-content: space-between; align-items: center;">
-    <h1 class="page-title">Shop</h1>
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+    <h1 class="page-title" style="margin: 0;">Shop</h1>
     <a href="/purchases" class="btn btn--secondary">Recent Purchases</a>
   </div>
-  
-  <% if @shop_items.any? %>
-    <div class="shop-grid">
-      <% @shop_items.each do |item| %>
-        <div class="shop-card card" data-id="<%= item.id %>" data-cost="<%= item.cost %>">
-          <% if item.image_url.present? %>
-            <img class="shop-card__image" src="<%= item.image_url %>" alt="<%= item.name %>">
-          <% else %>
-            <div class="shop-card__image shop-card__image--placeholder">🪛</div>
-          <% end %>
-          <div class="shop-card__body">
-            <h3 class="shop-card__title"><%= item.name.presence || "Unnamed Item" %></h3>
-            <p class="shop-card__description muted"><%= item.description.presence || "No description" %></p>
-            <% item_cost = item.cost || 0 %>
-            <div class="shop-card__footer">
-              <span class="shop-card__price"><%= item_cost.to_i %> 🪛</span>
-              <%= form_with url: purchase_path, method: :post, local: true, class: "purchase-form" do %>
-                <input type="hidden" name="item_id" value="<%= item.id %>">
-                <button type="submit" class="btn btn--primary"
-                        <%= 'disabled' if @current_user.balance < item_cost %>>
-                  <%= @current_user.balance >= item_cost ? 'Purchase' : 'Not enough screws' %>
-                </button>
+
+  <div style="display: grid; grid-template-columns: 250px 1fr; gap: 2rem;">
+    <!-- Sidebar -->
+    <aside class="shop-sidebar card">
+      <h3 style="margin: 0 0 1rem 0; color: #1f2430; font-size: 1.1rem;">Categories</h3>
+      
+      <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+        <button class="shop-category-btn shop-category-btn--active" data-category="all">
+          All Items
+        </button>
+        <button class="shop-category-btn" data-category="economic">
+          Economic
+        </button>
+        <button class="shop-category-btn" data-category="standard">
+          Standard
+        </button>
+        <button class="shop-category-btn" data-category="quality">
+          Quality
+        </button>
+        <button class="shop-category-btn" data-category="advanced">
+          Advanced
+        </button>
+        <button class="shop-category-btn" data-category="professional">
+          Professional
+        </button>
+      </div>
+    </aside>
+
+    <!-- Items Grid -->
+    <section>
+      <h2 style="margin: 0 0 1.5rem 0; color: #1f2430;">Items</h2>
+
+      <% if @shop_items.any? %>
+        <div class="shop-grid">
+          <% @shop_items.each do |item| %>
+            <div class="shop-card card" data-id="<%= item.id %>" data-cost="<%= item.cost %>" data-category="<%= item.status || 'standard' %>">
+              <% if item.image_url.present? %>
+                <img class="shop-card__image" src="<%= item.image_url %>" alt="<%= item.name %>">
+              <% else %>
+                <div class="shop-card__image shop-card__image--placeholder">🪛</div>
               <% end %>
+              
+              <div class="shop-card__body">
+                <h3 class="shop-card__title"><%= item.name.presence || "Unnamed Item" %></h3>
+                <p class="shop-card__description muted"><%= item.description.presence || "No description" %></p>
+                
+                <% item_cost = item.cost || 0 %>
+                <div class="shop-card__footer">
+                  <div>
+                    <span class="shop-card__price"><%= item_cost.to_i %> 🪛</span>
+                    <% if item.status.present? %>
+                      <span class="pill" style="background: #e8f0e8; color: #4a7c59; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; margin-left: 0.5rem;">
+                        <%= item.status.capitalize %>
+                      </span>
+                    <% end %>
+                  </div>
+                  <%= form_with url: purchase_path, method: :post, local: true, class: "purchase-form" do %>
+                    <input type="hidden" name="item_id" value="<%= item.id %>">
+                    <button type="submit" class="btn btn--primary"
+                            <%= 'disabled' if @current_user.balance < item_cost %>>
+                      <%= @current_user.balance >= item_cost ? 'Purchase' : 'Not enough screws' %>
+                    </button>
+                  <% end %>
+                </div>
+              </div>
             </div>
-          </div>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="card" style="text-align: center; padding: 40px;">
+          <p class="muted">No items in the shop yet. Check back soon!</p>
         </div>
       <% end %>
-    </div>
-  <% else %>
-    <div class="card" style="text-align: center; padding: 40px;">
-      <p class="muted">No items in the shop yet. Check back soon!</p>
-    </div>
-  <% end %>
+    </section>
+  </div>
 </main>
+
+<style>
+  .shop-sidebar {
+    height: fit-content;
+    position: sticky;
+    top: 20px;
+  }
+
+  .shop-category-btn {
+    background: #f5f5f3;
+    border: none;
+    color: #1f2430;
+    padding: 12px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+    text-align: left;
+  }
+
+  .shop-category-btn:hover {
+    background: #efefeb;
+  }
+
+  .shop-category-btn--active {
+    background: #d6a161;
+    color: white;
+  }
+
+  .shop-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .shop-card {
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .shop-card__image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+  }
+
+  .shop-card__image--placeholder {
+    width: 100%;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f0f0f0;
+    font-size: 4rem;
+  }
+
+  .shop-card__body {
+    padding: 1rem;
+  }
+
+  .shop-card__title {
+    margin: 0 0 0.5rem 0;
+    font-size: 1rem;
+    color: #1f2430;
+  }
+
+  .shop-card__description {
+    margin: 0 0 1rem 0;
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+
+  .shop-card__footer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #f0f0f0;
+  }
+
+  .shop-card__price {
+    font-weight: 700;
+    color: #f25f2c;
+    font-size: 1.1rem;
+  }
+
+  .purchase-form {
+    display: contents;
+  }
+
+  @media (max-width: 768px) {
+    main.container {
+      display: block !important;
+    }
+
+    .shop-sidebar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 0.5rem;
+      position: static;
+      margin-bottom: 2rem;
+    }
+  }
+</style>
+
+<script>
+  const categoryBtns = document.querySelectorAll('.shop-category-btn');
+  const shopCards = document.querySelectorAll('.shop-card');
+
+  categoryBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      // Update active button
+      categoryBtns.forEach(b => b.classList.remove('shop-category-btn--active'));
+      btn.classList.add('shop-category-btn--active');
+
+      const selectedCategory = btn.dataset.category;
+
+      // Filter items
+      shopCards.forEach(card => {
+        const cardCategory = card.dataset.category;
+        if (selectedCategory === 'all' || cardCategory === selectedCategory) {
+          card.style.display = 'block';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    });
+  });
+</script>
