@@ -1,0 +1,5 @@
+class AddYswsAirtableIdToProjects < ActiveRecord::Migration[8.0]
+  def change
+    add_column :projects, :ysws_airtable_id, :string
+  end
+end

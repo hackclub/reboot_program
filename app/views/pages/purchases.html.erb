@@ -1,0 +1,33 @@
+<% content_for :title, "Purchases • Reboot" %>
+<% content_for :page, "purchases" %>
+
+<%= render "shared/navbar" %>
+
+<main class="container">
+  <h1 class="page-title">Your Purchases</h1>
+  
+  <% if @orders.any? %>
+    <div class="purchases-list">
+      <% @orders.each do |order| %>
+        <div class="purchase-row card">
+          <% if order.shop_item&.image_url.present? %>
+            <img class="purchase-row__image" src="<%= order.shop_item.image_url %>" alt="<%= order.name %>">
+          <% else %>
+            <div class="purchase-row__image purchase-row__image--placeholder">🪛</div>
+          <% end %>
+          <div class="purchase-row__details">
+            <h3 class="purchase-row__title"><%= order.name %></h3>
+            <p class="muted">Purchased <%= time_ago_in_words(order.created_at) %> ago</p>
+          </div>
+          <div class="purchase-row__status">
+            <span class="pill pill--<%= order.status %>"><%= order.status&.humanize || "Pending" %></span>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="card" style="text-align: center; padding: 40px;">
+      <p class="muted">No purchases yet. Visit the <a href="/shop">shop</a> to spend your screws!</p>
+    </div>
+  <% end %>
+</main>

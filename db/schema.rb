@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_03_170000) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_04_060902) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -29,6 +29,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_03_170000) do
     t.datetime "reviewed_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "approval_reason"
+    t.string "ysws_airtable_id"
     t.index ["airtable_id"], name: "index_projects_on_airtable_id", unique: true
     t.index ["status"], name: "index_projects_on_status"
     t.index ["user_id"], name: "index_projects_on_user_id"
@@ -56,6 +58,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_03_170000) do
     t.datetime "updated_at", null: false
     t.integer "shop_item_id", null: false
     t.string "airtable_id"
+    t.datetime "synced_at"
     t.index ["airtable_id"], name: "index_shop_orders_on_airtable_id", unique: true
     t.index ["shop_item_id"], name: "index_shop_orders_on_shop_item_id"
     t.index ["user_id"], name: "index_shop_orders_on_user_id"

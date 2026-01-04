@@ -1,0 +1,41 @@
+<% content_for :title, "Shop • Reboot" %>
+<% content_for :page, "shop" %>
+
+<%= render "shared/navbar" %>
+
+<main class="container">
+  <h1 class="page-title">Shop</h1>
+  
+  <% if @shop_items.any? %>
+    <div class="shop-grid">
+      <% @shop_items.each do |item| %>
+        <div class="shop-card card" data-id="<%= item.id %>" data-cost="<%= item.cost %>">
+          <% if item.image_url.present? %>
+            <img class="shop-card__image" src="<%= item.image_url %>" alt="<%= item.name %>">
+          <% else %>
+            <div class="shop-card__image shop-card__image--placeholder">🪛</div>
+          <% end %>
+          <div class="shop-card__body">
+            <h3 class="shop-card__title"><%= item.name.presence || "Unnamed Item" %></h3>
+            <p class="shop-card__description muted"><%= item.description.presence || "No description" %></p>
+            <% item_cost = item.cost || 0 %>
+            <div class="shop-card__footer">
+              <span class="shop-card__price"><%= item_cost.to_i %> 🪛</span>
+              <%= form_with url: purchase_path, method: :post, local: true, class: "purchase-form" do %>
+                <input type="hidden" name="item_id" value="<%= item.id %>">
+                <button type="submit" class="btn btn--primary"
+                        <%= 'disabled' if @current_user.balance < item_cost %>>
+                  <%= @current_user.balance >= item_cost ? 'Purchase' : 'Not enough screws' %>
+                </button>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="card" style="text-align: center; padding: 40px;">
+      <p class="muted">No items in the shop yet. Check back soon!</p>
+    </div>
+  <% end %>
+</main>

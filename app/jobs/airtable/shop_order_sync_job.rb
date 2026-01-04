@@ -3,7 +3,7 @@
 class Airtable::ShopOrderSyncJob < Airtable::BaseSyncJob
   # @return [String] Airtable table name
   def table_name
-    ENV.fetch("AIRTABLE_SHOP_ORDERS_TABLE", "Shop Orders")
+    ENV.fetch("AIRTABLE_SHOP_ORDERS_TABLE", "Orders")
   end
 
   # @return [ActiveRecord::Relation] all ShopOrder records
@@ -18,10 +18,9 @@ class Airtable::ShopOrderSyncJob < Airtable::BaseSyncJob
   def field_mapping(order)
     {
       "Name" => order.name,
-      "Status" => order.status,
-      "User" => order.user&.airtable_id ? [order.user.airtable_id] : nil,
-      "Item" => order.shop_item&.airtable_id ? [order.shop_item.airtable_id] : nil,
-      "Created At" => order.created_at&.iso8601
+      "status" => order.status,
+      "user_id" => order.user&.airtable_id ? [order.user.airtable_id] : nil,
+      "item_id" => order.shop_item&.airtable_id ? [order.shop_item.airtable_id] : nil,
     }.compact
   end
 end

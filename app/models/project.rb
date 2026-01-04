@@ -12,9 +12,9 @@ class Project < ApplicationRecord
   scope :approved, -> { where(status: "approved") }
 
   # Checks if project can be submitted for review.
-  # @return [Boolean] true if pending
+  # @return [Boolean] true if pending or rejected
   def can_request_review?
-    status == "pending"
+    status == "pending" || status == "rejected"
   end
 
   # Submits project for review.
@@ -22,10 +22,16 @@ class Project < ApplicationRecord
     update!(status: "in-review", submitted_at: Time.current)
   end
 
-  # Approves project with given hours.
+  # Approves project with given hours and credits user's balance.
+  # Also queues a job to sync to YSWS Airtable.
   # @param hours [Numeric] approved hours
-  def approve!(hours:)
-    update!(status: "approved", approved_hours: hours, reviewed_at: Time.current)
+  # @param reason [String] justification for the approved hours
+  def approve!(hours:, reason:)
+    transaction do
+      update!(status: "approved", approved_hours: hours, approval_reason: reason, reviewed_at: Time.current)
+      user.update!(balance: user.balance + hours)
+    end
+    Airtable::YswsSubmissionJob.perform_later(id)
   end
 
   # Rejects project.

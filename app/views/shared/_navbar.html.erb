@@ -1,0 +1,13 @@
+<header class="topbar">
+  <nav class="nav">
+    <a class="nav__item <%= 'nav__item--active' if content_for(:page) == 'projects' %>" href="/projects">Projects</a>
+    <a class="nav__item <%= 'nav__item--active' if content_for(:page) == 'shop' %>" href="/shop">Shop</a>
+    <a class="nav__item <%= 'nav__item--active' if content_for(:page) == 'purchases' %>" href="/purchases">Purchases</a>
+    <a class="nav__item <%= 'nav__item--active' if content_for(:page) == 'faq' %>" href="/faq">FAQ</a>
+  </nav>
+  <div class="topbar__right">
+    <span id="user-display" class="muted" style="margin-right: 8px;"></span>
+    <button id="signout-btn" class="btn btn--ghost">Sign out</button>
+    <div class="coins" title="Your screws"><%= @current_user&.balance&.to_i || 0 %> 🪛</div>
+  </div>
+</header>
