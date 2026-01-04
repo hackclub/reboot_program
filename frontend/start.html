@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Reboot • Start</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const btn = document.getElementById("start-now");
+        if (btn) btn.addEventListener("click", () => { window.location.href = "./signin.html"; });
+      });
+    </script>
+  </head>
+  <body class="start-page">
+    <div class="start-hero">
+      <img class="start-bg" src="/img/signin/background.PNG" alt="" />
+      <img class="start-ribbon" src="/img/signin/hackclub.svg" alt="Hack Club 2025" />
+      <img class="start-title" src="/img/signin/title.PNG" alt="Reboot" />
+      <img class="start-subtitle" src="/img/signin/subtitle.png" alt="Restore old projects --> upgrade your desktop setup!" />
+      <img class="start-animal" src="/img/signin/animal.png" alt="" />
+      <button id="start-now" class="start-button" aria-label="Start Now">
+        <img src="/img/signin/startButton.png" alt="Start Now" />
+      </button>
+    </div>
+  </body>
+  </html>
+
+
