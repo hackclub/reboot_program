@@ -30,8 +30,12 @@
         <header class="project-detail__header">
           <h2 class="project-detail__title"><%= @selected_project.name %></h2>
           <div class="project-detail__actions">
-            <button class="btn" disabled>write journal</button>
-            <button class="btn" disabled>edit</button>
+            <% if @selected_project.status == 'pending' %>
+              <button id="journal-btn" class="btn">Write Journal</button>
+            <% else %>
+              <button class="btn" disabled>Write Journal</button>
+            <% end %>
+            <button class="btn" disabled>Edit Ship</button>
           </div>
         </header>
 
@@ -72,17 +76,28 @@
               </div>
             </div>
 
-            <% if @selected_project.can_request_review? %>
-              <%= form_with url: request_project_review_path(@selected_project), method: :post, local: true do %>
-                <button type="submit" class="btn btn--accent btn--block">
-                  <%= @selected_project.status == 'rejected' ? 'Request review again' : 'Request review' %>
+            <% if @selected_project.status == 'pending' %>
+              <div class="detail-group">
+                <div class="detail-subtitle">Journal Entries</div>
+                <div id="journal-entries-list" class="journal-entries">
+                  <p class="muted">No journal entries yet. <button type="button" id="quick-journal-btn" class="link-btn">Add one</button>.</p>
+                </div>
+              </div>
+            <% end %>
+
+            <div style="margin-top: 2rem;">
+              <% if @selected_project.can_request_review? %>
+                <%= form_with url: request_project_review_path(@selected_project), method: :post, local: true do %>
+                  <button type="submit" class="btn btn--accent btn--block">
+                    <%= @selected_project.status == 'rejected' ? 'Request review again' : 'Request review' %>
+                  </button>
+                <% end %>
+              <% else %>
+                <button class="btn btn--accent btn--block" disabled>
+                  <%= @selected_project.status == 'in-review' ? 'In Review' : @selected_project.status.humanize %>
                 </button>
               <% end %>
-            <% else %>
-              <button class="btn btn--accent btn--block" disabled>
-                <%= @selected_project.status == 'in-review' ? 'In Review' : @selected_project.status.humanize %>
-              </button>
-            <% end %>
+            </div>
 
             <div class="detail-group">
               <div class="detail-subtitle">Project Reviews</div>
@@ -121,7 +136,42 @@
   </section>
 </main>
 
-<!-- Create Project Modal -->
+<div id="journal-modal" class="modal modal--hidden">
+  <div class="modal__backdrop"></div>
+  <div class="modal__content card">
+    <header class="modal__header">
+      <h2 class="modal__title">New Journal Entry</h2>
+      <button type="button" class="modal__close" aria-label="Close">&times;</button>
+    </header>
+    <form class="form" id="journal-form">
+      <div class="form-group">
+        <label class="form__label" for="journal_date">Date *</label>
+        <input class="form__input" type="date" id="journal_date" required>
+      </div>
+      
+      <div class="form-group">
+        <label class="form__label" for="journal_hours">Hours Worked *</label>
+        <input class="form__input" type="number" id="journal_hours" min="0" step="0.5" required>
+      </div>
+      
+      <div class="form-group">
+        <label class="form__label" for="journal_content">What did you work on? * <span style="font-size: 0.85rem; color: #999;">(markdown supported)</span></label>
+        <textarea class="form__input form__textarea" id="journal_content" rows="4" placeholder="Describe your progress... (markdown supported)" required></textarea>
+      </div>
+      
+      <div class="form-group">
+        <label class="form__label" for="journal_tools">Tools/Languages Used</label>
+        <input class="form__input" type="text" id="journal_tools" placeholder="e.g. React, Python, HTML/CSS">
+      </div>
+      
+      <div style="display: flex; gap: 0.5rem;">
+        <button type="button" class="btn btn--ghost modal__close-btn">Cancel</button>
+        <button type="button" class="btn btn--primary" id="journal-submit-btn">Save Journal Entry</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <div id="create-project-modal" class="modal modal--hidden">
   <div class="modal__backdrop"></div>
   <div class="modal__content card">
@@ -149,3 +199,125 @@
     <% end %>
   </div>
 </div>
+
+<style>
+  .link-btn {
+    background: none;
+    border: none;
+    color: #8b5cf6;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 0;
+    font: inherit;
+    font-size: inherit;
+  }
+
+  .link-btn:hover {
+    opacity: 0.7;
+  }
+
+  .journal-entries {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .journal-entry {
+    padding: 1rem;
+    transition: background-color 0.2s ease;
+    border: 1px solid #f0f0f0;
+  }
+
+  .journal-entry:hover {
+    background-color: #fafafa;
+  }
+
+  .journal-entry__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+
+  .journal-entry__date {
+    color: #1f2430;
+    font-size: 0.95rem;
+  }
+
+  .journal-entry__hours {
+    background: #f0f0f0;
+    color: #666;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+  }
+
+  .journal-entry__content {
+    color: #666;
+    margin: 0.5rem 0 0 0;
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+
+  .journal-entry__tools {
+    margin: 0.5rem 0 0 0 !important;
+  }
+
+  .form-group {
+    margin-bottom: 1rem;
+  }
+
+  .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #1f2430;
+  }
+
+  .form-group input,
+  .form-group textarea {
+    width: 100% !important;
+  }
+</style>
+
+<script>
+  // Journal Modal handlers
+  const journalBtn = document.getElementById('journal-btn');
+  const quickJournalBtn = document.getElementById('quick-journal-btn');
+  const journalModal = document.getElementById('journal-modal');
+  const journalForm = document.getElementById('journal-form');
+  const journalSubmitBtn = document.getElementById('journal-submit-btn');
+  
+  function openJournalModal() {
+    journalModal?.classList.remove('modal--hidden');
+    document.getElementById('journal_date').valueAsDate = new Date();
+  }
+  
+  function closeJournalModal() {
+    journalModal?.classList.add('modal--hidden');
+  }
+  
+  journalBtn?.addEventListener('click', openJournalModal);
+  quickJournalBtn?.addEventListener('click', openJournalModal);
+  
+  journalModal?.querySelectorAll('.modal__close, .modal__close-btn').forEach(btn => {
+    btn.addEventListener('click', closeJournalModal);
+  });
+  
+  journalModal?.querySelector('.modal__backdrop')?.addEventListener('click', closeJournalModal);
+  
+  journalSubmitBtn?.addEventListener('click', (e) => {
+    e.preventDefault();
+    const date = document.getElementById('journal_date').value;
+    const hours = document.getElementById('journal_hours').value;
+    const content = document.getElementById('journal_content').value;
+    
+    if (date && hours && content) {
+      alert('DEV - Journal entry saved!');
+      journalForm?.reset();
+      closeJournalModal();
+    }
+  });
+</script>

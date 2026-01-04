@@ -10,9 +10,20 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_04_060902) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_04_180807) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "journal_entries", force: :cascade do |t|
+    t.bigint "project_id", null: false
+    t.date "date"
+    t.decimal "hours"
+    t.text "content"
+    t.string "tools"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_id"], name: "index_journal_entries_on_project_id"
+  end
 
   create_table "projects", force: :cascade do |t|
     t.bigint "user_id", null: false
@@ -89,6 +100,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_04_060902) do
     t.index ["role"], name: "index_users_on_role"
   end
 
+  add_foreign_key "journal_entries", "projects"
   add_foreign_key "projects", "users"
   add_foreign_key "shop_orders", "shop_items"
   add_foreign_key "shop_orders", "users"
