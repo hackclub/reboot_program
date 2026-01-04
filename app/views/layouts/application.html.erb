@@ -6,8 +6,8 @@
     <title><%= content_for?(:title) ? yield(:title) : "Reboot" %></title>
     <%= csrf_meta_tags %>
     <meta name="csrf-token" content="<%= form_authenticity_token %>">
-    <link rel="stylesheet" href="/stylesheets/application.css">
-    <script defer src="/javascripts/application.js"></script>
+    <link rel="stylesheet" href="/stylesheets/application.css?v=2">
+    <script defer src="/javascripts/application.js?v=2"></script>
   </head>
   <body data-page="<%= content_for?(:page) ? yield(:page) : '' %>">
     <% if flash[:error] %>

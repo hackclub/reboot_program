@@ -1,19 +1,7 @@
 <% content_for :title, "Your Projects • Reboot" %>
 <% content_for :page, "projects" %>
 
-<header class="topbar">
-  <nav class="nav">
-    <a class="nav__item nav__item--active" href="/projects">Projects</a>
-    <a class="nav__item" href="#" aria-disabled="true">Shop</a>
-    <a class="nav__item" href="#" aria-disabled="true">Purchases</a>
-    <a class="nav__item" href="#" aria-disabled="true">FAQ</a>
-  </nav>
-  <div class="topbar__right">
-    <span id="user-display" class="muted" style="margin-right: 8px;"></span>
-    <button id="signout-btn" class="btn btn--ghost">Sign out</button>
-    <div class="coins" title="Your screws">123 🪛</div>
-  </div>
-</header>
+<%= render "shared/navbar" %>
 
 <main class="container">
   <h1 class="page-title">Your Projects</h1>
@@ -21,15 +9,14 @@
     <aside class="projects-list">
       <% if @projects.any? %>
         <% @projects.each_with_index do |project, index| %>
-          <div class="project-row <%= index.odd? ? 'project-row--alt' : '' %>" 
-               data-id="<%= project.id %>"
-               data-status="<%= project.status %>" 
-               data-description="<%= project.description %>">
+          <a href="<%= projects_path(selected: project.id) %>" 
+             class="project-row <%= index.odd? ? 'project-row--alt' : '' %> <%= project == @selected_project ? 'project-row--selected' : '' %>">
             <div class="project-row__title"><%= project.name %></div>
             <div class="pill pill--status"><%= project.status.humanize %></div>
             <div class="pill pill--time"><%= project.hours.to_i %>h</div>
-          </div>
+          </a>
         <% end %>
+        <button id="create-project-btn" class="btn btn--primary btn--block" style="margin-top: 8px;">+ New Project</button>
       <% else %>
         <div class="card" style="text-align: center; padding: 40px;">
           <p class="muted">No projects yet.</p>
@@ -39,64 +26,126 @@
     </aside>
 
     <section class="project-detail card">
-      <header class="project-detail__header">
-        <h2 class="project-detail__title">Select a project</h2>
-        <div class="project-detail__actions">
-          <button class="btn">write journal</button>
-          <button class="btn">edit</button>
-        </div>
-      </header>
-
-      <div class="project-detail__content">
-        <div class="detail-panel">
-          <div class="detail-row">
-            <div class="detail-label">Description</div>
-            <div class="detail-value">—</div>
+      <% if @selected_project %>
+        <header class="project-detail__header">
+          <h2 class="project-detail__title"><%= @selected_project.name %></h2>
+          <div class="project-detail__actions">
+            <button class="btn" disabled>write journal</button>
+            <button class="btn" disabled>edit</button>
           </div>
+        </header>
 
-          <div class="detail-row">
-            <div class="detail-label">Project Status</div>
-            <div class="detail-value" id="project-status">
-              <span class="dot"></span>
-              Pending
-              <span class="spacer"></span>
-              <span class="dot"></span>
-              In Review
-              <span class="spacer"></span>
-              <span class="dot"></span>
-              Approved
+        <div class="project-detail__content">
+          <div class="detail-panel">
+            <div class="detail-row">
+              <div class="detail-label">Description</div>
+              <div class="detail-value"><%= @selected_project.description.presence || "—" %></div>
             </div>
-          </div>
 
-          <div class="detail-group">
-            <div class="detail-subtitle">Project Tracking</div>
-            <div class="tracking-table">
-              <div class="tracking-row tracking-row--head">
-                <div>Project</div>
-                <div>Raw</div>
-                <div>Approved</div>
-              </div>
-              <div class="tracking-row">
-                <div>moonshot</div>
-                <div>15h</div>
-                <div>—</div>
-              </div>
-              <div class="tracking-row">
-                <div>journal entries</div>
-                <div>0h</div>
-                <div>0h</div>
+            <div class="detail-row">
+              <div class="detail-label">Project Status</div>
+              <div class="detail-value">
+                <span class="dot <%= 'dot--filled' if @selected_project.status == 'pending' %>"></span>
+                Pending
+                <span class="spacer"></span>
+                <span class="dot <%= 'dot--filled' if @selected_project.status == 'in-review' %>"></span>
+                In Review
+                <span class="spacer"></span>
+                <span class="dot <%= 'dot--filled' if @selected_project.status == 'approved' %>"></span>
+                Approved
               </div>
             </div>
-          </div>
 
-          <button class="btn btn--accent btn--block">Request review</button>
+            <div class="detail-group">
+              <div class="detail-subtitle">Project Tracking</div>
+              <div class="tracking-table">
+                <div class="tracking-row tracking-row--head">
+                  <div>Project</div>
+                  <div>Raw</div>
+                  <div>Approved</div>
+                </div>
+                <div class="tracking-row">
+                  <div><%= @selected_project.name %></div>
+                  <div><%= @selected_project.hours.to_i %>h</div>
+                  <div><%= @selected_project.status == 'approved' ? "#{@selected_project.approved_hours.to_i}h" : "—" %></div>
+                </div>
+              </div>
+            </div>
 
-          <div class="detail-group">
-            <div class="detail-subtitle">Project Reviews</div>
-            <p class="muted">No reviews yet.</p>
+            <% if @selected_project.can_request_review? %>
+              <%= form_with url: request_project_review_path(@selected_project), method: :post, local: true do %>
+                <button type="submit" class="btn btn--accent btn--block">
+                  <%= @selected_project.status == 'rejected' ? 'Request review again' : 'Request review' %>
+                </button>
+              <% end %>
+            <% else %>
+              <button class="btn btn--accent btn--block" disabled>
+                <%= @selected_project.status == 'in-review' ? 'In Review' : @selected_project.status.humanize %>
+              </button>
+            <% end %>
+
+            <div class="detail-group">
+              <div class="detail-subtitle">Project Reviews</div>
+              <% if @selected_project.approval_reason.present? %>
+                <div class="review-card">
+                  <p><strong>Approved for <%= @selected_project.approved_hours %>h</strong></p>
+                  <p class="muted"><%= @selected_project.approval_reason %></p>
+                  <p class="muted" style="font-size: 12px; margin-top: 8px;">
+                    Reviewed <%= time_ago_in_words(@selected_project.reviewed_at) %> ago
+                  </p>
+                </div>
+              <% elsif @selected_project.status == 'rejected' %>
+                <div class="review-card review-card--rejected">
+                  <p><strong>Rejected</strong></p>
+                  <p class="muted" style="font-size: 12px;">
+                    Reviewed <%= time_ago_in_words(@selected_project.reviewed_at) %> ago
+                  </p>
+                </div>
+              <% else %>
+                <p class="muted">No reviews yet.</p>
+              <% end %>
+            </div>
           </div>
         </div>
-      </div>
+      <% else %>
+        <header class="project-detail__header">
+          <h2 class="project-detail__title">Select a project</h2>
+        </header>
+        <div class="project-detail__content">
+          <div class="detail-panel">
+            <p class="muted">Create a project to get started!</p>
+          </div>
+        </div>
+      <% end %>
     </section>
   </section>
 </main>
+
+<!-- Create Project Modal -->
+<div id="create-project-modal" class="modal modal--hidden">
+  <div class="modal__backdrop"></div>
+  <div class="modal__content card">
+    <header class="modal__header">
+      <h2 class="modal__title">New Project</h2>
+      <button type="button" class="modal__close" aria-label="Close">&times;</button>
+    </header>
+    <%= form_with url: create_project_path, method: :post, local: true, class: "form" do |f| %>
+      <label class="form__label" for="project_name">Project Name *</label>
+      <input class="form__input" type="text" id="project_name" name="project[name]" required>
+
+      <label class="form__label" for="project_description">Description</label>
+      <textarea class="form__input form__textarea" id="project_description" name="project[description]" rows="3"></textarea>
+
+      <label class="form__label" for="project_code_url">Code URL</label>
+      <input class="form__input" type="url" id="project_code_url" name="project[code_url]" placeholder="https://github.com/...">
+
+      <label class="form__label" for="project_playable_url">Playable URL</label>
+      <input class="form__input" type="url" id="project_playable_url" name="project[playable_url]" placeholder="https://...">
+
+      <label class="form__label" for="project_hours">Estimated Hours</label>
+      <input class="form__input" type="number" id="project_hours" name="project[hours]" min="0" step="0.5" value="0">
+
+      <button type="submit" class="btn btn--primary btn--block">Create Project</button>
+    <% end %>
+  </div>
+</div>

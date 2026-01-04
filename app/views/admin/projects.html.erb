@@ -1,0 +1,80 @@
+<% content_for :title, "Admin • Projects" %>
+<% content_for :page, "admin" %>
+
+<header class="topbar">
+  <nav class="nav">
+    <a class="nav__item" href="/projects">← Back to Projects</a>
+    <a class="nav__item nav__item--active" href="/admin/projects">Admin: Projects</a>
+  </nav>
+  <div class="topbar__right">
+    <span class="muted">Admin: <%= @current_user.email %></span>
+  </div>
+</header>
+
+<main class="container">
+  <h1 class="page-title">Project Reviews</h1>
+
+  <h2 style="margin: 20px 0 12px;">Pending Review (<%= @pending_projects.count %>)</h2>
+  
+  <% if @pending_projects.any? %>
+    <div class="admin-table">
+      <% @pending_projects.each do |project| %>
+        <div class="admin-row card">
+          <div class="admin-row__main">
+            <div class="admin-row__title"><%= project.name %></div>
+            <div class="admin-row__meta muted">
+              by <%= project.user.slack_username || project.user.email %> • 
+              <%= project.hours %>h logged •
+              submitted <%= time_ago_in_words(project.submitted_at) %> ago
+            </div>
+            <% if project.description.present? %>
+              <p class="admin-row__desc"><%= project.description %></p>
+            <% end %>
+            <div class="admin-row__links">
+              <% if project.code_url.present? %>
+                <a href="<%= project.code_url %>" target="_blank" class="btn btn--ghost">View Code</a>
+              <% end %>
+              <% if project.playable_url.present? %>
+                <a href="<%= project.playable_url %>" target="_blank" class="btn btn--ghost">View Demo</a>
+              <% end %>
+            </div>
+          </div>
+          <div class="admin-row__actions">
+            <%= form_with url: admin_approve_project_path(project), method: :post, local: true, class: "admin-approve-form" do %>
+              <div class="admin-form">
+                <label>Hours:</label>
+                <input type="number" name="approved_hours" value="<%= project.hours %>" min="0" step="0.5" class="form__input" style="width: 80px;">
+              </div>
+              <textarea name="approval_reason" placeholder="Reason for hours (required)" rows="2" class="form__input" style="width: 100%; margin: 8px 0;" required></textarea>
+              <div class="admin-form">
+                <button type="submit" class="btn btn--primary">Approve</button>
+                <%= link_to "Reject", admin_reject_project_path(project), method: :post, class: "btn", data: { confirm: "Reject this project?" } %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="card" style="padding: 30px; text-align: center;">
+      <p class="muted">No projects pending review.</p>
+    </div>
+  <% end %>
+
+  <h2 style="margin: 30px 0 12px;">All Projects (<%= @all_projects.count %>)</h2>
+  
+  <div class="admin-table">
+    <% @all_projects.each do |project| %>
+      <div class="admin-row card" style="padding: 12px 16px;">
+        <div class="admin-row__main">
+          <strong><%= project.name %></strong>
+          <span class="muted">by <%= project.user.slack_username || project.user.email %></span>
+        </div>
+        <div>
+          <span class="pill pill--<%= project.status %>"><%= project.status.humanize %></span>
+          <span class="muted"><%= project.hours %>h → <%= project.approved_hours || "—" %>h</span>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</main>

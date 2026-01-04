@@ -33,13 +33,13 @@ class Airtable::ShopItemPullJob < ApplicationJob
   # @return [Hash] attributes for ShopItem
   def field_mapping(record)
     {
-      name: record["Name"],
-      cost: record["Cost"],
-      status: record["Status"],
-      description: record["Description"],
-      link: record["Link"],
-      price: record["Price"],
-      image_url: record["Image URL"]
+      name: record["name"],
+      cost: record["cost"],
+      status: record["status"],
+      description: record["description"],
+      link: record["link"],
+      price: record["price"],
+      image_url: record["image_url"]
     }
   end
 
