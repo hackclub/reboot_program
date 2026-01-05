@@ -12,14 +12,23 @@ class AdminController < ActionController::Base
   def projects
     page = params[:page].to_i > 0 ? params[:page].to_i : 1
     per_page = 50
+    status_filter = params[:status]
 
     @all_projects = Project.includes(:user).order(created_at: :desc)
-    @total_projects = @all_projects.count
+    
+    if status_filter.present? && %w[approved pending rejected in-review].include?(status_filter)
+      @filtered_projects = @all_projects.where(status: status_filter)
+    else
+      @filtered_projects = @all_projects
+    end
+    
+    @total_projects = @filtered_projects.count
     @total_pages = (@total_projects.to_f / per_page).ceil
     @current_page = page
+    @status_filter = status_filter
 
     offset = (page - 1) * per_page
-    @projects = @all_projects.offset(offset).limit(per_page)
+    @projects = @filtered_projects.offset(offset).limit(per_page)
     @pending_projects = @all_projects.where(status: "in-review").limit(per_page)
   end
 
