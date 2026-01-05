@@ -121,7 +121,7 @@ class PagesController < ActionController::Base
     end
 
     if @current_user.balance < (item.cost || 0)
-      redirect_to shop_path, flash: { error: "Not enough screws!" }
+      redirect_to shop_path, flash: { error: "Not enough bolts!" }
       return
     end
 
