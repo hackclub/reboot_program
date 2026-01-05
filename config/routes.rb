@@ -22,6 +22,7 @@ Rails.application.routes.draw do
   # Admin pages
   get "admin", to: "admin#index", as: :admin
   get "admin/projects", to: "admin#projects", as: :admin_projects
+  get "admin/projects/:id", to: "admin#project_detail", as: :admin_project
   get "admin/users", to: "admin#users", as: :admin_users
   get "admin/shop", to: "admin#shop", as: :admin_shop
 
@@ -42,8 +43,15 @@ Rails.application.routes.draw do
 
       # Projects
       resources :projects do
-        post :request_review, on: :member
+        member do
+          post :request_review
+          post :sync_hackatime
+        end
+        resources :journal_entries, only: [ :index, :show, :create, :update, :destroy ]
       end
+
+      # Hackatime
+      get "hackatime/projects", to: "hackatime#projects"
 
       # Shop
       get "shop/items", to: "shop#items"
@@ -51,8 +59,15 @@ Rails.application.routes.draw do
 
       # Admin endpoints
       namespace :admin do
-        resources :users, only: [:index, :show, :update, :destroy]
-        resources :shop_orders, only: [:index, :show, :update]
+        resources :users, only: [ :index, :show, :update, :destroy ]
+        resources :shop_orders, only: [ :index, :show, :update ]
+        resources :shop_items, only: [ :index, :show, :create, :update, :destroy ]
+        resources :projects, only: [] do
+          member do
+            post :approve
+            post :reject
+          end
+        end
       end
     end
   end

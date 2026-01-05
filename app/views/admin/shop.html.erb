@@ -23,42 +23,41 @@
   <div class="card" style="padding: 2rem; margin-bottom: 2rem; max-width: 600px;">
     <h2 style="margin-top: 0; margin-bottom: 1.5rem;">Add New Item</h2>
     
-    <form style="display: flex; flex-direction: column; gap: 1rem;">
+    <form id="add-item-form" style="display: flex; flex-direction: column; gap: 1rem;">
       <div>
         <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Item Name *</label>
-        <input type="text" placeholder="e.g. Sticker Pack" style="width: 100%; padding: 8px 12px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 0.9rem;" required>
+        <input type="text" id="item_name" placeholder="e.g. Sticker Pack" style="width: 100%; padding: 8px 12px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 0.9rem;" required>
       </div>
 
       <div>
-        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Description *</label>
-        <textarea placeholder="Describe the item" rows="3" style="width: 100%; padding: 8px 12px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 0.9rem; font-family: inherit;" required></textarea>
+        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Description</label>
+        <textarea id="item_description" placeholder="Describe the item" rows="3" style="width: 100%; padding: 8px 12px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 0.9rem; font-family: inherit;"></textarea>
       </div>
 
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
         <div>
           <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Bolt Cost *</label>
-          <input type="number" min="0" placeholder="100" style="width: 100%; padding: 8px 12px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 0.9rem;" required>
+          <input type="number" id="item_cost" min="0" placeholder="100" style="width: 100%; padding: 8px 12px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 0.9rem;" required>
         </div>
 
         <div>
-          <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Tier *</label>
-          <select style="width: 100%; padding: 8px 12px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 0.9rem;" required>
-            <option value="">Select tier</option>
-            <option value="economic">Economic</option>
-            <option value="standard">Standard</option>
-            <option value="quality">Quality</option>
-            <option value="advanced">Advanced</option>
-            <option value="professional">Professional</option>
+          <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Status *</label>
+          <select id="item_status" style="width: 100%; padding: 8px 12px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 0.9rem;" required>
+            <option value="">Select status</option>
+            <option value="active">Active</option>
+            <option value="in stock">In Stock</option>
+            <option value="out of stock">Out of Stock</option>
+            <option value="hidden">Hidden</option>
           </select>
         </div>
       </div>
 
       <div>
         <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Image URL</label>
-        <input type="url" placeholder="https://example.com/image.jpg" style="width: 100%; padding: 8px 12px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 0.9rem;">
+        <input type="url" id="item_image_url" placeholder="https://example.com/image.jpg" style="width: 100%; padding: 8px 12px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 0.9rem;">
       </div>
 
-      <button type="button" class="btn btn--primary" style="cursor: not-allowed; opacity: 0.6;" disabled>Add Item</button>
+      <button type="submit" id="add-item-btn" class="btn btn--primary">Add Item</button>
     </form>
   </div>
 
@@ -86,3 +85,51 @@
     <% end %>
   </div>
 </main>
+
+<script>
+  const addItemForm = document.getElementById('add-item-form');
+  const addItemBtn = document.getElementById('add-item-btn');
+
+  addItemForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    addItemBtn.disabled = true;
+    addItemBtn.textContent = 'Adding...';
+
+    const data = {
+      shop_item: {
+        name: document.getElementById('item_name').value,
+        description: document.getElementById('item_description').value,
+        cost: parseFloat(document.getElementById('item_cost').value),
+        status: document.getElementById('item_status').value,
+        image_url: document.getElementById('item_image_url').value
+      }
+    };
+
+    try {
+      const response = await fetch('/api/v1/admin/shop_items', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify(data)
+      });
+
+      if (response.ok) {
+        window.location.reload();
+      } else {
+        const result = await response.json();
+        alert(result.errors?.join(', ') || 'Failed to create item.');
+      }
+    } catch (error) {
+      console.error('Failed to create shop item:', error);
+      alert('Failed to create item. Please try again.');
+    } finally {
+      addItemBtn.disabled = false;
+      addItemBtn.textContent = 'Add Item';
+    }
+  });
+</script>

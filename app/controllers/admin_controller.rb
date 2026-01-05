@@ -12,15 +12,22 @@ class AdminController < ActionController::Base
   def projects
     page = params[:page].to_i > 0 ? params[:page].to_i : 1
     per_page = 50
-    
+
     @all_projects = Project.includes(:user).order(created_at: :desc)
     @total_projects = @all_projects.count
     @total_pages = (@total_projects.to_f / per_page).ceil
     @current_page = page
-    
+
     offset = (page - 1) * per_page
     @projects = @all_projects.offset(offset).limit(per_page)
-    @pending_projects = @all_projects.where(status: "pending").limit(per_page)
+    @pending_projects = @all_projects.where(status: "in-review").limit(per_page)
+  end
+
+  # GET /admin/projects/:id
+  def project_detail
+    @project = Project.includes(:user, :journal_entries).find(params[:id])
+  rescue ActiveRecord::RecordNotFound
+    redirect_to admin_projects_path, flash: { error: "Project not found" }
   end
 
   # GET /admin/users
@@ -39,9 +46,9 @@ class AdminController < ActionController::Base
     # TEMP: For UI development, use first user or create one
     @current_user = if session[:user_id]
                      User.find_by(id: session[:user_id])
-                   else
+    else
                      User.first || User.create!(slack_username: "test_user", role: "admin")
-                   end
+    end
 
     unless @current_user&.admin?
       redirect_to projects_path, flash: { error: "Admin access required" }
