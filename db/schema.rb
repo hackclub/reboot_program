@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_04_180807) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_05_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -42,6 +42,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_04_180807) do
     t.datetime "updated_at", null: false
     t.text "approval_reason"
     t.string "ysws_airtable_id"
+    t.string "hackatime_project_name"
+    t.text "user_reason"
     t.index ["airtable_id"], name: "index_projects_on_airtable_id", unique: true
     t.index ["status"], name: "index_projects_on_status"
     t.index ["user_id"], name: "index_projects_on_user_id"
@@ -95,7 +97,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_04_180807) do
     t.string "last_name"
     t.date "birthday"
     t.decimal "balance", precision: 10, scale: 2, default: "0.0"
+    t.string "hackatime_uid"
     t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["hackatime_uid"], name: "index_users_on_hackatime_uid", unique: true
     t.index ["provider", "uid"], name: "index_users_on_provider_and_uid", unique: true
     t.index ["role"], name: "index_users_on_role"
   end

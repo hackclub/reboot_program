@@ -25,7 +25,7 @@
   <% if @pending_projects.any? %>
     <div class="admin-table">
       <% @pending_projects.each do |project| %>
-        <div class="admin-row card">
+        <div class="admin-row card" data-project-id="<%= project.id %>">
           <div class="admin-row__main">
             <div class="admin-row__title"><%= project.name %></div>
             <div class="admin-row__meta muted">
@@ -40,18 +40,36 @@
             <% end %>
             <div class="admin-row__links">
               <% if project.code_url.present? %>
-                <a href="<%= project.code_url %>" target="_blank" class="btn btn--ghost">View Code</a>
+                <a href="<%= project.code_url %>" target="_blank" class="btn btn--ghost" onclick="event.stopPropagation();">View Code</a>
               <% end %>
               <% if project.playable_url.present? %>
-                <a href="<%= project.playable_url %>" target="_blank" class="btn btn--ghost">View Demo</a>
+                <a href="<%= project.playable_url %>" target="_blank" class="btn btn--ghost" onclick="event.stopPropagation();">View Demo</a>
               <% end %>
+              <a href="<%= admin_project_path(project) %>" class="btn btn--primary" onclick="event.stopPropagation();">Review Project</a>
             </div>
           </div>
-          <div class="admin-row__actions">
-            <div class="admin-form">
-              <label style="color: #999; font-size: 12px;">Status: <strong>Pending Review</strong></label>
-              <p style="color: #999; font-size: 12px; margin: 8px 0 0 0;">Awaiting backend approval</p>
-            </div>
+          <div class="admin-row__actions" style="min-width: 280px;">
+            <form class="approve-form" onsubmit="return false;" style="display: flex; flex-direction: column; gap: 8px;">
+              <div>
+                <label style="font-size: 12px; color: #666;">Approved Hours</label>
+                <input type="number" class="approve-hours" value="<%= project.hours.to_f.round(2) %>" min="0" step="0.5" 
+                       style="width: 100%; padding: 6px 8px; border: 1px solid #e0e0e0; border-radius: 4px; font-size: 0.9rem;">
+              </div>
+              <div>
+                <label style="font-size: 12px; color: #666;">Hour Justification (internal)</label>
+                <input type="text" class="approve-reason" placeholder="Why these hours..." 
+                       style="width: 100%; padding: 6px 8px; border: 1px solid #e0e0e0; border-radius: 4px; font-size: 0.9rem;">
+              </div>
+              <div>
+                <label style="font-size: 12px; color: #666;">User Reason (shown to user)</label>
+                <input type="text" class="user-reason" placeholder="Feedback for the user..." 
+                       style="width: 100%; padding: 6px 8px; border: 1px solid #e0e0e0; border-radius: 4px; font-size: 0.9rem;">
+              </div>
+              <div style="display: flex; gap: 4px;">
+                <button type="button" class="btn btn--primary approve-btn" style="flex: 1; padding: 6px 12px;">Approve</button>
+                <button type="button" class="btn btn--ghost reject-btn" style="flex: 1; padding: 6px 12px; color: #dc3545; border-color: #dc3545;">Reject</button>
+              </div>
+            </form>
           </div>
         </div>
       <% end %>
@@ -66,7 +84,7 @@
   
   <div class="admin-table">
     <% @projects.each do |project| %>
-      <div class="admin-row card" style="padding: 12px 16px;">
+      <a href="<%= admin_project_path(project) %>" class="admin-row card" style="padding: 12px 16px; display: flex; justify-content: space-between; text-decoration: none; color: inherit;">
         <div class="admin-row__main">
           <strong><%= project.name %></strong>
           <span class="muted">by <%= project.user.slack_username || project.user.email %></span>
@@ -75,7 +93,7 @@
           <span class="pill pill--<%= project.status %>"><%= project.status.humanize %></span>
           <span class="muted"><%= project.hours %>h → <%= project.approved_hours || "—" %>h</span>
         </div>
-      </div>
+      </a>
     <% end %>
   </div>
 
@@ -91,3 +109,97 @@
     <% end %>
   </div>
 </main>
+
+<script>
+  document.querySelectorAll('.approve-btn').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const row = btn.closest('.admin-row');
+      const projectId = row.dataset.projectId;
+      const hours = parseFloat(row.querySelector('.approve-hours').value);
+      const reason = row.querySelector('.approve-reason').value.trim();
+      const userReason = row.querySelector('.user-reason').value.trim();
+
+      if (!reason) {
+        alert('Please provide an hour justification.');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Approving...';
+
+      try {
+        const response = await fetch(`/api/v1/admin/projects/${projectId}/approve`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content
+          },
+          credentials: 'same-origin',
+          body: JSON.stringify({ hours, reason, user_reason: userReason })
+        });
+
+        if (response.ok) {
+          window.location.reload();
+        } else {
+          const data = await response.json();
+          alert(data.error || 'Failed to approve project.');
+        }
+      } catch (error) {
+        console.error('Failed to approve:', error);
+        alert('Failed to approve project.');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Approve';
+      }
+    });
+  });
+
+  document.querySelectorAll('.reject-btn').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      
+      const row = btn.closest('.admin-row');
+      const userReason = row.querySelector('.user-reason').value.trim();
+
+      if (!userReason) {
+        alert('Please provide a user reason explaining why this is being rejected.');
+        return;
+      }
+
+      if (!confirm('Are you sure you want to reject this project?')) return;
+
+      const projectId = row.dataset.projectId;
+
+      btn.disabled = true;
+      btn.textContent = 'Rejecting...';
+
+      try {
+        const response = await fetch(`/api/v1/admin/projects/${projectId}/reject`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content
+          },
+          credentials: 'same-origin',
+          body: JSON.stringify({ user_reason: userReason })
+        });
+
+        if (response.ok) {
+          window.location.reload();
+        } else {
+          const data = await response.json();
+          alert(data.error || 'Failed to reject project.');
+        }
+      } catch (error) {
+        console.error('Failed to reject:', error);
+        alert('Failed to reject project.');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Reject';
+      }
+    });
+  });
+</script>

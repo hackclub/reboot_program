@@ -30,12 +30,18 @@
         <header class="project-detail__header">
           <h2 class="project-detail__title"><%= @selected_project.name %></h2>
           <div class="project-detail__actions">
-            <% if @selected_project.status == 'pending' %>
+            <% if @selected_project.status == 'pending' && !@selected_project.uses_hackatime? %>
               <button id="journal-btn" class="btn">Write Journal</button>
+            <% elsif @selected_project.uses_hackatime? %>
+              <button class="btn" disabled title="Hours tracked via Hackatime">Hackatime Linked</button>
             <% else %>
               <button class="btn" disabled>Write Journal</button>
             <% end %>
-            <button class="btn" disabled>Edit Ship</button>
+            <% if @selected_project.status.in?(%w[pending rejected]) %>
+              <button id="edit-ship-btn" class="btn">Edit Ship</button>
+            <% else %>
+              <button class="btn" disabled>Edit Ship</button>
+            <% end %>
           </div>
         </header>
 
@@ -76,7 +82,15 @@
               </div>
             </div>
 
-            <% if @selected_project.status == 'pending' %>
+            <% if @selected_project.uses_hackatime? %>
+              <div class="detail-group">
+                <div class="detail-subtitle">Hours Source</div>
+                <p class="muted">
+                  <strong>Hackatime:</strong> <%= @selected_project.hackatime_project_name %>
+                  <button type="button" id="sync-hackatime-btn" class="link-btn" style="margin-left: 8px;">Refresh Hours</button>
+                </p>
+              </div>
+            <% elsif @selected_project.status == 'pending' %>
               <div class="detail-group">
                 <div class="detail-subtitle">Journal Entries</div>
                 <div id="journal-entries-list" class="journal-entries">
@@ -87,24 +101,35 @@
 
             <div style="margin-top: 2rem;">
               <% if @selected_project.can_request_review? %>
-                <%= form_with url: request_project_review_path(@selected_project), method: :post, local: true do %>
-                  <button type="submit" class="btn btn--accent btn--block">
-                    <%= @selected_project.status == 'rejected' ? 'Request review again' : 'Request review' %>
+                <% if @selected_project.ready_to_ship? %>
+                  <%= form_with url: request_project_review_path(@selected_project), method: :post, local: true do %>
+                    <button type="submit" class="btn btn--accent btn--block">
+                      <%= @selected_project.status == 'rejected' ? 'Ship Again' : 'Ship It!' %>
+                    </button>
+                  <% end %>
+                <% else %>
+                  <button class="btn btn--accent btn--block" disabled title="Fill in all required fields first">
+                    Ship It!
                   </button>
+                  <p class="muted" style="font-size: 0.85rem; margin-top: 8px; text-align: center;">
+                    Complete all fields to ship: description, code URL, playable URL, screenshot URL
+                  </p>
                 <% end %>
               <% else %>
                 <button class="btn btn--accent btn--block" disabled>
-                  <%= @selected_project.status == 'in-review' ? 'In Review' : @selected_project.status.humanize %>
+                  <%= @selected_project.status == 'in-review' ? 'Shipped - Awaiting Review' : @selected_project.status.humanize %>
                 </button>
               <% end %>
             </div>
 
             <div class="detail-group">
-              <div class="detail-subtitle">Project Reviews</div>
-              <% if @selected_project.approval_reason.present? %>
+              <div class="detail-subtitle">Review Feedback</div>
+              <% if @selected_project.status == 'approved' %>
                 <div class="review-card">
-                  <p><strong>Approved for <%= @selected_project.approved_hours %>h</strong></p>
-                  <p class="muted"><%= @selected_project.approval_reason %></p>
+                  <p><strong>🎉 Approved for <%= @selected_project.approved_hours %>h</strong></p>
+                  <% if @selected_project.user_reason.present? %>
+                    <p style="margin-top: 8px;"><%= @selected_project.user_reason %></p>
+                  <% end %>
                   <p class="muted" style="font-size: 12px; margin-top: 8px;">
                     Reviewed <%= time_ago_in_words(@selected_project.reviewed_at) %> ago
                   </p>
@@ -112,7 +137,10 @@
               <% elsif @selected_project.status == 'rejected' %>
                 <div class="review-card review-card--rejected">
                   <p><strong>Rejected</strong></p>
-                  <p class="muted" style="font-size: 12px;">
+                  <% if @selected_project.user_reason.present? %>
+                    <p style="margin-top: 8px;"><%= @selected_project.user_reason %></p>
+                  <% end %>
+                  <p class="muted" style="font-size: 12px; margin-top: 8px;">
                     Reviewed <%= time_ago_in_words(@selected_project.reviewed_at) %> ago
                   </p>
                 </div>
@@ -192,13 +220,70 @@
       <label class="form__label" for="project_playable_url">Playable URL</label>
       <input class="form__input" type="url" id="project_playable_url" name="project[playable_url]" placeholder="https://...">
 
-      <label class="form__label" for="project_hours">Estimated Hours</label>
-      <input class="form__input" type="number" id="project_hours" name="project[hours]" min="0" step="0.5" value="0">
+      <label class="form__label" for="project_hackatime">Link Hackatime Project (optional)</label>
+      <select class="form__input" id="project_hackatime" name="project[hackatime_project_name]">
+        <option value="">Manual journaling (no Hackatime)</option>
+      </select>
+      <p class="muted" style="font-size: 0.8rem; margin-top: 4px;">If linked, hours are pulled from Hackatime and journal is disabled.</p>
 
       <button type="submit" class="btn btn--primary btn--block">Create Project</button>
     <% end %>
   </div>
 </div>
+
+<% if @selected_project&.status&.in?(%w[pending rejected]) %>
+<div id="edit-ship-modal" class="modal modal--hidden">
+  <div class="modal__backdrop"></div>
+  <div class="modal__content card">
+    <header class="modal__header">
+      <h2 class="modal__title">Edit Project</h2>
+      <button type="button" class="modal__close" aria-label="Close">&times;</button>
+    </header>
+    <form class="form" id="edit-ship-form">
+      <div class="form-group">
+        <label class="form__label" for="edit_project_name">Project Name *</label>
+        <input class="form__input" type="text" id="edit_project_name" value="<%= @selected_project.name %>" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form__label" for="edit_project_description">Description</label>
+        <textarea class="form__input form__textarea" id="edit_project_description" rows="3"><%= @selected_project.description %></textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="form__label" for="edit_project_code_url">Code URL</label>
+        <input class="form__input" type="url" id="edit_project_code_url" value="<%= @selected_project.code_url %>" placeholder="https://github.com/...">
+      </div>
+
+      <div class="form-group">
+        <label class="form__label" for="edit_project_playable_url">Playable URL</label>
+        <input class="form__input" type="url" id="edit_project_playable_url" value="<%= @selected_project.playable_url %>" placeholder="https://...">
+      </div>
+
+      <div class="form-group">
+        <label class="form__label" for="edit_project_screenshot_url">Screenshot URL</label>
+        <input class="form__input" type="url" id="edit_project_screenshot_url" value="<%= @selected_project.screenshot_url %>" placeholder="https://...">
+      </div>
+
+      <div class="form-group">
+        <label class="form__label" for="edit_project_hackatime">Link Hackatime Project</label>
+        <select class="form__input" id="edit_project_hackatime">
+          <option value="">Manual journaling (no Hackatime)</option>
+          <% if @selected_project.hackatime_project_name.present? %>
+            <option value="<%= @selected_project.hackatime_project_name %>" selected><%= @selected_project.hackatime_project_name %> (current)</option>
+          <% end %>
+        </select>
+        <p class="muted" style="font-size: 0.8rem; margin-top: 4px;">If linked, hours are pulled from Hackatime and journal is disabled.</p>
+      </div>
+
+      <div style="display: flex; gap: 0.5rem;">
+        <button type="button" class="btn btn--ghost modal__close-btn">Cancel</button>
+        <button type="submit" class="btn btn--primary" id="edit-ship-submit-btn">Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+<% end %>
 
 <style>
   .link-btn {
@@ -411,4 +496,184 @@
 
   // Load entries on page load.
   document.addEventListener('DOMContentLoaded', loadJournalEntries);
+
+  // Hackatime dropdown population
+  const hackatimeSelect = document.getElementById('project_hackatime');
+  
+  async function loadHackatimeProjects() {
+    if (!hackatimeSelect) return;
+    
+    try {
+      const response = await fetch('/api/v1/hackatime/projects', {
+        headers: { 'Accept': 'application/json' },
+        credentials: 'same-origin'
+      });
+      
+      if (!response.ok) return;
+      
+      const data = await response.json();
+      const projects = data.projects || [];
+      
+      if (projects.length === 0 && data.error) {
+        const opt = document.createElement('option');
+        opt.disabled = true;
+        opt.textContent = data.error;
+        hackatimeSelect.appendChild(opt);
+        return;
+      }
+      
+      projects.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.name;
+        opt.textContent = `${p.name} (${p.hours}h)`;
+        hackatimeSelect.appendChild(opt);
+      });
+    } catch (error) {
+      console.error('Failed to load Hackatime projects:', error);
+    }
+  }
+
+  // Sync Hackatime hours button
+  const syncHackatimeBtn = document.getElementById('sync-hackatime-btn');
+  
+  syncHackatimeBtn?.addEventListener('click', async () => {
+    syncHackatimeBtn.disabled = true;
+    syncHackatimeBtn.textContent = 'Syncing...';
+    
+    try {
+      const response = await fetch(`/api/v1/projects/${PROJECT_ID}/sync_hackatime`, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content
+        },
+        credentials: 'same-origin'
+      });
+      
+      if (response.ok) {
+        window.location.reload();
+      } else {
+        alert('Failed to sync hours from Hackatime.');
+      }
+    } catch (error) {
+      console.error('Failed to sync Hackatime:', error);
+      alert('Failed to sync hours from Hackatime.');
+    } finally {
+      syncHackatimeBtn.disabled = false;
+      syncHackatimeBtn.textContent = 'Refresh Hours';
+    }
+  });
+
+  // Load Hackatime projects when create modal opens
+  const createProjectBtn = document.getElementById('create-project-btn');
+  const createProjectModal = document.getElementById('create-project-modal');
+  
+  createProjectBtn?.addEventListener('click', () => {
+    createProjectModal?.classList.remove('modal--hidden');
+    loadHackatimeProjects();
+  });
+  
+  createProjectModal?.querySelectorAll('.modal__close').forEach(btn => {
+    btn.addEventListener('click', () => createProjectModal?.classList.add('modal--hidden'));
+  });
+  
+  createProjectModal?.querySelector('.modal__backdrop')?.addEventListener('click', () => {
+    createProjectModal?.classList.add('modal--hidden');
+  });
+
+  // Edit Ship Modal
+  const editShipBtn = document.getElementById('edit-ship-btn');
+  const editShipModal = document.getElementById('edit-ship-modal');
+  const editShipForm = document.getElementById('edit-ship-form');
+
+  editShipBtn?.addEventListener('click', () => {
+    editShipModal?.classList.remove('modal--hidden');
+    loadEditHackatimeProjects();
+  });
+
+  // Loads Hackatime projects into the edit modal dropdown.
+  async function loadEditHackatimeProjects() {
+    const select = document.getElementById('edit_project_hackatime');
+    if (!select) return;
+    
+    // Avoid reloading if already populated
+    if (select.options.length > 2) return;
+    
+    try {
+      const response = await fetch('/api/v1/hackatime/projects', {
+        headers: { 'Accept': 'application/json' },
+        credentials: 'same-origin'
+      });
+      
+      if (!response.ok) return;
+      
+      const data = await response.json();
+      const projects = data.projects || [];
+      
+      projects.forEach(p => {
+        // Skip if already the current selection
+        if (select.querySelector(`option[value="${p.name}"]`)) return;
+        
+        const opt = document.createElement('option');
+        opt.value = p.name;
+        opt.textContent = `${p.name} (${p.hours}h)`;
+        select.appendChild(opt);
+      });
+    } catch (error) {
+      console.error('Failed to load Hackatime projects:', error);
+    }
+  }
+
+  editShipModal?.querySelectorAll('.modal__close, .modal__close-btn').forEach(btn => {
+    btn.addEventListener('click', () => editShipModal?.classList.add('modal--hidden'));
+  });
+
+  editShipModal?.querySelector('.modal__backdrop')?.addEventListener('click', () => {
+    editShipModal?.classList.add('modal--hidden');
+  });
+
+  editShipForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const submitBtn = document.getElementById('edit-ship-submit-btn');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Saving...';
+
+    const data = {
+      project: {
+        name: document.getElementById('edit_project_name').value,
+        description: document.getElementById('edit_project_description').value,
+        code_url: document.getElementById('edit_project_code_url').value,
+        playable_url: document.getElementById('edit_project_playable_url').value,
+        screenshot_url: document.getElementById('edit_project_screenshot_url').value,
+        hackatime_project_name: document.getElementById('edit_project_hackatime')?.value || ''
+      }
+    };
+
+    try {
+      const response = await fetch(`/api/v1/projects/${PROJECT_ID}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify(data)
+      });
+
+      if (response.ok) {
+        window.location.reload();
+      } else {
+        const result = await response.json();
+        alert(result.errors?.join(', ') || 'Failed to update project.');
+      }
+    } catch (error) {
+      console.error('Failed to update project:', error);
+      alert('Failed to update project. Please try again.');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Save Changes';
+    }
+  });
 </script>
