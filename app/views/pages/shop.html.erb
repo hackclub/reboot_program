@@ -78,43 +78,23 @@
                 <div class="shop-variant__thumb">
                   <img src="<%= img_src %>" alt="<%= label_text %>">
                 </div>
-              </div>
-            <% end %>
-          </div>
-        </div>
-      <% end %>
-
-      <% if @shop_items.any? %>
-        <div class="shop-grid">
-          <% @shop_items.each do |item| %>
-            <div class="shop-card card" data-id="<%= item.id %>" data-cost="<%= item.cost %>" data-category="<%= item.status || 'standard' %>">
-              <% if item.image_url.present? %>
-                <img class="shop-card__image" src="<%= item.image_url %>" alt="<%= item.name %>">
-              <% else %>
-                <div class="shop-card__image shop-card__image--placeholder">🪛</div>
-              <% end %>
-              
-              <div class="shop-card__body">
-                <h3 class="shop-card__title"><%= item.name.presence || "Unnamed Item" %></h3>
-                <p class="shop-card__description muted"><%= item.description.presence || "No description" %></p>
-                
-                <% item_cost = item.cost || 0 %>
-                <div class="shop-card__footer">
-                  <div>
-                    <span class="shop-card__price"><%= item_cost.to_i %> 🪛</span>
-                    <% if item.status.present? %>
-                      <span class="pill" style="background: #e8f0e8; color: #4a7c59; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; margin-left: 0.5rem;">
-                        <%= item.status.capitalize %>
-                      </span>
-                    <% end %>
-                  </div>
-                  <%= form_with url: purchase_path, method: :post, local: true, class: "purchase-form" do %>
-                    <input type="hidden" name="item_id" value="<%= item.id %>">
-                    <button type="submit" class="btn btn--primary"
-                            <%= 'disabled' if @current_user.balance < item_cost %>>
-                      <%= @current_user.balance >= item_cost ? 'Purchase' : 'Not enough bolts' %>
-                    </button>
-                  <% end %>
+                <div class="shop-variant__name"><%= label_text %></div>
+                <div class="shop-variant__meta">
+                  <button type="button"
+                          class="shop-variant__priceBox price-btn"
+                          data-item-id="<%= item&.id %>"
+                          data-name="<%= cat %>"
+                          data-variant="<%= key %>"
+                          data-display="<%= label_text %>"
+                          data-price="<%= price %>"
+                          data-grant="<%= grant_amount %>"
+                          data-bolts="<%= base_bolts %>"
+                          data-img="<%= img_src %>"
+                          data-desc="<%= desc_text.to_s.gsub('\"','&quot;') %>">
+                    <span class="shop-variant__price"><%= price %></span>
+                    <img src="https://files.slack.com/files-pri/T09V59WQY1E-F0A793FGJ2V/bolt.png?pub_secret=7acc4044c5" alt="bolts" class="bolt-icon">
+                  </button>
+                  <span class="shop-variant__pill shop-variant__pill--<%= key %>"><%= label_text %></span>
                 </div>
 
                 <!-- Purchase action moved to modal -->
@@ -123,6 +103,8 @@
           </div>
         </div>
       <% end %>
+
+      
     </section>
   </div>
   <div class="card" style="margin-top: 12px; background: #fff3cd; border: 1px solid #ffeeba; color: #856404; padding: 10px; text-align: center;">
