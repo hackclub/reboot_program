@@ -14,6 +14,11 @@ Rails.application.routes.draw do
   get "faq", to: "pages#faq", as: :faq
   delete "signout", to: "pages#signout", as: :signout
 
+  # Dev-only helper to log in without OAuth
+  if Rails.env.development?
+    get "dev_login", to: "pages#dev_login", as: :dev_login
+  end
+
   # Admin pages
   get "admin", to: "admin#index", as: :admin
   get "admin/projects", to: "admin#projects", as: :admin_projects

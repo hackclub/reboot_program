@@ -3,6 +3,30 @@ class PagesController < ActionController::Base
   # Use the application layout
   layout "application"
 
+  # GET /dev_login (development only)
+  # Creates or finds a user and logs them in without OAuth.
+  def dev_login
+    unless Rails.env.development?
+      head :not_found and return
+    end
+
+    user = User.first
+    if user.nil?
+      user = User.create!(
+        email: "dev@example.com",
+        provider: "dev",
+        uid: SecureRandom.uuid,
+        first_name: "Dev",
+        last_name: "User",
+        role: "user"
+      )
+    end
+
+    session[:user_id] = user.id
+    session[:jwt] = JwtService.encode(user_id: user.id)
+    redirect_to projects_path, notice: "Signed in as #{user.email}"
+  end
+
   # GET /
   # Redirects to projects if authenticated, renders signin otherwise.
   def home
