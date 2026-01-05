@@ -1,18 +1,31 @@
-@import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Crimson+Pro:ital,wght@0,400;1,400&display=swap');
+@font-face {
+  font-family: 'Jolly Lodger';
+  src: url('@fonts/Jolly_Lodger/JollyLodger-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Jim Nightshade';
+  src: url('@fonts/Jim_Nightshade/JimNightshade-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
 
 :root {
-  --bg: #f9f9f7;
-  --bg-dark: #6f7a97;
-  --paper: #ffffff;
-  --paper-alt: #f5f5f3;
-  --ink: #1f2430;
-  --ink-muted: #6b7280;
-  --accent: #f25f2c;
-  --gold: #d6a161;
-  --nav: #ffffff;
+  --bg: #f5efe6;          /* light cream-beige */
+  --bg-dark: #e8dcc8;     /* deeper beige */
+  --paper: #fbf4ea;       /* card background */
+  --paper-alt: #f0e4d4;   /* alt card */
+  --ink: #3a2a18;         /* dark brown text */
+  --ink-muted: #6f5b3e;   /* muted brown text */
+  --accent: #d27f46;      /* warm accent */
+  --gold: #c8a36e;        /* secondary accent */
+  --nav: #f3e3cf;         /* navbar bg */
   --white: #fff;
-  --shadow: rgba(0, 0, 0, 0.08);
-  --border: #e5e7eb;
+  --shadow: rgba(58, 42, 24, 0.12);
+  --border: #e2d6c8;      /* soft brown border */
 }
 
 * {
@@ -26,11 +39,21 @@ body {
 
 body {
   margin: 0;
-  font-family: ui-rounded, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu,
-    Cantarell, Noto Sans, "Helvetica Neue", Arial, "Apple Color Emoji",
-    "Segoe UI Emoji", "Segoe UI Symbol";
+  font-family: 'Jim Nightshade', cursive;
   color: var(--ink);
-  background: var(--bg);
+  background: var(--bg) url('/images/signin/background.PNG') no-repeat center center fixed;
+  background-size: cover;
+  font-size: 18px;
+}
+
+.page-title,
+.project-row__title,
+.detail-subtitle,
+.project-detail__title,
+.shop-card__title,
+.modal__title,
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Jolly Lodger', cursive;
 }
 
 /* Top bar */
@@ -39,11 +62,16 @@ body {
    align-items: center;
    justify-content: space-between;
    padding: 12px 20px;
-   background: var(--nav);
+   position: sticky;
+   top: 0;
+   z-index: 100;
+   background: rgba(243, 227, 207, 0.75);
+   backdrop-filter: blur(10px);
+   -webkit-backdrop-filter: blur(10px);
    border-radius: 0;
    margin: 0;
-   border-bottom: 1px solid var(--border);
-   box-shadow: 0 1px 3px var(--shadow);
+   border-bottom: 1px solid rgba(58, 42, 24, 0.15);
+   box-shadow: 0 8px 24px rgba(58, 42, 24, 0.12);
 }
 .topbar__right {
   display: flex;
@@ -58,8 +86,9 @@ body {
   color: #221b12;
   text-decoration: none;
   font-weight: 700;
-  padding: 6px 10px;
+  padding: 6px 12px;
   border-radius: 10px;
+  transition: transform 120ms ease, background-color 160ms ease, box-shadow 160ms ease;
 }
 .nav__item[aria-disabled="true"] {
   opacity: 0.6;
@@ -67,6 +96,15 @@ body {
 }
 .nav__item--active {
   text-decoration: underline;
+}
+.nav__item:hover {
+  transform: translateY(-1px);
+  background: rgba(58, 42, 24, 0.08);
+  box-shadow: 0 2px 6px rgba(58, 42, 24, 0.12);
+}
+.nav__item:active {
+  transform: translateY(0);
+  box-shadow: none;
 }
 .coins {
   background: #f2d39e;
@@ -96,9 +134,10 @@ body {
    padding: 20px;
    box-shadow: 0 1px 3px var(--shadow);
    border: 1px solid var(--border);
+   animation: fade-in-up 420ms ease both;
 }
 .page-title {
-   font-size: 32px;
+   font-size: 36px;
    font-weight: 700;
    margin: 0;
    padding: 20px 20px 0;
@@ -135,7 +174,8 @@ body {
    padding: 16px;
    margin: 0;
    cursor: pointer;
-   transition: all 0.2s;
+   transition: transform 140ms ease, box-shadow 160ms ease, outline-color 160ms ease;
+   animation: fade-in-up 440ms ease both;
 }
 .project-row--alt {
    background: var(--paper-alt);
@@ -151,10 +191,11 @@ a.project-row {
 }
 a.project-row:hover {
    border-color: var(--gold);
-   box-shadow: 0 2px 8px var(--shadow);
+   box-shadow: 0 6px 12px var(--shadow);
+   transform: translateY(-1px);
 }
 .project-row__title {
-   font-size: 18px;
+   font-size: 20px;
    font-weight: 700;
    margin: 0;
 }
@@ -185,7 +226,7 @@ a.project-row:hover {
    border-bottom: 1px solid var(--border);
 }
 .project-detail__title {
-   font-size: 28px;
+   font-size: 32px;
    font-weight: 700;
    margin: 0;
 }
@@ -306,14 +347,16 @@ a.project-row:hover {
    display: inline-block;
    text-align: center;
    font-size: 14px;
-   transition: all 0.2s;
+   transition: transform 120ms ease, box-shadow 160ms ease, filter 160ms ease, background-color 160ms ease;
 }
 .btn:hover:not(:disabled) {
    background: #d8d8d8;
-   box-shadow: 0 2px 4px var(--shadow);
+   box-shadow: 0 6px 14px var(--shadow);
+   transform: translateY(-1px);
 }
 .btn:active:not(:disabled) {
-   transform: translateY(1px);
+   transform: translateY(0);
+   box-shadow: 0 2px 6px var(--shadow);
 }
 .btn:disabled {
    opacity: 0.6;
@@ -393,6 +436,7 @@ a.project-row:hover {
   width: min(480px, 90vw);
   max-height: 90vh;
   overflow-y: auto;
+  animation: subtle-pop 180ms ease both;
 }
 .modal__header {
   display: flex;
@@ -402,7 +446,7 @@ a.project-row:hover {
 }
 .modal__title {
   margin: 0;
-  font-size: 24px;
+  font-size: 26px;
 }
 .modal__close {
   background: none;
@@ -440,12 +484,14 @@ a.project-row:hover {
    flex-direction: column;
    overflow: hidden;
    padding: 0;
-   transition: all 0.2s;
+   transition: transform 160ms ease, box-shadow 180ms ease, border-color 160ms ease;
    border: 1px solid var(--border);
+   animation: fade-in-up 460ms ease both;
 }
 .shop-card:hover {
    border-color: var(--gold);
-   box-shadow: 0 4px 12px var(--shadow);
+   box-shadow: 0 12px 24px var(--shadow);
+   transform: translateY(-2px);
 }
 .shop-card__image {
    width: 100%;
@@ -467,7 +513,7 @@ a.project-row:hover {
 }
 .shop-card__title {
    margin: 0 0 8px;
-   font-size: 18px;
+  font-size: 20px;
    font-weight: 700;
    color: var(--ink);
 }
@@ -512,6 +558,7 @@ a.project-row:hover {
   align-items: center;
   gap: 16px;
   padding: 12px 16px;
+  animation: fade-in-up 480ms ease both;
 }
 .purchase-row__image {
   width: 60px;
@@ -532,7 +579,7 @@ a.project-row:hover {
 }
 .purchase-row__title {
   margin: 0 0 4px;
-  font-size: 18px;
+  font-size: 20px;
 }
 .purchase-row__status {
   flex-shrink: 0;
@@ -554,13 +601,14 @@ a.project-row:hover {
 .faq-item {
   padding: 16px 0;
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  animation: fade-in-up 500ms ease both;
 }
 .faq-item:last-child {
   border-bottom: none;
 }
 .faq-item h3 {
   margin: 0 0 8px;
-  font-size: 18px;
+  font-size: 20px;
 }
 .faq-item p {
   margin: 0;
@@ -640,7 +688,7 @@ a.project-row:hover {
 
 /* Signin Page */
 [data-page="signin"] {
-  background: #f9f9f7;
+  background: transparent;
   min-height: 100vh;
   overflow: hidden;
 }
@@ -684,8 +732,7 @@ a.project-row:hover {
 }
 
 .signin-subtitle {
-   font-family: 'Crimson Pro', serif;
-   font-style: italic;
+   font-family: 'Jolly Lodger', cursive;
    font-size: clamp(24px, 4vw, 36px);
    margin: 32px 0 0;
    color: #000;
@@ -697,8 +744,7 @@ a.project-row:hover {
    border: none;
    border-radius: 10px;
    padding: 10px 36px;
-   font-family: 'Crimson Pro', serif;
-   font-style: italic;
+   font-family: 'Jim Nightshade', cursive;
    font-size: clamp(18px, 2.5vw, 24px);
    cursor: pointer;
    color: #000;
@@ -717,4 +763,34 @@ a.project-row:hover {
    left: 0;
    width: clamp(150px, 20vw, 280px);
    z-index: 2;
+}
+
+/* Animations */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes subtle-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
 }
