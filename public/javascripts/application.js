@@ -84,6 +84,9 @@
     const modalImage = document.getElementById("shop-modal-image");
     const modalDesc = document.getElementById("shop-modal-desc");
     const modalPrice = document.getElementById("shop-modal-price");
+    const modalQty = document.getElementById("shop-modal-qty");
+    const modalWarning = document.getElementById("shop-modal-warning");
+    const modalShortage = document.getElementById("shop-modal-shortage");
     const modalForm = document.getElementById("shop-modal-form");
     const modalItemId = document.getElementById("shop-modal-item-id");
     const modalVariant = document.getElementById("shop-modal-variant");
@@ -99,20 +102,43 @@
       if (panel) panel.classList.add("is-active");
     }
 
+    function updateModalTotals() {
+      if (!modal) return;
+      const baseBolts = Number(modal.dataset.baseBolts || 0);
+      const grant = Number(modal.dataset.grant || 0);
+      const name = modal.dataset.itemName || "Item";
+      const qty = Math.max(1, Number(modalQty?.value || 1));
+      const totalBolts = baseBolts * qty;
+      if (modalPrice) modalPrice.textContent = String(totalBolts);
+      if (modalDesc) {
+        modalDesc.textContent = `This item provide a ${grant}$ HCB card grant to spend on a ${name}. Quantity: ${qty}.`;
+      }
+      // enable/disable buy based on computed total bolts
+      const canBuy = Boolean(modalItemId?.value) && userBalance >= totalBolts;
+      if (modalBuy) modalBuy.disabled = !canBuy;
+      if (modalWarning) {
+        const shortage = Math.max(0, totalBolts - userBalance);
+        modalWarning.style.display = canBuy ? "none" : "block";
+        if (modalShortage) modalShortage.textContent = String(shortage);
+      }
+    }
+
     function openModal(data) {
       if (!modal) return;
       const variantLower = (data.variant || "").toLowerCase();
       const display = data.display || (data.name ? `${data.name}_${variantLower}` : 'Item');
       modalTitle.textContent = display;
       modalImage.src = data.img || "/images/signin/hackclub.svg";
-      modalDesc.textContent = data.desc || "No description available.";
-      modalPrice.textContent = String(data.price ?? 0);
+      // store computation inputs on modal dataset
+      modal.dataset.baseBolts = String(Number(data.bolts || 0));
+      modal.dataset.grant = String(Number(data.grant || 0));
+      modal.dataset.itemName = data.name || "Item";
+      // reset qty to 1 each open
+      if (modalQty) modalQty.value = "1";
+      // compute totals, description, and buy state
+      updateModalTotals();
       modalItemId.value = data.itemId || "";
       modalVariant.value = data.variant || "";
-      // enable/disable buy
-      const priceNum = Number(data.price || 0);
-      const canBuy = Boolean(data.itemId) && userBalance >= priceNum;
-      modalBuy.disabled = !canBuy;
       modal.classList.remove("modal--hidden");
     }
 
@@ -130,12 +156,17 @@
           variant: btn.dataset.variant,
           display: btn.dataset.display,
           price: Number(btn.dataset.price || 0),
+          grant: Number(btn.dataset.grant || 0),
+          bolts: Number(btn.dataset.bolts || 0),
           img: btn.dataset.img,
           desc: btn.dataset.desc,
         };
         openModal(data);
       }
     });
+
+    // React to quantity changes
+    modalQty?.addEventListener("input", updateModalTotals);
 
     modalClose?.addEventListener("click", closeModal);
     modalBackdrop?.addEventListener("click", closeModal);

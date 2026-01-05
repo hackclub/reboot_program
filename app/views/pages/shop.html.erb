@@ -62,13 +62,18 @@
               'https://files.slack.com/files-pri/T09V59WQY1E-F0A6EN1NVP1/vecteezy_sleek-black-computer-monitor-with-vibrant-red-abstract_56609224.png?pub_secret=5e30e2cd74'
             ] if cat == 'Monitor' %>
             <% variants.each_with_index do |(label_text, key), variant_idx| %>
-              <% price = 0 %>
               <% img_src = (
                 (cat == 'Keyboard' && images_for_keyboard && images_for_keyboard[variant_idx]) ||
                 (cat == 'Mouse' && images_for_mouse && images_for_mouse[variant_idx]) ||
                 (cat == 'Monitor' && images_for_monitor && images_for_monitor[variant_idx]) ||
                 '/images/signin/hackclub.svg'
               ) %>
+              <% amount_map = { 'standard' => 50, 'quality' => 110, 'advanced' => 170, 'professional' => 230 } %>
+              <% grant_amount = amount_map[key] || 0 %>
+              <% bolts_map = { 'standard' => 500, 'quality' => 1100, 'advanced' => 1700, 'professional' => 2300 } %>
+              <% base_bolts = bolts_map[key] || 0 %>
+              <% price = base_bolts %>
+              <% desc_text = "This item provide a #{grant_amount}$ HCB card grant to spend on a #{cat}" %>
               <div class="shop-variant">
                 <div class="shop-variant__thumb">
                   <img src="<%= img_src %>" alt="<%= label_text %>">
@@ -84,8 +89,10 @@
                           data-variant="<%= key %>"
                           data-display="<%= label_text %>"
                           data-price="<%= price %>"
+                          data-grant="<%= grant_amount %>"
+                          data-bolts="<%= base_bolts %>"
                           data-img="<%= img_src %>"
-                          data-desc="<%= (item&.description || 'No description available.').to_s.gsub('\"','&quot;') %>">
+                          data-desc="<%= desc_text.to_s.gsub('\"','&quot;') %>">
                     <span class="shop-variant__price"><%= price %></span>
                     <img src="https://files.slack.com/files-pri/T09V59WQY1E-F0A793FGJ2V/bolt.png?pub_secret=7acc4044c5" alt="bolts" class="bolt-icon">
                   </button>
@@ -100,6 +107,9 @@
       <% end %>
     </section>
   </div>
+  <div class="card" style="margin-top: 12px; background: #fff3cd; border: 1px solid #ffeeba; color: #856404; padding: 10px; text-align: center;">
+    Working progress! We're building the shop page, more items will be added soon!
+  </div>
 </main>
 
 <!-- Item Modal -->
@@ -113,9 +123,16 @@
     <div class="shop-modal__body">
       <img id="shop-modal-image" class="shop-modal__image" src="/images/signin/hackclub.svg" alt="item">
       <p id="shop-modal-desc" class="shop-modal__desc muted">Description</p>
+      <div class="shop-modal__qty" style="display:flex;align-items:center;gap:8px;">
+        <label for="shop-modal-qty" class="muted">Quantity</label>
+        <input id="shop-modal-qty" type="number" min="1" step="1" value="1" style="width:80px;">
+      </div>
       <div class="shop-modal__price">
         <span id="shop-modal-price">0</span>
         <img src="https://files.slack.com/files-pri/T09V59WQY1E-F0A793FGJ2V/bolt.png?pub_secret=7acc4044c5" alt="bolts" class="bolt-icon">
+      </div>
+      <div id="shop-modal-warning" style="display:none;background:#fdecea;border:1px solid #f5c2c7;color:#842029;padding:8px 12px;border-radius:8px;">
+        Not enough bolts to purchase. You need <strong><span id="shop-modal-shortage">0</span></strong> more.
       </div>
       <%= form_with url: purchase_path, method: :post, local: true, id: "shop-modal-form" do %>
         <input type="hidden" name="item_id" id="shop-modal-item-id" value="">
