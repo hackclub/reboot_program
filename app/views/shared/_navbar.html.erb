@@ -13,7 +13,7 @@
       <% end %>
     </span>
     <button id="signout-btn" class="btn btn--ghost">Sign out</button>
-    <div class="coins" title="Your bolts"><%= @current_user&.balance&.to_i || 0 %> 🪛</div>
+    <div class="coins" title="Your bolts"><%= @current_user&.balance&.to_i || 0 %> <img src="https://files.slack.com/files-pri/T09V59WQY1E-F0A793FGJ2V/bolt.png?pub_secret=7acc4044c5" alt="bolt" style="height: 1em; display: inline; margin-left: 4px;"></div>
   </div>
   
   <style>

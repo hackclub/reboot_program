@@ -13,7 +13,7 @@
           <% if order.shop_item&.image_url.present? %>
             <img class="purchase-row__image" src="<%= order.shop_item.image_url %>" alt="<%= order.name %>">
           <% else %>
-            <div class="purchase-row__image purchase-row__image--placeholder">🪛</div>
+            <div class="purchase-row__image purchase-row__image--placeholder"><img src="https://files.slack.com/files-pri/T09V59WQY1E-F0A793FGJ2V/bolt.png?pub_secret=7acc4044c5" alt="bolt" style="height: 1em; display: inline; margin-left: 4px;"></div>
           <% end %>
           <div class="purchase-row__details">
             <h3 class="purchase-row__title"><%= order.name %></h3>
