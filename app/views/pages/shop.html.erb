@@ -15,11 +15,23 @@
     <aside class="shop-categories card">
       <h3 class="shop-heading">Category</h3>
       <ul class="shop-category-list">
-        <% categories = [ "Keyboard", "Mouse", "Monitor", "Headphones", "Webcam" ] %>
-        <% categories.each_with_index do |cat, idx| %>
+        <% categories_active = [ "Keyboard", "Mouse", "Monitor", "Headphones", "Webcam" ] %>
+        <% categories_soon = [ "Chair", "PC Components", "Desktop Accessories", "Suggest Something!" ] %>
+        <% categories_active.each_with_index do |cat, idx| %>
           <li>
             <button class="shop-category-item <%= 'is-active' if idx == 0 %>" data-target="cat-<%= cat.downcase %>">
               <%= cat %>
+            </button>
+          </li>
+        <% end %>
+        <% categories_soon.each do |cat| %>
+          <li>
+            <button class="shop-category-item" disabled>
+              <span class="shop-category-item__label"><%= cat %></span>
+              <img
+                src="https://files.slack.com/files-pri/T09V59WQY1E-F0A73PBKWEN/1000_f_108839823_c2hrfq0hbz7wkf6ngjesajlakz74zm7b.jpg?pub_secret=76883edfeb"
+                alt="Coming Soon"
+                class="shop-category-item__badge">
             </button>
           </li>
         <% end %>
@@ -34,7 +46,7 @@
         </div>
       </div>
 
-      <% categories.each_with_index do |cat, idx| %>
+      <% categories_active.each_with_index do |cat, idx| %>
         <% item = @shop_items.find { |i| i.name.to_s.downcase.strip == cat.downcase } %>
         <% base_cost = (item&.cost || 0).to_i %>
         <div id="cat-<%= cat.downcase %>" class="shop-item-detail <%= 'is-active' if idx == 0 %>">

@@ -8,7 +8,7 @@
     <meta name="csrf-token" content="<%= form_authenticity_token %>">
     <link rel="icon" type="image/png" href="https://files.slack.com/files-pri/T09V59WQY1E-F0A6UD211JS/animal.png?pub_secret=3e17f8e9df">
     <link rel="shortcut icon" type="image/png" href="https://files.slack.com/files-pri/T09V59WQY1E-F0A6UD211JS/animal.png?pub_secret=3e17f8e9df">
-    <link rel="stylesheet" href="/stylesheets/application.css?v=8">
+    <link rel="stylesheet" href="/stylesheets/application.css?v=18">
     <script defer src="/javascripts/application.js?v=2"></script>
   </head>
   <body data-page="<%= content_for?(:page) ? yield(:page) : '' %>">
@@ -20,9 +20,7 @@
     <% end %>
 
     <%= yield %>
-    <% unless content_for?(:page) && yield(:page) == 'signin' %>
-      <img src="/images/img_2180.png" alt="bottom-left decoration" class="corner-img corner-img--left">
-      <img src="/images/untitled_artwork.png" alt="bottom-right decoration" class="corner-img corner-img--right">
-    <% end %>
+    <img src="/images/img_2180.png" alt="bottom-left decoration" class="corner-img corner-img--left">
+    <img src="/images/untitled_artwork.png" alt="bottom-right decoration" class="corner-img corner-img--right">
   </body>
 </html>

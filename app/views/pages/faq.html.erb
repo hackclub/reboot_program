@@ -46,18 +46,34 @@
 </main>
 
 <style>
+  .page-title {
+    font-size: 64px;
+    letter-spacing: 0.5px;
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    margin-bottom: 10px;
+  }
+
   .faq-section {
     margin-bottom: 2rem;
     border-radius: 12px;
   }
 
   .faq-section__title {
-    color: #8b5cf6;
-    font-size: 1.75rem;
+    color: var(--gold);
+    font-size: 2.5rem;
     font-weight: 700;
     margin: 0 0 1.5rem 0;
     padding-bottom: 1rem;
     border-bottom: 2px solid #f0f0f0;
+  }
+  .faq-section__title::after {
+    content: "";
+    display: block;
+    width: 80px;
+    height: 6px;
+    border-radius: 6px;
+    margin-top: 10px;
+    background: linear-gradient(90deg, var(--accent), rgba(210, 127, 70, 0.2));
   }
 
   .faq-qa {
@@ -77,7 +93,7 @@
 
   .faq-item__question {
     color: #1f2430;
-    font-size: 1rem;
+    font-size: 1.3rem;
     font-weight: 700;
     margin: 0 0 0.5rem 0;
     line-height: 1.4;
@@ -85,7 +101,7 @@
 
   .faq-item__answer {
     color: #6b7280;
-    font-size: 0.95rem;
+    font-size: 1.2rem;
     margin: 0;
     line-height: 1.6;
   }
@@ -101,7 +117,7 @@
 
   .faq-list li {
     color: #1f2430;
-    font-size: 0.95rem;
+    font-size: 1.2rem;
     line-height: 1.6;
     padding-left: 1.75rem;
     position: relative;
@@ -111,13 +127,13 @@
     content: "•";
     position: absolute;
     left: 0;
-    color: #8b5cf6;
+    color: var(--accent);
     font-weight: bold;
     font-size: 1.2rem;
   }
 
   .link {
-    color: #8b5cf6;
+    color: var(--accent);
     text-decoration: none;
     font-weight: 600;
     transition: opacity 0.2s ease;
@@ -129,7 +145,7 @@
   }
 
   .highlight {
-    color: #8b5cf6;
+    color: var(--gold);
     font-weight: 700;
   }
 </style>

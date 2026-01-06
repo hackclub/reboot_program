@@ -58,44 +58,48 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Top bar */
 .topbar {
-   display: flex;
-   align-items: center;
-   justify-content: space-between;
-   padding: 12px 20px;
-   position: sticky;
-   top: 0;
-   z-index: 100;
-   background: rgba(243, 227, 207, 0.75);
-   backdrop-filter: blur(10px);
-   -webkit-backdrop-filter: blur(10px);
-   border-radius: 0;
-   margin: 0;
-   border-bottom: 1px solid rgba(58, 42, 24, 0.15);
-   box-shadow: 0 8px 24px rgba(58, 42, 24, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 22px;
+  position: sticky;
+  top: 12px;
+  z-index: 120;
+  width: min(1200px, 94vw);
+  margin: 12px auto 0;
+  background: rgba(243, 227, 207, 0.78);
+  backdrop-filter: blur(14px) saturate(125%);
+  -webkit-backdrop-filter: blur(14px) saturate(125%);
+  border-radius: 16px;
+  border: 1px solid rgba(58, 42, 24, 0.14);
+  box-shadow: 0 12px 28px rgba(58, 42, 24, 0.16);
 }
 .topbar__right {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 .nav {
   display: flex;
-  gap: 28px;
+  gap: 24px;
 }
 .nav__item {
   color: #221b12;
   text-decoration: none;
-  font-weight: 700;
-  padding: 6px 12px;
-  border-radius: 10px;
-  transition: transform 120ms ease, background-color 160ms ease, box-shadow 160ms ease;
+  font-weight: 800;
+  padding: 8px 14px;
+  border-radius: 999px;
+  transition: transform 120ms ease, background-color 160ms ease, box-shadow 160ms ease, color 160ms ease;
 }
 .nav__item[aria-disabled="true"] {
   opacity: 0.6;
   pointer-events: none;
 }
 .nav__item--active {
-  text-decoration: underline;
+  background: rgba(200, 163, 110, 0.28);
+  color: #20170f;
+  box-shadow: 0 0 0 2px rgba(214, 161, 97, 0.24) inset;
+  text-decoration: none;
 }
 .nav__item:hover {
   transform: translateY(-1px);
@@ -107,11 +111,12 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: none;
 }
 .coins {
-  background: #f2d39e;
+  background: linear-gradient(135deg, #f2d39e, #efd1a4);
   color: #3a2a18;
-  border-radius: 12px;
-  padding: 6px 10px;
-  font-weight: 700;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-weight: 800;
+  box-shadow: 0 4px 10px rgba(58, 42, 24, 0.12);
 }
 
 /* Containers */
@@ -389,6 +394,24 @@ a.project-row:hover {
    box-shadow: none;
    border: 1px solid var(--border);
 }
+/* Refine ghost button in topbar */
+.topbar__right .btn--ghost {
+  border-color: rgba(58, 42, 24, 0.18);
+  color: #2a2118;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.2);
+  transition: background-color 160ms ease, box-shadow 160ms ease, transform 120ms ease;
+}
+.topbar__right .btn--ghost:hover {
+  background: rgba(255, 255, 255, 0.36);
+  box-shadow: 0 6px 14px rgba(58, 42, 24, 0.12);
+  transform: translateY(-1px);
+}
+.topbar__right .btn--ghost:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
 .btn--hca {
    background: #ec3750;
    color: white;
@@ -634,6 +657,22 @@ a.project-row:hover {
   background: #e8dcc8;
   border-color: var(--gold);
   box-shadow: 0 0 0 2px rgba(214, 161, 97, 0.2);
+}
+.shop-category-item[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+  position: relative;
+}
+.shop-category-item__badge {
+  position: absolute;
+  top: 5px;
+  right: 6px;
+  width: 90px;
+  height: auto;
+  transform: rotate(35deg);
+  pointer-events: none;
+  border-radius: 6px;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.18);
 }
 .shop-items {
   padding: 16px;
@@ -956,6 +995,7 @@ a.project-row:hover {
 [data-page="faq"] {
   background: var(--bg) url('https://files.slack.com/files-pri/T09V59WQY1E-F0A71GFN7N2/untitled_artwork.png?pub_secret=e6e1934613') no-repeat center center fixed;
   background-size: cover;
+  font-size: 20px; /* bump base size on FAQ */
 }
 
 .signin-page {
@@ -994,8 +1034,10 @@ a.project-row:hover {
 
 /* Start button image */
 .signin-start-img {
-  width: clamp(100px, 22vw, 200px);
+  width: clamp(250px, 22vw, 200px);
   height: auto;
+  animation: signin-bob 2.6s ease-in-out infinite;
+  will-change: transform;
 }
 
 .signin-content form {
@@ -1037,6 +1079,13 @@ a.project-row:hover {
    z-index: 2;
 }
 
+/* Mirror animal on bottom-right for signin page */
+.signin-mole--right {
+  right: 0;
+  left: auto;
+  transform: scaleX(-1);
+}
+
 /* Animations */
 @keyframes fade-in-up {
   from {
@@ -1059,6 +1108,15 @@ a.project-row:hover {
   }
 }
 
+@keyframes signin-bob {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
 /* Global corner images */
 .corner-img {
   position: fixed;
@@ -1069,13 +1127,19 @@ a.project-row:hover {
 }
 .corner-img--left {
   left: 0;
-  width: clamp(120px, 14vw, 220px);
+  width: clamp(160px, 20vw, 320px);
   height: auto;
 }
 .corner-img--right {
   right: 0;
-  width: clamp(120px, 16vw, 260px);
+  width: clamp(160px, 22vw, 360px);
   height: auto;
+}
+
+/* Signin-only tweaks: make bottom-left corner image bigger and slightly lower */
+[data-page="signin"] .corner-img--left {
+  width: clamp(220px, 28vw, 440px);
+  bottom: -50px;
 }
 
 /* Respect reduced motion */
