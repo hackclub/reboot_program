@@ -89,7 +89,9 @@
     const modalShortage = document.getElementById("shop-modal-shortage");
     const modalForm = document.getElementById("shop-modal-form");
     const modalItemId = document.getElementById("shop-modal-item-id");
+    const modalCategory = document.getElementById("shop-modal-category");
     const modalVariant = document.getElementById("shop-modal-variant");
+    const modalQuantity = document.getElementById("shop-modal-quantity");
     const modalBuy = document.getElementById("shop-modal-buy");
     const userBalance = Number(modal?.dataset.userBalance || 0);
 
@@ -109,12 +111,16 @@
       const name = modal.dataset.itemName || "Item";
       const qty = Math.max(1, Number(modalQty?.value || 1));
       const totalBolts = baseBolts * qty;
+      const totalGrant = grant * qty;
       if (modalPrice) modalPrice.textContent = String(totalBolts);
       if (modalDesc) {
-        modalDesc.textContent = `This item provide a ${grant}$ HCB card grant to spend on a ${name}. Quantity: ${qty}.`;
+        modalDesc.textContent = `This provides a $${totalGrant} HCB card grant to spend on a ${name}. Quantity: ${qty}.`;
       }
-      // enable/disable buy based on computed total bolts
-      const canBuy = Boolean(modalItemId?.value) && userBalance >= totalBolts;
+      // Sync quantity to hidden form field
+      if (modalQuantity) modalQuantity.value = String(qty);
+      // Enable buy if user has enough balance (category/variant are always set for grant items)
+      const hasValidSelection = Boolean(modalCategory?.value) || Boolean(modalItemId?.value);
+      const canBuy = hasValidSelection && userBalance >= totalBolts;
       if (modalBuy) modalBuy.disabled = !canBuy;
       if (modalWarning) {
         const shortage = Math.max(0, totalBolts - userBalance);
@@ -129,16 +135,19 @@
       const display = data.display || (data.name ? `${data.name}_${variantLower}` : 'Item');
       modalTitle.textContent = display;
       modalImage.src = data.img || "/images/signin/hackclub.svg";
-      // store computation inputs on modal dataset
+      // Store computation inputs on modal dataset
       modal.dataset.baseBolts = String(Number(data.bolts || 0));
       modal.dataset.grant = String(Number(data.grant || 0));
       modal.dataset.itemName = data.name || "Item";
-      // reset qty to 1 each open
+      // Reset qty to 1 each open
       if (modalQty) modalQty.value = "1";
-      // compute totals, description, and buy state
+      // Set hidden form fields
+      if (modalItemId) modalItemId.value = data.itemId || "";
+      if (modalCategory) modalCategory.value = data.name || "";
+      if (modalVariant) modalVariant.value = data.variant || "";
+      if (modalQuantity) modalQuantity.value = "1";
+      // Compute totals, description, and buy state
       updateModalTotals();
-      modalItemId.value = data.itemId || "";
-      modalVariant.value = data.variant || "";
       modal.classList.remove("modal--hidden");
     }
 

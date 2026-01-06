@@ -102,39 +102,69 @@ class PagesController < ActionController::Base
   end
 
   # GET /shop
-  # Shows the shop page. Requires authentication.
+  # Shows the under construction page. Requires authentication.
   def shop
     require_auth or return
     @shop_items = ShopItem.where(status: [ "active", "in stock", "stock", nil, "" ]).order(:cost)
+    # Renders app/views/pages/shop.html.erb by default
   end
 
   # POST /shop/purchase
-  # Purchases a shop item. Requires authentication.
+  # Purchases a shop item or grant variant. Requires authentication.
+  # Supports both database-backed items (item_id) and virtual grant variants (category + variant).
   def purchase
     require_auth or return
 
-    item = ShopItem.where(status: [ "active", "in stock", "stock", nil, "" ]).find_by(id: params[:item_id])
+    # Try to find a database-backed item first
+    item = ShopItem.where(status: [ "active", "in stock", "stock", nil, "" ]).find_by(id: params[:item_id]) if params[:item_id].present?
 
-    unless item
-      redirect_to shop_path, flash: { error: "Item not found" }
-      return
+    if item
+      # Database-backed item purchase
+      cost = item.cost || 0
+      name = item.name
+      shop_item = item
+    else
+      # Virtual grant variant purchase (category + variant tier)
+      category = params[:category].to_s.strip
+      variant = params[:variant].to_s.strip.downcase
+      quantity = [ params[:quantity].to_i, 1 ].max
+
+      valid_categories = %w[keyboard mouse monitor headphones webcam]
+      bolts_map = { "standard" => 500, "quality" => 1100, "advanced" => 1700, "professional" => 2300 }
+      grant_map = { "standard" => 50, "quality" => 110, "advanced" => 170, "professional" => 230 }
+
+      unless valid_categories.include?(category.downcase) && bolts_map.key?(variant)
+        redirect_to shop_path, flash: { error: "Invalid item selection" }
+        return
+      end
+
+      cost = bolts_map[variant] * quantity
+      grant_amount = grant_map[variant] * quantity
+      name = "#{category.capitalize} #{variant.capitalize} Grant (#{quantity}x) - $#{grant_amount} HCB"
+
+      # Find or create a placeholder ShopItem for grant orders
+      shop_item = ShopItem.find_or_create_by!(name: "Grant Order Placeholder") do |si|
+        si.cost = 0
+        si.status = "system"
+        si.description = "System placeholder for grant-based orders"
+      end
     end
 
-    if @current_user.balance < (item.cost || 0)
+    if @current_user.balance < cost
       redirect_to shop_path, flash: { error: "Not enough bolts!" }
       return
     end
 
     ActiveRecord::Base.transaction do
-      @current_user.update!(balance: @current_user.balance - item.cost)
+      @current_user.update!(balance: @current_user.balance - cost)
       @current_user.shop_orders.create!(
-        shop_item: item,
-        name: item.name,
+        shop_item: shop_item,
+        name: name,
         status: "pending"
       )
     end
 
-    redirect_to shop_path, flash: { success: "Purchased #{item.name}!" }
+    redirect_to shop_path, flash: { success: "Purchased #{name}!" }
   rescue ActiveRecord::RecordInvalid => e
     redirect_to shop_path, flash: { error: "Purchase failed: #{e.message}" }
   end
