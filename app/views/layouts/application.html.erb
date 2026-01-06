@@ -20,7 +20,9 @@
     <% end %>
 
     <%= yield %>
-    <img src="/images/img_2180.png" alt="bottom-left decoration" class="corner-img corner-img--left">
-    <img src="/images/untitled_artwork.png" alt="bottom-right decoration" class="corner-img corner-img--right">
+    <% unless content_for(:page) == "shop" %>
+      <img src="/images/img_2180.png" alt="bottom-left decoration" class="corner-img corner-img--left">
+      <img src="/images/untitled_artwork.png" alt="bottom-right decoration" class="corner-img corner-img--right">
+    <% end %>
   </body>
 </html>
