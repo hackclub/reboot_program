@@ -120,11 +120,13 @@
       if (modalQuantity) modalQuantity.value = String(qty);
       // Enable buy if user has enough balance (category/variant are always set for grant items)
       const hasValidSelection = Boolean(modalCategory?.value) || Boolean(modalItemId?.value);
-      const canBuy = hasValidSelection && userBalance >= totalBolts;
+      const hasEnoughBolts = userBalance >= totalBolts;
+      const canBuy = hasValidSelection && hasEnoughBolts;
       if (modalBuy) modalBuy.disabled = !canBuy;
+      // Only show warning if user doesn't have enough bolts (not for invalid selection)
       if (modalWarning) {
         const shortage = Math.max(0, totalBolts - userBalance);
-        modalWarning.style.display = canBuy ? "none" : "block";
+        modalWarning.style.display = (!hasEnoughBolts && hasValidSelection) ? "block" : "none";
         if (modalShortage) modalShortage.textContent = String(shortage);
       }
     }

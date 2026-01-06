@@ -161,7 +161,9 @@
       </div>
       <%= form_with url: purchase_path, method: :post, local: true, id: "shop-modal-form" do %>
         <input type="hidden" name="item_id" id="shop-modal-item-id" value="">
+        <input type="hidden" name="category" id="shop-modal-category" value="">
         <input type="hidden" name="variant" id="shop-modal-variant" value="">
+        <input type="hidden" name="quantity" id="shop-modal-quantity" value="1">
         <button id="shop-modal-buy" type="submit" class="btn btn--primary btn--block">Purchase</button>
       <% end %>
     </div>
