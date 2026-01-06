@@ -20,5 +20,9 @@
     <% end %>
 
     <%= yield %>
+    <% unless content_for?(:page) && yield(:page) == 'signin' %>
+      <img src="/images/img_2180.png" alt="bottom-left decoration" class="corner-img corner-img--left">
+      <img src="/images/untitled_artwork.png" alt="bottom-right decoration" class="corner-img corner-img--right">
+    <% end %>
   </body>
 </html>

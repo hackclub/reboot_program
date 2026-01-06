@@ -61,11 +61,25 @@
               'https://files.slack.com/files-pri/T09V59WQY1E-F0A6W5FN41Y/vecteezy_3d-monitor-for-office_53739745.png?pub_secret=6a16537f48',
               'https://files.slack.com/files-pri/T09V59WQY1E-F0A6EN1NVP1/vecteezy_sleek-black-computer-monitor-with-vibrant-red-abstract_56609224.png?pub_secret=5e30e2cd74'
             ] if cat == 'Monitor' %>
+            <% images_for_headphones = [
+              'https://files.slack.com/files-pri/T09V59WQY1E-F0A75HW036Y/vecteezy_sleek-white-wireless-headphones-premium-audio-bluetooth_55130517.png?pub_secret=51ed82f735',
+              'https://files.slack.com/files-pri/T09V59WQY1E-F0A6VJMSHLK/vecteezy_modern-silver-headphones-for-audiophiles_51767617.png?pub_secret=c9009d25e9',
+              'https://files.slack.com/files-pri/T09V59WQY1E-F0A6VJMAZRR/vecteezy_headphone-png-with-ai-generated_26773824.png?pub_secret=7edb592517',
+              'https://files.slack.com/files-pri/T09V59WQY1E-F0A6ZUNQC8N/vecteezy_3d-gaming-headphone_53295526.png?pub_secret=72d6d1c41a'
+            ] if cat == 'Headphones' %>
+            <% images_for_webcam = [
+              'https://files.slack.com/files-pri/T09V59WQY1E-F0A7W9U4HU0/vecteezy_ai-generated-security-camera-on-transparent-background-ai_39213084.png?pub_secret=0ec47b5d57',
+              'https://files.slack.com/files-pri/T09V59WQY1E-F0A75J7CTDJ/vecteezy_high-definition-webcam-modern-design-sleek-silver-black_67821519.png?pub_secret=22c6d549e5',
+              'https://files.slack.com/files-pri/T09V59WQY1E-F0A6VK098QK/vecteezy_sleek-modern-webcam-for-conferencing-and-streaming_60580277.png?pub_secret=02494c1a84',
+              'https://files.slack.com/files-pri/T09V59WQY1E-F0A6ZV27UQN/vecteezy_camera-with-lens_54402726.png?pub_secret=6527a83f20'
+            ] if cat == 'Webcam' %>
             <% variants.each_with_index do |(label_text, key), variant_idx| %>
               <% img_src = (
                 (cat == 'Keyboard' && images_for_keyboard && images_for_keyboard[variant_idx]) ||
                 (cat == 'Mouse' && images_for_mouse && images_for_mouse[variant_idx]) ||
                 (cat == 'Monitor' && images_for_monitor && images_for_monitor[variant_idx]) ||
+                (cat == 'Headphones' && images_for_headphones && images_for_headphones[variant_idx]) ||
+                (cat == 'Webcam' && images_for_webcam && images_for_webcam[variant_idx]) ||
                 '/images/signin/hackclub.svg'
               ) %>
               <% amount_map = { 'standard' => 50, 'quality' => 110, 'advanced' => 170, 'professional' => 230 } %>
