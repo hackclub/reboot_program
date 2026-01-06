@@ -61,11 +61,11 @@ h1, h2, h3, h4, h5, h6 {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 22px;
+  padding: 16px 28px;
   position: sticky;
   top: 12px;
   z-index: 120;
-  width: min(1200px, 94vw);
+  width: min(1400px, 96vw);
   margin: 12px auto 0;
   background: rgba(243, 227, 207, 0.78);
   backdrop-filter: blur(14px) saturate(125%);
@@ -1048,7 +1048,7 @@ a.project-row:hover {
 .signin-subtitle {
    font-family: 'Jolly Lodger', cursive;
    font-size: clamp(24px, 4vw, 36px);
-   margin: 32px 0 0;
+   margin-top: -3vh;
    color: #000;
    order: 3;
 }
