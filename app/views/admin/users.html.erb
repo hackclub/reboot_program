@@ -18,7 +18,7 @@
     <a href="/admin/shop" style="padding: 8px 16px; border-bottom: 2px solid transparent; color: #999; text-decoration: none; font-weight: 600;">Shop</a>
   </div>
 
-  <h1 class="page-title">Users (<%= @users.count %>)</h1>
+  <h1 class="page-title">Users (<%= @total_users %>)</h1>
 
   <div class="admin-table">
     <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 1rem; padding: 12px 16px; background: #f9f9f7; font-weight: 600; border-radius: 8px 8px 0 0; font-size: 0.9rem;">
@@ -45,6 +45,18 @@
           <span style="font-weight: 600;"><%= user.balance.to_i %> <img src="https://files.slack.com/files-pri/T09V59WQY1E-F0A793FGJ2V/bolt.png?pub_secret=7acc4044c5" alt="bolt" style="height: 1em; display: inline; margin-left: 4px;"></span>
         </div>
       </div>
+    <% end %>
+  </div>
+
+  <div style="display: flex; justify-content: center; gap: 1rem; margin-top: 2rem;">
+    <% if @current_page > 1 %>
+      <a href="/admin/users?page=<%= @current_page - 1 %>" class="btn btn--ghost">← Previous</a>
+    <% end %>
+    
+    <span style="padding: 8px 16px; align-self: center;">Page <%= @current_page %> of <%= @total_pages %></span>
+    
+    <% if @current_page < @total_pages %>
+      <a href="/admin/users?page=<%= @current_page + 1 %>" class="btn btn--ghost">Next →</a>
     <% end %>
   </div>
 </main>

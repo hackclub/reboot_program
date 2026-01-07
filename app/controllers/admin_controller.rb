@@ -41,7 +41,16 @@ class AdminController < ActionController::Base
 
   # GET /admin/users
   def users
-    @users = User.all.order(created_at: :desc)
+    page = params[:page].to_i > 0 ? params[:page].to_i : 1
+    per_page = 50
+
+    @all_users = User.order(created_at: :desc)
+    @total_users = @all_users.count
+    @total_pages = (@total_users.to_f / per_page).ceil
+    @current_page = page
+
+    offset = (page - 1) * per_page
+    @users = @all_users.offset(offset).limit(per_page)
   end
 
   # GET /admin/shop
