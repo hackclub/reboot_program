@@ -1,7 +1,7 @@
 # Admin API controller for managing projects.
 class Api::V1::Admin::ProjectsController < ApplicationController
   before_action :authenticate_user!
-  before_action :require_admin
+  before_action :require_admin!
   before_action :set_project
 
   # POST /api/v1/admin/projects/:id/approve
@@ -45,10 +45,6 @@ class Api::V1::Admin::ProjectsController < ApplicationController
   end
 
   private
-
-  def require_admin
-    render json: { error: "Admin access required" }, status: :forbidden unless current_user&.admin?
-  end
 
   def set_project
     @project = Project.find(params[:id])

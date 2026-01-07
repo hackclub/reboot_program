@@ -3,13 +3,13 @@
 class Api::V1::Admin::UsersController < ApplicationController
   before_action :authenticate_user!
   before_action :require_admin!
-  before_action :set_user, only: [:show, :update, :destroy]
+  before_action :set_user, only: [ :show, :update, :destroy ]
 
   # GET /api/v1/admin/users
   # Lists all users with pagination.
   def index
     page = params[:page]&.to_i || 1
-    per_page = [params[:per_page]&.to_i || 25, 100].min
+    per_page = [ params[:per_page]&.to_i || 25, 100 ].min
 
     users = User.order(created_at: :desc)
                 .offset((page - 1) * per_page)
@@ -30,6 +30,11 @@ class Api::V1::Admin::UsersController < ApplicationController
   # PATCH /api/v1/admin/users/:id
   # Updates user attributes (role, idv_verified, etc.)
   def update
+    if params[:user][:role].present? && @user.id == current_user.id
+      render json: { error: "Cannot change your own role" }, status: :forbidden
+      return
+    end
+
     if @user.update(user_params)
       render json: { user: user_response(@user) }
     else

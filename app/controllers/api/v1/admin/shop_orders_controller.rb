@@ -3,7 +3,7 @@
 class Api::V1::Admin::ShopOrdersController < ApplicationController
   before_action :authenticate_user!
   before_action :require_admin!
-  before_action :set_order, only: [:show, :update]
+  before_action :set_order, only: [ :show, :update ]
 
   # GET /api/v1/admin/shop_orders
   # Lists all orders with optional status filter.

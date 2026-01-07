@@ -1,6 +1,8 @@
 # Handles token-based authentication for the API.
 # Frontend performs OAuth with Hack Club, then sends the access token here.
 class Api::V1::AuthController < ApplicationController
+  before_action :authenticate_user!, only: [ :me ]
+
   # POST /api/v1/auth/token
   # Exchanges a Hack Club OAuth token for a JWT.
   #

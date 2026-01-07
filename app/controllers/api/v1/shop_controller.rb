@@ -5,14 +5,14 @@ class Api::V1::ShopController < ApplicationController
   # GET /api/v1/shop/items
   # Lists all active shop items.
   def items
-    @items = ShopItem.where(status: ["active", "in stock", "stock", nil, ""]).order(:cost)
+    @items = ShopItem.where(status: [ "active", "in stock", "stock", nil, "" ]).order(:cost)
     render json: { items: @items.map { |i| item_response(i) } }
   end
 
   # POST /api/v1/shop/purchase
   # Purchases a shop item.
   def purchase
-    item = ShopItem.where(status: ["active", "in stock", "stock", nil, ""]).find_by(id: params[:item_id])
+    item = ShopItem.where(status: [ "active", "in stock", "stock", nil, "" ]).find_by(id: params[:item_id])
 
     unless item
       render json: { error: "Item not found" }, status: :not_found

@@ -1,7 +1,7 @@
 # Admin API controller for managing shop items.
 class Api::V1::Admin::ShopItemsController < ApplicationController
   before_action :authenticate_user!
-  before_action :require_admin
+  before_action :require_admin!
   before_action :set_shop_item, only: [ :show, :update, :destroy ]
 
   # GET /api/v1/admin/shop_items
@@ -42,10 +42,6 @@ class Api::V1::Admin::ShopItemsController < ApplicationController
   end
 
   private
-
-  def require_admin
-    render json: { error: "Admin access required" }, status: :forbidden unless current_user&.admin?
-  end
 
   def set_shop_item
     @item = ShopItem.find(params[:id])

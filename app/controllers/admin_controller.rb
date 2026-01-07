@@ -15,13 +15,13 @@ class AdminController < ActionController::Base
     status_filter = params[:status]
 
     @all_projects = Project.includes(:user).order(created_at: :desc)
-    
+
     if status_filter.present? && %w[approved pending rejected in-review].include?(status_filter)
       @filtered_projects = @all_projects.where(status: status_filter)
     else
       @filtered_projects = @all_projects
     end
-    
+
     @total_projects = @filtered_projects.count
     @total_pages = (@total_projects.to_f / per_page).ceil
     @current_page = page
@@ -43,8 +43,18 @@ class AdminController < ActionController::Base
   def users
     page = params[:page].to_i > 0 ? params[:page].to_i : 1
     per_page = 50
+    @query = params[:q].to_s.strip
 
     @all_users = User.order(created_at: :desc)
+
+    if @query.present?
+      q_like = "%#{@query}%"
+      @all_users = @all_users.where(
+        "COALESCE(slack_username,'') ILIKE :q OR COALESCE(email,'') ILIKE :q OR COALESCE(role,'') ILIKE :q",
+        q: q_like
+      )
+    end
+
     @total_users = @all_users.count
     @total_pages = (@total_users.to_f / per_page).ceil
     @current_page = page
@@ -61,15 +71,10 @@ class AdminController < ActionController::Base
   private
 
   def require_admin
-    # TEMP: For UI development, use first user or create one
-    @current_user = if session[:user_id]
-                     User.find_by(id: session[:user_id])
-    else
-                     User.first || User.create!(slack_username: "test_user", role: "admin")
-    end
+    @current_user = User.find_by(id: session[:user_id]) if session[:user_id]
 
     unless @current_user&.admin?
-      redirect_to projects_path, flash: { error: "Admin access required" }
+      redirect_to root_path, flash: { error: "Admin access required" }
     end
   end
 end

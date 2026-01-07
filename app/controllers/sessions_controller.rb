@@ -1,6 +1,6 @@
 # Handles OmniAuth callbacks for Hack Club authentication.
 class SessionsController < ActionController::Base
-  protect_from_forgery with: :exception, except: [:create, :failure]
+  protect_from_forgery with: :exception, except: [ :create, :failure ]
 
   # GET /auth/hackclub/callback
   # OmniAuth success callback - creates/updates user and logs them in.

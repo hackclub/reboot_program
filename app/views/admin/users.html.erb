@@ -18,6 +18,20 @@
     <a href="/admin/shop" style="padding: 8px 16px; border-bottom: 2px solid transparent; color: #999; text-decoration: none; font-weight: 600;">Shop</a>
   </div>
 
+  <form action="/admin/users" method="get" class="search-form">
+    <input
+      type="text"
+      name="q"
+      value="<%= @query %>"
+      placeholder="Search username, email, or role"
+      class="search-input"
+    >
+    <button type="submit" class="btn btn--primary">Search</button>
+    <% if @query.present? %>
+      <a href="/admin/users" class="btn btn--ghost">Clear</a>
+    <% end %>
+  </form>
+
   <h1 class="page-title">Users (<%= @total_users %>)</h1>
 
   <div class="admin-table">
@@ -50,13 +64,13 @@
 
   <div style="display: flex; justify-content: center; gap: 1rem; margin-top: 2rem;">
     <% if @current_page > 1 %>
-      <a href="/admin/users?page=<%= @current_page - 1 %>" class="btn btn--ghost">← Previous</a>
+      <a href="/admin/users?page=<%= @current_page - 1 %><%= @query.present? ? "&q=#{ERB::Util.url_encode(@query)}" : "" %>" class="btn btn--ghost">← Previous</a>
     <% end %>
     
     <span style="padding: 8px 16px; align-self: center;">Page <%= @current_page %> of <%= @total_pages %></span>
     
     <% if @current_page < @total_pages %>
-      <a href="/admin/users?page=<%= @current_page + 1 %>" class="btn btn--ghost">Next →</a>
+      <a href="/admin/users?page=<%= @current_page + 1 %><%= @query.present? ? "&q=#{ERB::Util.url_encode(@query)}" : "" %>" class="btn btn--ghost">Next →</a>
     <% end %>
   </div>
 </main>
