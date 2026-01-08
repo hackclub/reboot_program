@@ -127,7 +127,7 @@ class PagesController < ActionController::Base
       # Virtual grant variant purchase (category + variant tier)
       category = params[:category].to_s.strip
       variant = params[:variant].to_s.strip.downcase
-      quantity = [ params[:quantity].to_i, 1 ].max
+      quantity = [ [ params[:quantity].to_i, 1 ].max, 1 ].min
 
       valid_categories = %w[keyboard mouse monitor headphones webcam]
       bolts_map = { "standard" => 500, "quality" => 1100, "advanced" => 1700, "professional" => 2300 }

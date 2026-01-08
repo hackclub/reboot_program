@@ -105,13 +105,13 @@
     }
 
     function updateModalTotals() {
-      if (!modal) return;
-      const baseBolts = Number(modal.dataset.baseBolts || 0);
-      const grant = Number(modal.dataset.grant || 0);
-      const name = modal.dataset.itemName || "Item";
-      const qty = Math.max(1, Number(modalQty?.value || 1));
-      const totalBolts = baseBolts * qty;
-      const totalGrant = grant * qty;
+       if (!modal) return;
+       const baseBolts = Number(modal.dataset.baseBolts || 0);
+       const grant = Number(modal.dataset.grant || 0);
+       const name = modal.dataset.itemName || "Item";
+       const qty = Math.min(1, Math.max(1, Number(modalQty?.value || 1)));
+       const totalBolts = baseBolts * qty;
+       const totalGrant = grant * qty;
       if (modalPrice) modalPrice.textContent = String(totalBolts);
       if (modalDesc) {
         modalDesc.textContent = `This provides a $${totalGrant} HCB card grant to spend on a ${name}. Quantity: ${qty}.`;
