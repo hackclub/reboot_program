@@ -65,9 +65,42 @@ class AdminController < ActionController::Base
 
   # GET /admin/shop
   def shop
-    @shop_items = ShopItem.all.order(created_at: :desc)
+    @shop_items = SHOP_ITEMS
     @shop_orders = ShopOrder.includes(:user, :shop_item).order(created_at: :desc)
   end
+
+  SHOP_ITEMS = [
+    { name: "Keyboard", variants: [
+      { label: "Standard grant", key: "standard", bolts: 500, grant: 50 },
+      { label: "Quality grant", key: "quality", bolts: 1100, grant: 110 },
+      { label: "Advanced grant", key: "advanced", bolts: 1700, grant: 170 },
+      { label: "Professional grant", key: "professional", bolts: 2300, grant: 230 }
+    ]},
+    { name: "Mouse", variants: [
+      { label: "Standard grant", key: "standard", bolts: 500, grant: 50 },
+      { label: "Quality grant", key: "quality", bolts: 1100, grant: 110 },
+      { label: "Advanced grant", key: "advanced", bolts: 1700, grant: 170 },
+      { label: "Professional grant", key: "professional", bolts: 2300, grant: 230 }
+    ]},
+    { name: "Monitor", variants: [
+      { label: "Standard grant", key: "standard", bolts: 500, grant: 50 },
+      { label: "Quality grant", key: "quality", bolts: 1100, grant: 110 },
+      { label: "Advanced grant", key: "advanced", bolts: 1700, grant: 170 },
+      { label: "Professional grant", key: "professional", bolts: 2300, grant: 230 }
+    ]},
+    { name: "Headphones", variants: [
+      { label: "Standard grant", key: "standard", bolts: 500, grant: 50 },
+      { label: "Quality grant", key: "quality", bolts: 1100, grant: 110 },
+      { label: "Advanced grant", key: "advanced", bolts: 1700, grant: 170 },
+      { label: "Professional grant", key: "professional", bolts: 2300, grant: 230 }
+    ]},
+    { name: "Webcam", variants: [
+      { label: "Standard grant", key: "standard", bolts: 500, grant: 50 },
+      { label: "Quality grant", key: "quality", bolts: 1100, grant: 110 },
+      { label: "Advanced grant", key: "advanced", bolts: 1700, grant: 170 },
+      { label: "Professional grant", key: "professional", bolts: 2300, grant: 230 }
+    ]}
+  ]
 
   private
 
