@@ -2,7 +2,7 @@ class ShopOrder < ApplicationRecord
   belongs_to :user
   belongs_to :shop_item
 
-  after_create :sync_to_airtable
+  after_save :sync_to_airtable
 
   private
 
