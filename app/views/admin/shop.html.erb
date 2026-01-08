@@ -18,7 +18,7 @@
     <a href="/admin/shop" style="padding: 8px 16px; border-bottom: 2px solid #f25f2c; color: #f25f2c; text-decoration: none; font-weight: 600;">Shop</a>
   </div>
 
-  <h1 class="page-title">Shop Items</h1>
+  <h1 class="page-title">Shop</h1>
 
   <div class="card" style="padding: 2rem; margin-bottom: 2rem; max-width: 600px;">
     <h2 style="margin-top: 0; margin-bottom: 1.5rem;">Add New Item</h2>
@@ -83,10 +83,58 @@
         </div>
       </div>
     <% end %>
-  </div>
-</main>
+    </div>
+    </div>
 
-<script>
+    <h2 style="margin: 3rem 0 1rem;">Recent Orders (<%= @shop_orders.count %>)</h2>
+
+    <div class="card" style="overflow: hidden;">
+    <table style="width: 100%; border-collapse: collapse;">
+    <thead>
+      <tr style="background: #f5f5f5; border-bottom: 1px solid #e0e0e0;">
+        <th style="padding: 1rem; text-align: left; font-weight: 600; font-size: 0.9rem;">User</th>
+        <th style="padding: 1rem; text-align: left; font-weight: 600; font-size: 0.9rem;">Order Name</th>
+        <th style="padding: 1rem; text-align: left; font-weight: 600; font-size: 0.9rem;">Status</th>
+        <th style="padding: 1rem; text-align: left; font-weight: 600; font-size: 0.9rem;">Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if @shop_orders.empty? %>
+        <tr>
+          <td colspan="4" style="padding: 2rem; text-align: center; color: #999;">No orders yet</td>
+        </tr>
+      <% else %>
+        <% @shop_orders.each do |order| %>
+          <tr style="border-bottom: 1px solid #e0e0e0;">
+            <td style="padding: 1rem;">
+              <span style="font-weight: 600;"><%= order.user.first_name %> <%= order.user.last_name %></span>
+              <br>
+              <span class="muted" style="font-size: 0.9rem;"><%= order.user.email %></span>
+            </td>
+            <td style="padding: 1rem;">
+              <%= order.name %>
+            </td>
+            <td style="padding: 1rem;">
+              <% status_color = case order.status
+                when 'pending' then '#fff3cd'
+                when 'completed' then '#d4edda'
+                when 'cancelled' then '#f8d7da'
+                else '#e2e3e5'
+              end %>
+              <span style="background: <%= status_color %>; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; font-weight: 600; text-transform: capitalize;"><%= order.status %></span>
+            </td>
+            <td style="padding: 1rem; color: #999; font-size: 0.9rem;">
+              <%= order.created_at.strftime('%b %d, %Y') %>
+            </td>
+          </tr>
+        <% end %>
+      <% end %>
+    </tbody>
+    </table>
+    </div>
+    </main>
+
+    <script>
   const addItemForm = document.getElementById('add-item-form');
   const addItemBtn = document.getElementById('add-item-btn');
 

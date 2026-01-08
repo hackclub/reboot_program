@@ -66,6 +66,7 @@ class AdminController < ActionController::Base
   # GET /admin/shop
   def shop
     @shop_items = ShopItem.all.order(created_at: :desc)
+    @shop_orders = ShopOrder.includes(:user, :shop_item).order(created_at: :desc)
   end
 
   private
