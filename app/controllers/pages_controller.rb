@@ -128,6 +128,8 @@ class PagesController < ActionController::Base
       category = params[:category].to_s.strip
       variant = params[:variant].to_s.strip.downcase
       quantity = [ [ params[:quantity].to_i, 1 ].max, 1 ].min
+      shipping_dollars = (params[:shipping_dollars].to_f || 0)
+      shipping_bolts = (shipping_dollars * 10).round
 
       valid_categories = %w[keyboard mouse monitor headphones webcam]
       bolts_map = { "standard" => 500, "quality" => 1100, "advanced" => 1700, "professional" => 2300 }
@@ -138,9 +140,12 @@ class PagesController < ActionController::Base
         return
       end
 
-      cost = bolts_map[variant] * quantity
+      item_cost = bolts_map[variant] * quantity
+      cost = item_cost + shipping_bolts
       grant_amount = grant_map[variant] * quantity
-      name = "#{category.capitalize} #{variant.capitalize} Grant (#{quantity}x) - $#{grant_amount} HCB"
+      shipping_grant = (shipping_dollars * 1).round(2)
+      total_grant = grant_amount + shipping_grant
+      name = "#{category.capitalize} #{variant.capitalize} Grant (#{quantity}x) - $#{total_grant} HCB"
 
       # Find or create a placeholder ShopItem for grant orders
       shop_item = ShopItem.find_or_create_by!(name: "Grant Order Placeholder") do |si|

@@ -109,27 +109,36 @@
        const baseBolts = Number(modal.dataset.baseBolts || 0);
        const grant = Number(modal.dataset.grant || 0);
        const name = modal.dataset.itemName || "Item";
-       const qty = Math.min(1, Math.max(1, Number(modalQty?.value || 1)));
-       const totalBolts = baseBolts * qty;
-       const totalGrant = grant * qty;
-      if (modalPrice) modalPrice.textContent = String(totalBolts);
-      if (modalDesc) {
-        modalDesc.textContent = `This provides a $${totalGrant} HCB card grant to spend on a ${name}. Quantity: ${qty}.`;
-      }
-      // Sync quantity to hidden form field
-      if (modalQuantity) modalQuantity.value = String(qty);
-      // Enable buy if user has enough balance (category/variant are always set for grant items)
-      const hasValidSelection = Boolean(modalCategory?.value) || Boolean(modalItemId?.value);
-      const hasEnoughBolts = userBalance >= totalBolts;
-      const canBuy = hasValidSelection && hasEnoughBolts;
-      if (modalBuy) modalBuy.disabled = !canBuy;
-      // Only show warning if user doesn't have enough bolts (not for invalid selection)
-      if (modalWarning) {
-        const shortage = Math.max(0, totalBolts - userBalance);
-        modalWarning.style.display = (!hasEnoughBolts && hasValidSelection) ? "block" : "none";
-        if (modalShortage) modalShortage.textContent = String(shortage);
-      }
-    }
+       const qty = Math.max(1, Number(modalQty?.value || 1));
+       const shippingDollars = Number(document.getElementById('shop-modal-shipping')?.value || 0);
+       const shippingBolts = Math.round(shippingDollars * 10); // 50 bolts = $5, so 10 bolts = $1
+       const itemBolts = baseBolts * qty;
+       const totalBolts = itemBolts + shippingBolts;
+       const itemGrant = grant * qty;
+       const shippingGrant = shippingDollars;
+       const totalGrant = itemGrant + shippingGrant;
+       
+       if (modalPrice) modalPrice.textContent = String(totalBolts);
+       if (modalDesc) {
+         modalDesc.textContent = `This provides a $${totalGrant} HCB card grant to spend on a ${name}. Quantity: ${qty}.`;
+       }
+       // Sync quantity and shipping to hidden form fields
+       if (modalQuantity) modalQuantity.value = String(qty);
+       if (document.getElementById('shop-modal-shipping-hidden')) {
+         document.getElementById('shop-modal-shipping-hidden').value = String(shippingDollars);
+       }
+       // Enable buy if user has enough balance (category/variant are always set for grant items)
+       const hasValidSelection = Boolean(modalCategory?.value) || Boolean(modalItemId?.value);
+       const hasEnoughBolts = userBalance >= totalBolts;
+       const canBuy = hasValidSelection && hasEnoughBolts;
+       if (modalBuy) modalBuy.disabled = !canBuy;
+       // Only show warning if user doesn't have enough bolts (not for invalid selection)
+       if (modalWarning) {
+         const shortage = Math.max(0, totalBolts - userBalance);
+         modalWarning.style.display = (!hasEnoughBolts && hasValidSelection) ? "block" : "none";
+         if (modalShortage) modalShortage.textContent = String(shortage);
+       }
+     }
 
     function openModal(data) {
       if (!modal) return;
@@ -176,8 +185,11 @@
       }
     });
 
-    // React to quantity changes
+    // React to quantity and shipping changes
     modalQty?.addEventListener("input", updateModalTotals);
+    modalQty?.addEventListener("change", updateModalTotals);
+    document.getElementById('shop-modal-shipping')?.addEventListener("input", updateModalTotals);
+    document.getElementById('shop-modal-shipping')?.addEventListener("change", updateModalTotals);
 
     modalClose?.addEventListener("click", closeModal);
     modalBackdrop?.addEventListener("click", closeModal);

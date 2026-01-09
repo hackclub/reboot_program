@@ -51,41 +51,68 @@
         <% base_cost = (item&.cost || 0).to_i %>
         <div id="cat-<%= cat.downcase %>" class="shop-item-detail <%= 'is-active' if idx == 0 %>">
           <div class="shop-item-detail__variants">
-            <% variants = [
+            <% keyboard_variants = [
+              ['Standard grant - Redragon K668', 'standard'],
+              ['Quality grant - YUNZII AL80', 'quality'],
+              ['Advanced grant - Lemokey P1 HE', 'advanced'],
+              ['Professional grant - Logitech G715', 'professional']
+            ] %>
+            <% mouse_variants = [
+              ['Standard grant - Logitech G305 Lightspeed', 'standard'],
+              ['Quality grant - Razer DeathAdder', 'quality'],
+              ['Advanced grant - G309 LIGHTSPEED', 'advanced'],
+              ['Professional grant - MX Master 4', 'professional']
+            ] %>
+            <% monitor_variants = [
+              ['Standard grant', 'standard'],
+              ['Quality grant - Dell 24 Monitor SE2425HM', 'quality'],
+              ['Advanced grant - ViewSonic VX3276-MHD', 'advanced'],
+              ['Professional grant - SANSUI 32-Inch WQHD', 'professional']
+            ] %>
+            <% headphones_variants = [
+              ['Standard grant - TOZO HT3', 'standard'],
+              ['Quality grant - Soundcore Life Q30', 'quality'],
+              ['Professional grant - AirPods Pro 3', 'professional']
+            ] %>
+            <% webcam_variants = [
+              ['Standard grant - EMEET 1080P', 'standard'],
+              ['Quality grant - Elgato Facecam MK.2', 'quality'],
+              ['Professional grant - Insta360 Link 2 + Tripod Bundle', 'professional']
+            ] %>
+            <% other_variants = [
               ['Standard grant', 'standard'],
               ['Quality grant', 'quality'],
               ['Advanced grant', 'advanced'],
               ['Professional grant', 'professional']
             ] %>
+            <% variants = (cat == 'Keyboard' ? keyboard_variants : (cat == 'Mouse' ? mouse_variants : (cat == 'Monitor' ? monitor_variants : (cat == 'Headphones' ? headphones_variants : (cat == 'Webcam' ? webcam_variants : other_variants))))) %>
             <% images_for_keyboard = [
-              'https://files.slack.com/files-pri/T09V59WQY1E-F0A6SJ1AQAH/vecteezy_keyboard-3d-rendering-icon-illustration_28606613.png?pub_secret=9418a400cb',
-              'https://files.slack.com/files-pri/T09V59WQY1E-F0A6SHUUGN9/vecteezy_gaming-keyboard-with-anti-ghosting-technology-transparent_57571865.png?pub_secret=2fe417ad9b',
-              'https://files.slack.com/files-pri/T09V59WQY1E-F0A7QABPARW/vecteezy_rgb-illuminated-white-gaming-keyboard-top-view_52855142.png?pub_secret=3d3c0544c6',
-              'https://files.slack.com/files-pri/T09V59WQY1E-F0A6EHQKAUF/vecteezy_white-rgb-mechanical-gaming-keyboard-with-cable_52855199.png?pub_secret=3e689005bb'
+              'https://files.slack.com/files-pri/T09V59WQY1E-F0A7ER52G1Z/618a_b25mkl._ac_sl1500_-removebg-preview.png?pub_secret=1320d4d467',
+              'https://files.slack.com/files-pri/T09V59WQY1E-F0A75QDL9RV/1-1_ce938024-87eb-49c3-8c5d-b5cc0d707dba-removebg-preview.png?pub_secret=c90aae67c7',
+              'https://files.slack.com/files-pri/T09V59WQY1E-F0A7F2PV2HH/lemokey-p1-he-wireless-custom-gaming-keyboard-black-aluminum-frame-gateron-double-rail-magnetic-nebula-switch-shine-through-double-shot-pbt-keycaps-version-removebg-preview.png?pub_secret=192f3a7612',
+              'https://files.slack.com/files-pri/T09V59WQY1E-F0A7MF33W1G/g715-gallery-2-removebg-preview.png?pub_secret=097bb6bd73'
             ] if cat == 'Keyboard' %>
             <% images_for_mouse = [
-              'https://files.slack.com/files-pri/T09V59WQY1E-F0A7QDJR56C/vecteezy_computer-mouse-isolated-on-a-transparent-background_47833235.png?pub_secret=206f7975e4',
-              'https://files.slack.com/files-pri/T09V59WQY1E-F0A6PNNB8HH/vecteezy_ai-generated-computer-mouse-png-isolated-on-transparent_36113136.png?pub_secret=5328baa9cd',
-              'https://files.slack.com/files-pri/T09V59WQY1E-F0A6ZMVP5RA/vecteezy_ai-generated-computer-mouse-png-isolated-on-transparent_36112700.png?pub_secret=4a6941278c',
-              'https://files.slack.com/files-pri/T09V59WQY1E-F0A6ELUDWQP/vecteezy_ai-generated-computer-mouse-png-isolated-on-transparent_36112693.png?pub_secret=8a1b07b884'
+              'https://files.slack.com/files-pri/T09V59WQY1E-F0A767XQ16K/51xly45csfl._ac_sl1500_-removebg-preview.png?pub_secret=9a90d6c299',
+              'https://files.slack.com/files-pri/T09V59WQY1E-F0A8FV4J6D6/51sg9blsmtl._ac_sl1500_-removebg-preview.png?pub_secret=74f57a6d05',
+              'https://files.slack.com/files-pri/T09V59WQY1E-F0A8G2W1SL8/g309-lightspeed-wireless-mouse-white-gallery-1-removebg-preview.png?pub_secret=6c9a8f14ef',
+              'https://files.slack.com/files-pri/T09V59WQY1E-F0A8G33U1C0/mx-master-4-black-top-angle-gallery-1-removebg-preview.png?pub_secret=ec87f2385a'
             ] if cat == 'Mouse' %>
             <% images_for_monitor = [
               'https://files.slack.com/files-pri/T09V59WQY1E-F0A793DR88Z/10740609.png?pub_secret=edffb80446',
-              'https://files.slack.com/files-pri/T09V59WQY1E-F0A6ZNZN99A/3d-monitor-curved-free-png.webp?pub_secret=9d8649f57c',
-              'https://files.slack.com/files-pri/T09V59WQY1E-F0A6W5FN41Y/vecteezy_3d-monitor-for-office_53739745.png?pub_secret=6a16537f48',
-              'https://files.slack.com/files-pri/T09V59WQY1E-F0A6EN1NVP1/vecteezy_sleek-black-computer-monitor-with-vibrant-red-abstract_56609224.png?pub_secret=5e30e2cd74'
+              'https://files.slack.com/files-pri/T09V59WQY1E-F0A7F6E19JP/71xzjnua6ol._ac_sl1500_-removebg-preview.png?pub_secret=34d59477ce',
+              'https://files.slack.com/files-pri/T09V59WQY1E-F0A7R6G417W/71kwnok18dl._ac_sl1500_-removebg-preview.png?pub_secret=cb9559cf58',
+              'https://files.slack.com/files-pri/T09V59WQY1E-F0A7R7B1EHJ/71tgy5mzewl._ac_sl1500_-removebg-preview.png?pub_secret=3222c0235f'
             ] if cat == 'Monitor' %>
             <% images_for_headphones = [
-              'https://files.slack.com/files-pri/T09V59WQY1E-F0A75HW036Y/vecteezy_sleek-white-wireless-headphones-premium-audio-bluetooth_55130517.png?pub_secret=51ed82f735',
-              'https://files.slack.com/files-pri/T09V59WQY1E-F0A6VJMSHLK/vecteezy_modern-silver-headphones-for-audiophiles_51767617.png?pub_secret=c9009d25e9',
-              'https://files.slack.com/files-pri/T09V59WQY1E-F0A6VJMAZRR/vecteezy_headphone-png-with-ai-generated_26773824.png?pub_secret=7edb592517',
-              'https://files.slack.com/files-pri/T09V59WQY1E-F0A6ZUNQC8N/vecteezy_3d-gaming-headphone_53295526.png?pub_secret=72d6d1c41a'
+              'https://files.slack.com/files-pri/T09V59WQY1E-F0A7MSCHU9Y/61loj4pkq9l._ac_sl1500_-removebg-preview.png?pub_secret=4fb9286809',
+              'https://files.slack.com/files-pri/T09V59WQY1E-F0A7MSWHNN6/a3028013_product_image_01_v1_c44d6360-d58c-4b7f-8bbd-badb130ac318_3838x.png-removebg-preview.png?pub_secret=21fa71aa8e',
+              'https://files.slack.com/files-pri/T09V59WQY1E-F0A7N00MX0S/61solmqssll._ac_sl1500_-removebg-preview.png?pub_secret=1a0a6173df'
             ] if cat == 'Headphones' %>
             <% images_for_webcam = [
-              'https://files.slack.com/files-pri/T09V59WQY1E-F0A7W9U4HU0/vecteezy_ai-generated-security-camera-on-transparent-background-ai_39213084.png?pub_secret=0ec47b5d57',
-              'https://files.slack.com/files-pri/T09V59WQY1E-F0A75J7CTDJ/vecteezy_high-definition-webcam-modern-design-sleek-silver-black_67821519.png?pub_secret=22c6d549e5',
-              'https://files.slack.com/files-pri/T09V59WQY1E-F0A6VK098QK/vecteezy_sleek-modern-webcam-for-conferencing-and-streaming_60580277.png?pub_secret=02494c1a84',
-              'https://files.slack.com/files-pri/T09V59WQY1E-F0A6ZV27UQN/vecteezy_camera-with-lens_54402726.png?pub_secret=6527a83f20'
+              'https://files.slack.com/files-pri/T09V59WQY1E-F0A7JHN68SZ/61z8ekkuicl._ac_sl1419_-removebg-preview.png?pub_secret=9c212fcd15',
+              'https://files.slack.com/files-pri/T09V59WQY1E-F0A7N1ARELS/61j7cbovgwl._ac_sl1500_-removebg-preview.png?pub_secret=0c3a335e34',
+              'https://files.slack.com/files-pri/T09V59WQY1E-F0A7FLAH1QT/2300_9fee1f64-961e-4081-8b3b-fab7d75f1d89.png-removebg-preview.png?pub_secret=fae045f047'
             ] if cat == 'Webcam' %>
             <% variants.each_with_index do |(label_text, key), variant_idx| %>
               <% img_src = (
@@ -96,9 +123,20 @@
                 (cat == 'Webcam' && images_for_webcam && images_for_webcam[variant_idx]) ||
                 '/images/signin/hackclub.svg'
               ) %>
-              <% amount_map = { 'standard' => 50, 'quality' => 110, 'advanced' => 170, 'professional' => 230 } %>
-              <% grant_amount = amount_map[key] || 0 %>
-              <% bolts_map = { 'standard' => 500, 'quality' => 1100, 'advanced' => 1700, 'professional' => 2300 } %>
+              <% keyboard_bolts_map = { 'standard' => 500, 'quality' => 1100, 'advanced' => 1700, 'professional' => 2200 } %>
+              <% keyboard_grant_map = { 'standard' => 50, 'quality' => 110, 'advanced' => 170, 'professional' => 220 } %>
+              <% mouse_bolts_map = { 'standard' => 300, 'quality' => 500, 'advanced' => 1000, 'professional' => 1600 } %>
+              <% mouse_grant_map = { 'standard' => 30, 'quality' => 50, 'advanced' => 100, 'professional' => 160 } %>
+              <% monitor_bolts_map = { 'standard' => 500, 'quality' => 1100, 'advanced' => 1700, 'professional' => 2300 } %>
+              <% monitor_grant_map = { 'standard' => 50, 'quality' => 110, 'advanced' => 180, 'professional' => 230 } %>
+              <% other_bolts_map = { 'standard' => 500, 'quality' => 1100, 'advanced' => 1700, 'professional' => 2300 } %>
+              <% headphones_grant_map = { 'standard' => 50, 'quality' => 110, 'professional' => 240 } %>
+              <% headphones_bolts_map = { 'standard' => 500, 'quality' => 1100, 'professional' => 2400 } %>
+              <% webcam_grant_map = { 'standard' => 50, 'quality' => 140, 'professional' => 230 } %>
+              <% webcam_bolts_map = { 'standard' => 500, 'quality' => 1400, 'professional' => 2300 } %>
+              <% other_grant_map = { 'standard' => 50, 'quality' => 110, 'advanced' => 170, 'professional' => 230 } %>
+              <% bolts_map = (cat == 'Keyboard' ? keyboard_bolts_map : (cat == 'Mouse' ? mouse_bolts_map : (cat == 'Monitor' ? monitor_bolts_map : (cat == 'Headphones' ? headphones_bolts_map : (cat == 'Webcam' ? webcam_bolts_map : other_bolts_map))))) %>
+              <% grant_amount = (cat == 'Keyboard' ? keyboard_grant_map[key] : (cat == 'Mouse' ? mouse_grant_map[key] : (cat == 'Monitor' ? monitor_grant_map[key] : (cat == 'Headphones' ? headphones_grant_map[key] : (cat == 'Webcam' ? webcam_grant_map[key] : other_grant_map[key]))))) || 0 %>
               <% base_bolts = bolts_map[key] || 0 %>
               <% price = base_bolts %>
               <% desc_text = "This item provide a #{grant_amount}$ HCB card grant to spend on a #{cat}" %>
@@ -149,23 +187,32 @@
       <img id="shop-modal-image" class="shop-modal__image" src="/images/signin/hackclub.svg" alt="item">
       <p id="shop-modal-desc" class="shop-modal__desc muted">Description</p>
       <div class="shop-modal__qty" style="display:flex;align-items:center;gap:8px;">
-        <label for="shop-modal-qty" class="muted">Quantity</label>
-        <input id="shop-modal-qty" type="number" min="1" max="1" step="1" value="1" style="width:80px;" disabled>
-      </div>
-      <div class="shop-modal__price">
-        <span id="shop-modal-price">0</span>
-        <img src="https://files.slack.com/files-pri/T09V59WQY1E-F0A793FGJ2V/bolt.png?pub_secret=7acc4044c5" alt="bolts" class="bolt-icon">
-      </div>
+         <label for="shop-modal-qty" class="muted">Quantity</label>
+         <input id="shop-modal-qty" type="number" min="1" max="10" step="1" value="1" style="width:80px;">
+       </div>
+       <div style="border-top: 1px solid #e0e0e0; padding-top: 12px; margin-top: 12px;">
+         <label for="shop-modal-shipping" class="muted" style="display:block;margin-bottom:8px;">Shipping/Tax (Optional)</label>
+         <div style="display:flex;align-items:center;gap:8px;">
+           <span style="font-size:0.9rem;color:#666;">$</span>
+           <input id="shop-modal-shipping" type="number" min="0" step="1" value="0" style="width:80px;padding:6px;border:1px solid #e0e0e0;border-radius:4px;">
+           <span style="font-size:0.9rem;color:#666;">(50 bolts = $5)</span>
+         </div>
+       </div>
+       <div class="shop-modal__price" style="margin-top:12px;">
+         <span id="shop-modal-price">0</span>
+         <img src="https://files.slack.com/files-pri/T09V59WQY1E-F0A793FGJ2V/bolt.png?pub_secret=7acc4044c5" alt="bolts" class="bolt-icon">
+       </div>
       <div id="shop-modal-warning" style="display:none;background:#fdecea;border:1px solid #f5c2c7;color:#842029;padding:8px 12px;border-radius:8px;">
         Not enough bolts to purchase. You need <strong><span id="shop-modal-shortage">0</span></strong> more.
       </div>
       <%= form_with url: purchase_path, method: :post, local: true, id: "shop-modal-form" do %>
-        <input type="hidden" name="item_id" id="shop-modal-item-id" value="">
-        <input type="hidden" name="category" id="shop-modal-category" value="">
-        <input type="hidden" name="variant" id="shop-modal-variant" value="">
-        <input type="hidden" name="quantity" id="shop-modal-quantity" value="1">
-        <button id="shop-modal-buy" type="submit" class="btn btn--primary btn--block">Purchase</button>
-      <% end %>
+         <input type="hidden" name="item_id" id="shop-modal-item-id" value="">
+         <input type="hidden" name="category" id="shop-modal-category" value="">
+         <input type="hidden" name="variant" id="shop-modal-variant" value="">
+         <input type="hidden" name="quantity" id="shop-modal-quantity" value="1">
+         <input type="hidden" name="shipping_dollars" id="shop-modal-shipping-hidden" value="0">
+         <button id="shop-modal-buy" type="submit" class="btn btn--primary btn--block">Purchase</button>
+       <% end %>
     </div>
   </div>
   <style>

@@ -71,33 +71,31 @@ class AdminController < ActionController::Base
 
   SHOP_ITEMS = [
     { name: "Keyboard", variants: [
-      { label: "Standard grant", key: "standard", bolts: 500, grant: 50 },
-      { label: "Quality grant", key: "quality", bolts: 1100, grant: 110 },
-      { label: "Advanced grant", key: "advanced", bolts: 1700, grant: 170 },
-      { label: "Professional grant", key: "professional", bolts: 2300, grant: 230 }
+      { label: "Standard grant - Redragon K668", key: "standard", bolts: 500, grant: 50 },
+      { label: "Quality grant - YUNZII AL80", key: "quality", bolts: 1100, grant: 110 },
+      { label: "Advanced grant - Lemokey P1 HE", key: "advanced", bolts: 1700, grant: 170 },
+      { label: "Professional grant", key: "professional", bolts: 2200, grant: 220 }
     ]},
     { name: "Mouse", variants: [
-      { label: "Standard grant", key: "standard", bolts: 500, grant: 50 },
-      { label: "Quality grant", key: "quality", bolts: 1100, grant: 110 },
-      { label: "Advanced grant", key: "advanced", bolts: 1700, grant: 170 },
-      { label: "Professional grant", key: "professional", bolts: 2300, grant: 230 }
+      { label: "Standard grant - Logitech G305 Lightspeed", key: "standard", bolts: 300, grant: 30 },
+      { label: "Quality grant - Razer DeathAdder", key: "quality", bolts: 500, grant: 50 },
+      { label: "Advanced grant - G309 LIGHTSPEED", key: "advanced", bolts: 1000, grant: 100 },
+      { label: "Professional grant - MX Master 4", key: "professional", bolts: 1600, grant: 160 }
     ]},
     { name: "Monitor", variants: [
       { label: "Standard grant", key: "standard", bolts: 500, grant: 50 },
-      { label: "Quality grant", key: "quality", bolts: 1100, grant: 110 },
-      { label: "Advanced grant", key: "advanced", bolts: 1700, grant: 170 },
-      { label: "Professional grant", key: "professional", bolts: 2300, grant: 230 }
+      { label: "Quality grant - Dell 24 Monitor SE2425HM", key: "quality", bolts: 1100, grant: 110 },
+      { label: "Advanced grant - ViewSonic VX3276-MHD", key: "advanced", bolts: 1700, grant: 180 },
+      { label: "Professional grant - SANSUI 32-Inch WQHD", key: "professional", bolts: 2300, grant: 230 }
     ]},
     { name: "Headphones", variants: [
       { label: "Standard grant", key: "standard", bolts: 500, grant: 50 },
       { label: "Quality grant", key: "quality", bolts: 1100, grant: 110 },
-      { label: "Advanced grant", key: "advanced", bolts: 1700, grant: 170 },
-      { label: "Professional grant", key: "professional", bolts: 2300, grant: 230 }
+      { label: "Professional grant", key: "professional", bolts: 2400, grant: 240 }
     ]},
     { name: "Webcam", variants: [
       { label: "Standard grant", key: "standard", bolts: 500, grant: 50 },
-      { label: "Quality grant", key: "quality", bolts: 1100, grant: 110 },
-      { label: "Advanced grant", key: "advanced", bolts: 1700, grant: 170 },
+      { label: "Quality grant", key: "quality", bolts: 1400, grant: 140 },
       { label: "Professional grant", key: "professional", bolts: 2300, grant: 230 }
     ]}
   ]
