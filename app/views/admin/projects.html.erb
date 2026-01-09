@@ -29,8 +29,11 @@
           <div class="admin-row__main">
             <div class="admin-row__title"><%= project.name %></div>
             <div class="admin-row__meta muted">
-              by <%= project.user.slack_username || project.user.email %> • 
+              by <%= project.user.slack_username || project.user.email %> (<%= project.user.email %>) • 
               <%= project.hours %>h logged
+              <% if project.hackatime_project_name %>
+                • Hackatime: <%= project.hackatime_project_name %>
+              <% end %>
               <% if project.submitted_at %>
                 • submitted <%= time_ago_in_words(project.submitted_at) %> ago
               <% end %>
