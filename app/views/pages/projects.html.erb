@@ -28,22 +28,23 @@
     <section class="project-detail card">
       <% if @selected_project %>
         <header class="project-detail__header">
-          <h2 class="project-detail__title"><%= @selected_project.name %></h2>
-          <div class="project-detail__actions">
-            <% if @selected_project.status == 'pending' && !@selected_project.uses_hackatime? %>
-              <button id="journal-btn" class="btn">Write Journal</button>
-            <% elsif @selected_project.uses_hackatime? %>
-              <button class="btn" disabled title="Hours tracked via Hackatime">Hackatime Linked</button>
-            <% else %>
-              <button class="btn" disabled>Write Journal</button>
-            <% end %>
-            <% if @selected_project.status.in?(%w[pending rejected]) %>
-              <button id="edit-ship-btn" class="btn">Edit Ship</button>
-            <% else %>
-              <button class="btn" disabled>Edit Ship</button>
-            <% end %>
-          </div>
-        </header>
+           <h2 class="project-detail__title"><%= @selected_project.name %></h2>
+           <div class="project-detail__actions">
+             <% if @selected_project.status == 'pending' && !@selected_project.uses_hackatime? %>
+               <button id="journal-btn" class="btn">Write Journal</button>
+             <% elsif @selected_project.uses_hackatime? %>
+               <button class="btn" disabled title="Hours tracked via Hackatime">Hackatime Linked</button>
+             <% else %>
+               <button class="btn" disabled>Write Journal</button>
+             <% end %>
+             <% if @selected_project.status.in?(%w[pending rejected]) %>
+               <button id="edit-ship-btn" class="btn">Edit Ship</button>
+             <% else %>
+               <button class="btn" disabled>Edit Ship</button>
+             <% end %>
+             <button id="delete-project-btn" class="btn" style="color: #dc3545; border-color: #dc3545;">Delete</button>
+           </div>
+         </header>
 
         <div class="project-detail__content">
           <div class="detail-panel">
@@ -633,47 +634,81 @@
   });
 
   editShipForm?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const submitBtn = document.getElementById('edit-ship-submit-btn');
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Saving...';
+     e.preventDefault();
+     
+     const submitBtn = document.getElementById('edit-ship-submit-btn');
+     submitBtn.disabled = true;
+     submitBtn.textContent = 'Saving...';
 
-    const data = {
-      project: {
-        name: document.getElementById('edit_project_name').value,
-        description: document.getElementById('edit_project_description').value,
-        code_url: document.getElementById('edit_project_code_url').value,
-        playable_url: document.getElementById('edit_project_playable_url').value,
-        screenshot_url: document.getElementById('edit_project_screenshot_url').value,
-        hackatime_project_name: document.getElementById('edit_project_hackatime')?.value || ''
-      }
-    };
+     const data = {
+       project: {
+         name: document.getElementById('edit_project_name').value,
+         description: document.getElementById('edit_project_description').value,
+         code_url: document.getElementById('edit_project_code_url').value,
+         playable_url: document.getElementById('edit_project_playable_url').value,
+         screenshot_url: document.getElementById('edit_project_screenshot_url').value,
+         hackatime_project_name: document.getElementById('edit_project_hackatime')?.value || ''
+       }
+     };
+
+     try {
+       const response = await fetch(`/api/v1/projects/${PROJECT_ID}`, {
+         method: 'PATCH',
+         headers: {
+           'Content-Type': 'application/json',
+           'Accept': 'application/json',
+           'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content
+         },
+         credentials: 'same-origin',
+         body: JSON.stringify(data)
+       });
+
+       if (response.ok) {
+         window.location.reload();
+       } else {
+         const result = await response.json();
+         alert(result.errors?.join(', ') || 'Failed to update project.');
+       }
+     } catch (error) {
+       console.error('Failed to update project:', error);
+       alert('Failed to update project. Please try again.');
+     } finally {
+       submitBtn.disabled = false;
+       submitBtn.textContent = 'Save Changes';
+     }
+   });
+
+  const deleteProjectBtn = document.getElementById('delete-project-btn');
+  
+  deleteProjectBtn?.addEventListener('click', async () => {
+    if (!confirm('Are you sure you want to delete this project? This action cannot be undone.')) {
+      return;
+    }
+
+    deleteProjectBtn.disabled = true;
+    deleteProjectBtn.textContent = 'Deleting...';
 
     try {
       const response = await fetch(`/api/v1/projects/${PROJECT_ID}`, {
-        method: 'PATCH',
+        method: 'DELETE',
         headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
           'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content
         },
-        credentials: 'same-origin',
-        body: JSON.stringify(data)
+        credentials: 'same-origin'
       });
 
       if (response.ok) {
-        window.location.reload();
+        window.location.href = '/projects';
       } else {
-        const result = await response.json();
-        alert(result.errors?.join(', ') || 'Failed to update project.');
+        alert('Failed to delete project.');
+        deleteProjectBtn.disabled = false;
+        deleteProjectBtn.textContent = 'Delete';
       }
     } catch (error) {
-      console.error('Failed to update project:', error);
-      alert('Failed to update project. Please try again.');
-    } finally {
-      submitBtn.disabled = false;
-      submitBtn.textContent = 'Save Changes';
+      console.error('Failed to delete project:', error);
+      alert('Failed to delete project. Please try again.');
+      deleteProjectBtn.disabled = false;
+      deleteProjectBtn.textContent = 'Delete';
     }
   });
-</script>
+  </script>
