@@ -56,6 +56,11 @@ class Api::V1::ProjectsController < ApplicationController
       return
     end
 
+    if @project.hours.to_f <= 0
+      render json: { error: "Project must have at least some hours logged before shipping" }, status: :unprocessable_entity
+      return
+    end
+
     @project.request_review!
     render json: { project: project_response(@project) }
   end
