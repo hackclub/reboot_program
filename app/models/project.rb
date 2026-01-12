@@ -42,10 +42,10 @@ class Project < ApplicationRecord
   end
 
   # Checks if project can be submitted for review.
-  # @return [Boolean] true if pending or rejected
-  def can_request_review?
-    status == "pending" || status == "rejected"
-  end
+   # @return [Boolean] true if pending, rejected, or approved (for new hours)
+   def can_request_review?
+     status.in?(%w[pending rejected approved])
+   end
 
   # Checks if project has all required fields to ship.
   # @return [Boolean] true if all shipping fields are present
@@ -59,30 +59,39 @@ class Project < ApplicationRecord
   end
 
   # Approves project with given hours and credits user's balance.
-  # First approval sends to YSWS Airtable; re-approvals update existing record.
-  # Awards CURRENCY_PER_HOUR (50) per approved hour.
-  # @param hours [Numeric] approved hours
-  # @param reason [String] internal justification for the approved hours
-  # @param user_reason [String] reason shown to the user
-  def approve!(hours:, reason:, user_reason: nil)
-    first_approval = !previously_approved?
-    previous_hours = approved_hours || 0
+   # First approval sends to YSWS Airtable; re-approvals update existing record.
+   # Awards CURRENCY_PER_HOUR (50) per approved hour delta.
+   # @param hours [Numeric] approved hours to add in this round
+   # @param reason [String] internal justification for the approved hours
+   # @param user_reason [String] reason shown to the user
+   def approve!(hours:, reason:, user_reason: nil)
+     first_approval = !previously_approved?
+     previous_hours = approved_hours || 0
+     new_total_hours = previous_hours + hours
 
-    transaction do
-      update!(
-        status: "approved",
-        approved_hours: hours,
-        approval_reason: reason,
-        user_reason: user_reason.presence,
-        reviewed_at: Time.current
-      )
-      hours_delta = hours - previous_hours
-      currency_delta = hours_delta * CURRENCY_PER_HOUR
-      user.update!(balance: user.balance + currency_delta)
-    end
+     transaction do
+       approval_entry = {
+         hours: hours,
+         reason: reason,
+         user_reason: user_reason.presence,
+         reviewed_at: Time.current.iso8601
+       }
+       
+       update!(
+         status: "approved",
+         approved_hours: new_total_hours,
+         approval_reason: reason,
+         user_reason: user_reason.presence,
+         reviewed_at: Time.current,
+         approval_history: (approval_history || []).push(approval_entry)
+       )
+       
+       currency_delta = hours * CURRENCY_PER_HOUR
+       user.update!(balance: user.balance + currency_delta)
+      end
 
-    Airtable::YswsSubmissionJob.perform_later(id) if first_approval || ysws_airtable_id.present?
-  end
+      Airtable::YswsSubmissionJob.perform_later(id) if first_approval || ysws_airtable_id.present?
+   end
 
   # Checks if this project was previously approved (has a YSWS Airtable record).
   # @return [Boolean] true if previously synced to YSWS

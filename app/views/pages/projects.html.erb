@@ -101,54 +101,75 @@
             <% end %>
 
             <div style="margin-top: 2rem;">
-              <% if @selected_project.can_request_review? %>
-                <% if @selected_project.ready_to_ship? %>
-                  <%= form_with url: request_project_review_path(@selected_project), method: :post, local: true do %>
-                    <button type="submit" class="btn btn--accent btn--block">
-                      <%= @selected_project.status == 'rejected' ? 'Ship Again' : 'Ship It!' %>
-                    </button>
-                  <% end %>
-                <% else %>
-                  <button class="btn btn--accent btn--block" disabled title="Fill in all required fields first">
-                    Ship It!
-                  </button>
-                  <p class="muted" style="font-size: 0.85rem; margin-top: 8px; text-align: center;">
-                    Complete all fields to ship: description, code URL, playable URL, screenshot URL
-                  </p>
-                <% end %>
-              <% else %>
-                <button class="btn btn--accent btn--block" disabled>
-                  <%= @selected_project.status == 'in-review' ? 'Shipped - Awaiting Review' : @selected_project.status.humanize %>
-                </button>
-              <% end %>
-            </div>
+               <% if @selected_project.can_request_review? %>
+                 <% if @selected_project.ready_to_ship? %>
+                   <%= form_with url: request_project_review_path(@selected_project), method: :post, local: true do %>
+                     <button type="submit" class="btn btn--accent btn--block">
+                       <% if @selected_project.status == 'rejected' %>
+                         Ship Again
+                       <% elsif @selected_project.status == 'approved' %>
+                         Ship New Hours
+                       <% else %>
+                         Ship It!
+                       <% end %>
+                     </button>
+                   <% end %>
+                 <% else %>
+                   <button class="btn btn--accent btn--block" disabled title="Fill in all required fields first">
+                     Ship It!
+                   </button>
+                   <p class="muted" style="font-size: 0.85rem; margin-top: 8px; text-align: center;">
+                     Complete all fields to ship: description, code URL, playable URL, screenshot URL
+                   </p>
+                 <% end %>
+               <% else %>
+                 <button class="btn btn--accent btn--block" disabled>
+                   <%= @selected_project.status == 'in-review' ? 'Shipped - Awaiting Review' : @selected_project.status.humanize %>
+                 </button>
+               <% end %>
+             </div>
 
             <div class="detail-group">
-              <div class="detail-subtitle">Review Feedback</div>
-              <% if @selected_project.status == 'approved' %>
-                <div class="review-card">
-                  <p><strong>🎉 Approved for <%= @selected_project.approved_hours %>h</strong></p>
-                  <% if @selected_project.user_reason.present? %>
-                    <p style="margin-top: 8px;"><%= @selected_project.user_reason %></p>
-                  <% end %>
-                  <p class="muted" style="font-size: 12px; margin-top: 8px;">
-                    Reviewed <%= time_ago_in_words(@selected_project.reviewed_at) %> ago
-                  </p>
-                </div>
-              <% elsif @selected_project.status == 'rejected' %>
-                <div class="review-card review-card--rejected">
-                  <p><strong>Rejected</strong></p>
-                  <% if @selected_project.user_reason.present? %>
-                    <p style="margin-top: 8px;"><%= @selected_project.user_reason %></p>
-                  <% end %>
-                  <p class="muted" style="font-size: 12px; margin-top: 8px;">
-                    Reviewed <%= time_ago_in_words(@selected_project.reviewed_at) %> ago
-                  </p>
-                </div>
-              <% else %>
-                <p class="muted">No reviews yet.</p>
-              <% end %>
-            </div>
+               <div class="detail-subtitle">Review Feedback</div>
+               <% if @selected_project.status == 'approved' %>
+                 <% if @selected_project.approval_history.present? %>
+                   <% @selected_project.approval_history.each_with_index do |approval, idx| %>
+                     <div class="review-card" style="margin-bottom: 12px;">
+                       <p><strong>Round <%= idx + 1 %>: Approved for <%= approval['hours'] %>h</strong></p>
+                       <% if approval['user_reason'].present? %>
+                         <p style="margin-top: 8px;"><%= approval['user_reason'] %></p>
+                       <% end %>
+                       <p class="muted" style="font-size: 12px; margin-top: 8px;">
+                         Reviewed <%= time_ago_in_words(Time.iso8601(approval['reviewed_at'])) %> ago
+                       </p>
+                     </div>
+                   <% end %>
+                   <p style="margin-top: 12px;"><strong>Total Approved: <%= @selected_project.approved_hours %>h</strong></p>
+                 <% else %>
+                   <div class="review-card">
+                     <p><strong>🎉 Approved for <%= @selected_project.approved_hours %>h</strong></p>
+                     <% if @selected_project.user_reason.present? %>
+                       <p style="margin-top: 8px;"><%= @selected_project.user_reason %></p>
+                     <% end %>
+                     <p class="muted" style="font-size: 12px; margin-top: 8px;">
+                       Reviewed <%= time_ago_in_words(@selected_project.reviewed_at) %> ago
+                     </p>
+                   </div>
+                 <% end %>
+               <% elsif @selected_project.status == 'rejected' %>
+                 <div class="review-card review-card--rejected">
+                   <p><strong>Rejected</strong></p>
+                   <% if @selected_project.user_reason.present? %>
+                     <p style="margin-top: 8px;"><%= @selected_project.user_reason %></p>
+                   <% end %>
+                   <p class="muted" style="font-size: 12px; margin-top: 8px;">
+                     Reviewed <%= time_ago_in_words(@selected_project.reviewed_at) %> ago
+                   </p>
+                 </div>
+               <% else %>
+                 <p class="muted">No reviews yet.</p>
+               <% end %>
+             </div>
           </div>
         </div>
       <% else %>
