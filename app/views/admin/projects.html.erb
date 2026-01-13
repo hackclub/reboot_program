@@ -41,6 +41,37 @@
             <% if project.description.present? %>
               <p class="admin-row__desc"><%= project.description %></p>
             <% end %>
+            <% if project.review_history.present? %>
+              <div style="margin: 8px 0; font-size: 0.85rem;">
+                <% project.review_history.each do |review| %>
+                  <% if review["type"] == "rejected" %>
+                    <div style="background: #fff3cd; border-left: 3px solid #ffc107; padding: 4px 8px; margin-bottom: 4px;">
+                      <strong style="color: #856404;">Rejected:</strong>
+                      <span style="color: #856404;"><%= review["user_reason"] || "No reason provided" %></span>
+                      <span class="muted" style="font-size: 0.75rem;">(<%= time_ago_in_words(Time.iso8601(review["reviewed_at"])) %> ago)</span>
+                    </div>
+                  <% else %>
+                    <div style="background: #d4edda; border-left: 3px solid #28a745; padding: 4px 8px; margin-bottom: 4px;">
+                      <strong style="color: #155724;">Approved <%= review["hours"] %>h:</strong>
+                      <span style="color: #155724;"><%= review["user_reason"] || "No feedback" %></span>
+                      <span class="muted" style="font-size: 0.75rem;">(<%= time_ago_in_words(Time.iso8601(review["reviewed_at"])) %> ago)</span>
+                    </div>
+                  <% end %>
+                <% end %>
+              </div>
+            <% elsif project.user_reason.present? %>
+              <div style="background: #fff3cd; border-left: 3px solid #ffc107; padding: 4px 8px; margin: 8px 0; font-size: 0.85rem;">
+                <strong style="color: #856404;">Previous Rejection:</strong>
+                <span style="color: #856404;"><%= project.user_reason %></span>
+              </div>
+            <% end %>
+            <% if !project.uses_hackatime? && project.journal_entries.any? %>
+              <div style="margin: 8px 0;">
+                <button type="button" class="btn btn--ghost view-journal-btn" data-project-id="<%= project.id %>" onclick="event.stopPropagation();">
+                  View Journal (<%= project.journal_entries.count %> entries)
+                </button>
+              </div>
+            <% end %>
             <div class="admin-row__links">
               <% if project.code_url.present? %>
                 <a href="<%= project.code_url %>" target="_blank" class="btn btn--ghost" onclick="event.stopPropagation();">View Code</a>
@@ -124,6 +155,19 @@
     <% end %>
   </div>
 </main>
+
+<div id="journal-modal" class="modal modal--hidden">
+  <div class="modal__backdrop"></div>
+  <div class="modal__content card" style="max-width: 600px; max-height: 80vh; overflow-y: auto;">
+    <header class="modal__header">
+      <h2 class="modal__title">Journal Entries</h2>
+      <button type="button" class="modal__close" aria-label="Close">&times;</button>
+    </header>
+    <div id="journal-entries-content" style="padding: 0;">
+      <p class="muted">Loading...</p>
+    </div>
+  </div>
+</div>
 
 <script>
   document.querySelectorAll('.approve-btn').forEach(btn => {
@@ -216,5 +260,68 @@
         btn.textContent = 'Reject';
       }
     });
+  });
+
+  const journalModal = document.getElementById('journal-modal');
+  const journalContent = document.getElementById('journal-entries-content');
+
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  function formatDate(dateStr) {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
+  document.querySelectorAll('.view-journal-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const projectId = btn.dataset.projectId;
+      journalModal?.classList.remove('modal--hidden');
+      journalContent.innerHTML = '<p class="muted">Loading...</p>';
+
+      try {
+        const response = await fetch(`/api/v1/projects/${projectId}/journal_entries`, {
+          headers: { 'Accept': 'application/json' },
+          credentials: 'same-origin'
+        });
+
+        if (!response.ok) {
+          journalContent.innerHTML = '<p class="muted">Failed to load journal entries.</p>';
+          return;
+        }
+
+        const data = await response.json();
+        const entries = data.journal_entries || [];
+
+        if (entries.length === 0) {
+          journalContent.innerHTML = '<p class="muted">No journal entries.</p>';
+        } else {
+          journalContent.innerHTML = entries.map(entry => `
+            <div style="padding: 1rem; border-bottom: 1px solid #f0f0f0;">
+              <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                <strong>${formatDate(entry.date)}</strong>
+                <span class="muted">${entry.hours}h</span>
+              </div>
+              <p style="margin: 0;">${escapeHtml(entry.content)}</p>
+              ${entry.tools ? `<p class="muted" style="margin: 0.5rem 0 0 0; font-size: 0.85rem;"><strong>Tools:</strong> ${escapeHtml(entry.tools)}</p>` : ''}
+            </div>
+          `).join('');
+        }
+      } catch (error) {
+        console.error('Failed to load journal entries:', error);
+        journalContent.innerHTML = '<p class="muted">Failed to load journal entries.</p>';
+      }
+    });
+  });
+
+  journalModal?.querySelectorAll('.modal__close').forEach(btn => {
+    btn.addEventListener('click', () => journalModal?.classList.add('modal--hidden'));
+  });
+
+  journalModal?.querySelector('.modal__backdrop')?.addEventListener('click', () => {
+    journalModal?.classList.add('modal--hidden');
   });
 </script>

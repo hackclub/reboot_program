@@ -76,6 +76,13 @@ class Project < ApplicationRecord
          user_reason: user_reason.presence,
          reviewed_at: Time.current.iso8601
        }
+
+       review_entry = {
+         type: "approved",
+         hours: hours,
+         user_reason: user_reason.presence,
+         reviewed_at: Time.current.iso8601
+       }
        
        update!(
          status: "approved",
@@ -83,7 +90,8 @@ class Project < ApplicationRecord
          approval_reason: reason,
          user_reason: user_reason.presence,
          reviewed_at: Time.current,
-         approval_history: (approval_history || []).push(approval_entry)
+         approval_history: (approval_history || []).push(approval_entry),
+         review_history: (review_history || []).push(review_entry)
        )
        
        currency_delta = hours * CURRENCY_PER_HOUR
@@ -102,6 +110,17 @@ class Project < ApplicationRecord
   # Rejects project with a user-facing reason.
   # @param user_reason [String] reason shown to the user
   def reject!(user_reason: nil)
-    update!(status: "rejected", user_reason: user_reason.presence, reviewed_at: Time.current)
+    rejection_entry = {
+      type: "rejected",
+      user_reason: user_reason.presence,
+      reviewed_at: Time.current.iso8601
+    }
+
+    update!(
+      status: "rejected",
+      user_reason: user_reason.presence,
+      reviewed_at: Time.current,
+      review_history: (review_history || []).push(rejection_entry)
+    )
   end
 end

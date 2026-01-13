@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_12_040932) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_13_201515) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -45,6 +45,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_12_040932) do
     t.string "hackatime_project_name"
     t.text "user_reason"
     t.jsonb "approval_history"
+    t.jsonb "review_history"
     t.index ["airtable_id"], name: "index_projects_on_airtable_id", unique: true
     t.index ["status"], name: "index_projects_on_status"
     t.index ["user_id"], name: "index_projects_on_user_id"

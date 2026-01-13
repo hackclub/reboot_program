@@ -98,6 +98,23 @@
                   <p class="muted">No journal entries yet. <button type="button" id="quick-journal-btn" class="link-btn">Add one</button>.</p>
                 </div>
               </div>
+            <% elsif @selected_project.journal_entries.any? %>
+              <div class="detail-group">
+                <div class="detail-subtitle">Hours Source</div>
+                <p class="muted">
+                  <strong>Journal</strong> (<%= @selected_project.journal_entries.count %> entries)
+                  <button type="button" id="view-journal-btn" class="link-btn" style="margin-left: 8px;">View Entries</button>
+                </p>
+              </div>
+            <% end %>
+
+            <% if @selected_project.status == 'in-review' && @selected_project.user_reason.present? %>
+              <div class="detail-group">
+                <div class="detail-subtitle">Previous Rejection Reason</div>
+                <div class="review-card review-card--rejected" style="margin-top: 8px;">
+                  <p><%= @selected_project.user_reason %></p>
+                </div>
+              </div>
             <% end %>
 
             <div style="margin-top: 2rem;">
@@ -130,38 +147,51 @@
              </div>
 
             <div class="detail-group">
-               <div class="detail-subtitle">Review Feedback</div>
-               <% if @selected_project.status == 'approved' %>
-                 <% if @selected_project.approval_history.present? %>
-                   <% @selected_project.approval_history.each_with_index do |approval, idx| %>
+               <div class="detail-subtitle">Review History</div>
+               <% if @selected_project.review_history.present? %>
+                 <% @selected_project.review_history.each_with_index do |review, idx| %>
+                   <% if review['type'] == 'approved' %>
                      <div class="review-card" style="margin-bottom: 12px;">
-                       <p><strong>Round <%= idx + 1 %>: Approved for <%= approval['hours'] %>h</strong></p>
-                       <% if approval['user_reason'].present? %>
-                         <p style="margin-top: 8px;"><%= approval['user_reason'] %></p>
+                       <p><strong>Approved for <%= review['hours'] %>h</strong></p>
+                       <% if review['user_reason'].present? %>
+                         <p style="margin-top: 8px;"><%= review['user_reason'] %></p>
                        <% end %>
                        <p class="muted" style="font-size: 12px; margin-top: 8px;">
-                         Reviewed <%= time_ago_in_words(Time.iso8601(approval['reviewed_at'])) %> ago
+                         <%= time_ago_in_words(Time.iso8601(review['reviewed_at'])) %> ago
+                       </p>
+                     </div>
+                   <% else %>
+                     <div class="review-card review-card--rejected" style="margin-bottom: 12px;">
+                       <p><strong>Rejected</strong></p>
+                       <% if review['user_reason'].present? %>
+                         <p style="margin-top: 8px;"><%= review['user_reason'] %></p>
+                       <% end %>
+                       <p class="muted" style="font-size: 12px; margin-top: 8px;">
+                         <%= time_ago_in_words(Time.iso8601(review['reviewed_at'])) %> ago
                        </p>
                      </div>
                    <% end %>
+                 <% end %>
+                 <% if @selected_project.approved_hours.to_i > 0 %>
                    <p style="margin-top: 12px;"><strong>Total Approved: <%= @selected_project.approved_hours %>h</strong></p>
-                 <% else %>
-                   <div class="review-card">
-                     <p><strong>🎉 Approved for <%= @selected_project.approved_hours %>h</strong></p>
-                     <% if @selected_project.user_reason.present? %>
-                       <p style="margin-top: 8px;"><%= @selected_project.user_reason %></p>
+                 <% end %>
+               <% elsif @selected_project.status == 'approved' && @selected_project.approval_history.present? %>
+                 <% @selected_project.approval_history.each_with_index do |approval, idx| %>
+                   <div class="review-card" style="margin-bottom: 12px;">
+                     <p><strong>Round <%= idx + 1 %>: Approved for <%= approval['hours'] %>h</strong></p>
+                     <% if approval['user_reason'].present? %>
+                       <p style="margin-top: 8px;"><%= approval['user_reason'] %></p>
                      <% end %>
                      <p class="muted" style="font-size: 12px; margin-top: 8px;">
-                       Reviewed <%= time_ago_in_words(@selected_project.reviewed_at) %> ago
+                       Reviewed <%= time_ago_in_words(Time.iso8601(approval['reviewed_at'])) %> ago
                      </p>
                    </div>
                  <% end %>
-               <% elsif @selected_project.status == 'rejected' %>
+                 <p style="margin-top: 12px;"><strong>Total Approved: <%= @selected_project.approved_hours %>h</strong></p>
+               <% elsif @selected_project.status == 'rejected' && @selected_project.user_reason.present? %>
                  <div class="review-card review-card--rejected">
                    <p><strong>Rejected</strong></p>
-                   <% if @selected_project.user_reason.present? %>
-                     <p style="margin-top: 8px;"><%= @selected_project.user_reason %></p>
-                   <% end %>
+                   <p style="margin-top: 8px;"><%= @selected_project.user_reason %></p>
                    <p class="muted" style="font-size: 12px; margin-top: 8px;">
                      Reviewed <%= time_ago_in_words(@selected_project.reviewed_at) %> ago
                    </p>
@@ -219,6 +249,19 @@
         <button type="button" class="btn btn--primary" id="journal-submit-btn">Save Journal Entry</button>
       </div>
     </form>
+  </div>
+</div>
+
+<div id="view-journal-modal" class="modal modal--hidden">
+  <div class="modal__backdrop"></div>
+  <div class="modal__content card" style="max-width: 600px; max-height: 80vh; overflow-y: auto;">
+    <header class="modal__header">
+      <h2 class="modal__title">Journal Entries</h2>
+      <button type="button" class="modal__close" aria-label="Close">&times;</button>
+    </header>
+    <div id="view-journal-entries-list" class="journal-entries" style="padding: 0;">
+      <p class="muted">Loading...</p>
+    </div>
   </div>
 </div>
 
@@ -466,6 +509,53 @@
       console.error('Failed to load journal entries:', error);
     }
   }
+
+  const viewJournalModal = document.getElementById('view-journal-modal');
+  const viewJournalBtn = document.getElementById('view-journal-btn');
+  const viewJournalEntriesList = document.getElementById('view-journal-entries-list');
+
+  async function loadViewJournalEntries() {
+    if (!PROJECT_ID || !viewJournalEntriesList) return;
+    
+    viewJournalEntriesList.innerHTML = '<p class="muted">Loading...</p>';
+    
+    try {
+      const response = await fetch(`/api/v1/projects/${PROJECT_ID}/journal_entries`, {
+        headers: { 'Accept': 'application/json' },
+        credentials: 'same-origin'
+      });
+      
+      if (!response.ok) {
+        viewJournalEntriesList.innerHTML = '<p class="muted">Failed to load journal entries.</p>';
+        return;
+      }
+      
+      const data = await response.json();
+      const entries = data.journal_entries || [];
+      
+      if (entries.length === 0) {
+        viewJournalEntriesList.innerHTML = '<p class="muted">No journal entries.</p>';
+      } else {
+        viewJournalEntriesList.innerHTML = entries.map(renderJournalEntry).join('');
+      }
+    } catch (error) {
+      console.error('Failed to load journal entries:', error);
+      viewJournalEntriesList.innerHTML = '<p class="muted">Failed to load journal entries.</p>';
+    }
+  }
+
+  viewJournalBtn?.addEventListener('click', () => {
+    viewJournalModal?.classList.remove('modal--hidden');
+    loadViewJournalEntries();
+  });
+
+  viewJournalModal?.querySelectorAll('.modal__close').forEach(btn => {
+    btn.addEventListener('click', () => viewJournalModal?.classList.add('modal--hidden'));
+  });
+
+  viewJournalModal?.querySelector('.modal__backdrop')?.addEventListener('click', () => {
+    viewJournalModal?.classList.add('modal--hidden');
+  });
 
   // Submits a new journal entry to the API.
   journalSubmitBtn?.addEventListener('click', async (e) => {
