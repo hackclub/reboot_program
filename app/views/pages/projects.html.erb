@@ -13,7 +13,7 @@
              class="project-row <%= index.odd? ? 'project-row--alt' : '' %> <%= project == @selected_project ? 'project-row--selected' : '' %>">
             <div class="project-row__title"><%= project.name %></div>
             <div class="pill pill--status"><%= project.status.humanize %></div>
-            <div class="pill pill--time"><%= project.hours.to_i %>h</div>
+            <div class="pill pill--time"><%= project.total_hours.to_i %>h</div>
           </a>
         <% end %>
         <button id="create-project-btn" class="btn btn--primary btn--block" style="margin-top: 8px;">+ New Project</button>
@@ -30,10 +30,8 @@
         <header class="project-detail__header">
            <h2 class="project-detail__title"><%= @selected_project.name %></h2>
            <div class="project-detail__actions">
-             <% if @selected_project.status == 'pending' && !@selected_project.uses_hackatime? %>
+             <% if @selected_project.status == 'pending' %>
                <button id="journal-btn" class="btn">Write Journal</button>
-             <% elsif @selected_project.uses_hackatime? %>
-               <button class="btn" disabled title="Hours tracked via Hackatime">Hackatime Linked</button>
              <% else %>
                <button class="btn" disabled>Write Journal</button>
              <% end %>
@@ -71,27 +69,47 @@
               <div class="detail-subtitle">Project Tracking</div>
               <div class="tracking-table">
                 <div class="tracking-row tracking-row--head">
-                  <div>Project</div>
+                  <div>Source</div>
                   <div>Raw</div>
                   <div>Approved</div>
                 </div>
-                <div class="tracking-row">
+                
+                <% if @selected_project.uses_hackatime? %>
+                  <% @selected_project.hackatime_project_names.each do |name| %>
+                    <div class="tracking-row">
+                      <div><strong><%= name %></strong> (Hackatime)</div>
+                      <div>
+                        <% hours = HackatimeService.fetch_project_hours(@selected_project.user.slack_id, name, start_date: Rails.env.development? ? 1.month.ago.to_date.iso8601 : "2026-01-05") rescue 0 %>
+                        <%= hours.to_i %>h
+                      </div>
+                      <div>—</div>
+                    </div>
+                  <% end %>
+                <% end %>
+                
+                <% if @selected_project.journal_entries.any? %>
+                  <div class="tracking-row">
+                    <div><strong>Journal</strong> (<%= @selected_project.journal_entries.count %> entries)</div>
+                    <div><%= @selected_project.journal_entries.sum(:hours).to_i %>h</div>
+                    <div>—</div>
+                  </div>
+                <% end %>
+                
+                <div class="tracking-row" style="font-weight: 600; background-color: #f9f9f9;">
                   <div><%= @selected_project.name %></div>
-                  <div><%= @selected_project.hours.to_i %>h</div>
+                  <div><%= @selected_project.total_hours.to_i %>h</div>
                   <div><%= @selected_project.status == 'approved' ? "#{@selected_project.approved_hours.to_i}h" : "—" %></div>
                 </div>
               </div>
             </div>
 
             <% if @selected_project.uses_hackatime? %>
-              <div class="detail-group">
-                <div class="detail-subtitle">Hours Source</div>
-                <p class="muted">
-                  <strong>Hackatime:</strong> <%= @selected_project.hackatime_project_name %>
-                  <button type="button" id="sync-hackatime-btn" class="link-btn" style="margin-left: 8px;">Refresh Hours</button>
-                </p>
+              <div class="detail-group" style="margin-top: 1rem;">
+                <button type="button" id="sync-hackatime-btn" class="link-btn">Refresh Hackatime Hours</button>
               </div>
-            <% elsif @selected_project.status == 'pending' %>
+            <% end %>
+            
+            <% if @selected_project.status == 'pending' %>
               <div class="detail-group">
                 <div class="detail-subtitle">Journal Entries</div>
                 <div id="journal-entries-list" class="journal-entries">
@@ -100,9 +118,9 @@
               </div>
             <% elsif @selected_project.journal_entries.any? %>
               <div class="detail-group">
-                <div class="detail-subtitle">Hours Source</div>
+                <div class="detail-subtitle">Journal Entries</div>
                 <p class="muted">
-                  <strong>Journal</strong> (<%= @selected_project.journal_entries.count %> entries)
+                  <strong><%= @selected_project.journal_entries.count %> entries</strong>
                   <button type="button" id="view-journal-btn" class="link-btn" style="margin-left: 8px;">View Entries</button>
                 </p>
               </div>
@@ -286,11 +304,10 @@
       <label class="form__label" for="project_playable_url">Playable URL</label>
       <input class="form__input" type="url" id="project_playable_url" name="project[playable_url]" placeholder="https://...">
 
-      <label class="form__label" for="project_hackatime">Link Hackatime Project (optional)</label>
-      <select class="form__input" id="project_hackatime" name="project[hackatime_project_name]">
-        <option value="">Manual journaling (no Hackatime)</option>
+      <label class="form__label" for="project_hackatime">Link Hackatime Projects (optional)</label>
+      <select class="form__input" id="project_hackatime" name="project[hackatime_project_names][]" multiple>
       </select>
-      <p class="muted" style="font-size: 0.8rem; margin-top: 4px;">If linked, hours are pulled from Hackatime and journal is disabled.</p>
+      <p class="muted" style="font-size: 0.8rem; margin-top: 4px;">Select multiple Hackatime projects. Hours will be summed from all linked projects.</p>
 
       <button type="submit" class="btn btn--primary btn--block">Create Project</button>
     <% end %>
@@ -332,14 +349,15 @@
       </div>
 
       <div class="form-group">
-        <label class="form__label" for="edit_project_hackatime">Link Hackatime Project</label>
-        <select class="form__input" id="edit_project_hackatime">
-          <option value="">Manual journaling (no Hackatime)</option>
-          <% if @selected_project.hackatime_project_name.present? %>
-            <option value="<%= @selected_project.hackatime_project_name %>" selected><%= @selected_project.hackatime_project_name %> (current)</option>
+        <label class="form__label" for="edit_project_hackatime">Link Hackatime Projects</label>
+        <select class="form__input" id="edit_project_hackatime" multiple>
+          <% if @selected_project.hackatime_project_names.present? %>
+            <% @selected_project.hackatime_project_names.each do |name| %>
+              <option value="<%= name %>" selected><%= name %></option>
+            <% end %>
           <% end %>
         </select>
-        <p class="muted" style="font-size: 0.8rem; margin-top: 4px;">If linked, hours are pulled from Hackatime and journal is disabled.</p>
+        <p class="muted" style="font-size: 0.8rem; margin-top: 4px;">Select multiple Hackatime projects. Hours will be summed from all linked projects.</p>
       </div>
 
       <div style="display: flex; gap: 0.5rem;">
@@ -831,8 +849,8 @@
     const select = document.getElementById('edit_project_hackatime');
     if (!select) return;
     
-    // Avoid reloading if already populated
-    if (select.options.length > 2) return;
+    // Check if already loaded by looking for a data attribute
+    if (select.dataset.loaded) return;
     
     try {
       const response = await fetch('/api/v1/hackatime/projects', {
@@ -845,15 +863,29 @@
       const data = await response.json();
       const projects = data.projects || [];
       
+      // Get currently selected values
+      const selectedValues = new Set(Array.from(select.selectedOptions).map(opt => opt.value));
+      
       projects.forEach(p => {
-        // Skip if already the current selection
-        if (select.querySelector(`option[value="${p.name}"]`)) return;
+        const existingOpt = select.querySelector(`option[value="${p.name}"]`);
+        if (existingOpt) {
+          // Update existing option with hours
+          existingOpt.textContent = `${p.name} (${p.hours}h)`;
+          return;
+        }
         
         const opt = document.createElement('option');
         opt.value = p.name;
         opt.textContent = `${p.name} (${p.hours}h)`;
+        // Keep it selected if it was already selected
+        if (selectedValues.has(p.name)) {
+          opt.selected = true;
+        }
         select.appendChild(opt);
       });
+      
+      // Mark as loaded
+      select.dataset.loaded = true;
     } catch (error) {
       console.error('Failed to load Hackatime projects:', error);
     }
@@ -874,6 +906,9 @@
      submitBtn.disabled = true;
      submitBtn.textContent = 'Saving...';
 
+     const hackatimeSelect = document.getElementById('edit_project_hackatime');
+     const hackatimeProjectNames = Array.from(hackatimeSelect?.selectedOptions || []).map(opt => opt.value);
+     
      const data = {
        project: {
          name: document.getElementById('edit_project_name').value,
@@ -881,7 +916,7 @@
          code_url: document.getElementById('edit_project_code_url').value,
          playable_url: document.getElementById('edit_project_playable_url').value,
          screenshot_url: document.getElementById('edit_project_screenshot_url').value,
-         hackatime_project_name: document.getElementById('edit_project_hackatime')?.value || ''
+         hackatime_project_names: hackatimeProjectNames
        }
      };
 

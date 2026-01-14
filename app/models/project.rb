@@ -14,12 +14,20 @@ class Project < ApplicationRecord
   scope :approved, -> { where(status: "approved") }
 
   # Checks if this project tracks hours via Hackatime.
-  # @return [Boolean] true if linked to a Hackatime project
+  # @return [Boolean] true if linked to any Hackatime projects
   def uses_hackatime?
-    hackatime_project_name.present?
+    hackatime_project_names.present? && hackatime_project_names.any?
+  end
+
+  # Total hours from all sources (Hackatime + journal entries).
+  # @return [Decimal] sum of hours
+  def total_hours
+    journal_hours = journal_entries.sum(:hours) || 0
+    hours + journal_hours
   end
 
   # Syncs hours from Hackatime API if linked.
+  # Sums hours across all linked Hackatime projects.
   # @return [Boolean] true if synced successfully
   def sync_hackatime_hours!
     return false unless uses_hackatime?
@@ -27,18 +35,18 @@ class Project < ApplicationRecord
 
     start_date = Rails.env.development? ? 1.month.ago.to_date.iso8601 : "2026-01-05"
 
-    hours = HackatimeService.fetch_project_hours(
-      user.slack_id,
-      hackatime_project_name,
-      start_date: start_date
-    )
-
-    if hours
-      update_column(:hours, hours)
-      true
-    else
-      false
+    total_hours = 0
+    hackatime_project_names.each do |project_name|
+      hours = HackatimeService.fetch_project_hours(
+        user.slack_id,
+        project_name,
+        start_date: start_date
+      )
+      total_hours += hours if hours
     end
+
+    update_column(:hours, total_hours)
+    true
   end
 
   # Checks if project can be submitted for review.

@@ -89,7 +89,7 @@ class Api::V1::ProjectsController < ApplicationController
   end
 
   def project_params
-    params.require(:project).permit(:name, :description, :code_url, :playable_url, :screenshot_url, :hours, :hackatime_project_name)
+    params.require(:project).permit(:name, :description, :code_url, :playable_url, :screenshot_url, :hours, hackatime_project_names: [])
   end
 
   def project_response(project)
@@ -106,7 +106,7 @@ class Api::V1::ProjectsController < ApplicationController
       submitted_at: project.submitted_at,
       reviewed_at: project.reviewed_at,
       created_at: project.created_at,
-      hackatime_project_name: project.hackatime_project_name,
+      hackatime_project_names: project.hackatime_project_names,
       uses_hackatime: project.uses_hackatime?
     }
   end

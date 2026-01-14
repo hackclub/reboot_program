@@ -30,9 +30,9 @@
             <div class="admin-row__title"><%= project.name %></div>
             <div class="admin-row__meta muted">
               by <%= project.user.slack_username || project.user.email %> (<%= project.user.email %>) • 
-              <%= project.hours %>h logged
-              <% if project.hackatime_project_name %>
-                • Hackatime: <%= project.hackatime_project_name %>
+              <%= project.total_hours.to_i %>h logged
+              <% if project.hackatime_project_names.present? %>
+                • Hackatime: <%= project.hackatime_project_names.join(", ") %>
               <% end %>
               <% if project.submitted_at %>
                 • submitted <%= time_ago_in_words(project.submitted_at) %> ago
@@ -65,7 +65,7 @@
                 <span style="color: #856404;"><%= project.user_reason %></span>
               </div>
             <% end %>
-            <% if !project.uses_hackatime? && project.journal_entries.any? %>
+            <% if project.journal_entries.any? %>
               <div style="margin: 8px 0;">
                 <button type="button" class="btn btn--ghost view-journal-btn" data-project-id="<%= project.id %>" onclick="event.stopPropagation();">
                   View Journal (<%= project.journal_entries.count %> entries)
@@ -137,7 +137,7 @@
         </div>
         <div>
           <span class="pill pill--<%= project.status %>"><%= project.status.humanize %></span>
-          <span class="muted"><%= project.hours %>h → <%= project.approved_hours || "—" %>h</span>
+          <span class="muted"><%= project.total_hours.to_i %>h → <%= project.approved_hours || "—" %>h</span>
         </div>
       </a>
     <% end %>

@@ -16,8 +16,8 @@ class Api::V1::Admin::ProjectsController < ApplicationController
       return
     end
 
-    unless @project.status == "in-review"
-      render json: { error: "Project is not in review" }, status: :unprocessable_entity
+    unless @project.status.in?(%w[in-review pending rejected])
+      render json: { error: "Project cannot be reviewed in its current state" }, status: :unprocessable_entity
       return
     end
 
@@ -35,8 +35,8 @@ class Api::V1::Admin::ProjectsController < ApplicationController
       return
     end
 
-    unless @project.status == "in-review"
-      render json: { error: "Project is not in review" }, status: :unprocessable_entity
+    unless @project.status.in?(%w[in-review pending rejected])
+      render json: { error: "Project cannot be reviewed in its current state" }, status: :unprocessable_entity
       return
     end
 
