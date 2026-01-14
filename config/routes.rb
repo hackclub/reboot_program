@@ -50,6 +50,9 @@ Rails.application.routes.draw do
         resources :journal_entries, only: [ :index, :show, :create, :update, :destroy ]
       end
 
+      # Uploads
+      post "uploads", to: "uploads#create"
+
       # Hackatime
       get "hackatime/projects", to: "hackatime#projects"
 

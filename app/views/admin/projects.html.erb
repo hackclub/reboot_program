@@ -276,6 +276,14 @@
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   }
 
+  function renderMarkdown(text) {
+    let html = escapeHtml(text);
+    html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" style="max-width: 100%; border-radius: 4px; margin: 4px 0;">');
+    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
+    html = html.replace(/\n/g, '<br>');
+    return html;
+  }
+
   document.querySelectorAll('.view-journal-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
       const projectId = btn.dataset.projectId;
@@ -299,16 +307,18 @@
         if (entries.length === 0) {
           journalContent.innerHTML = '<p class="muted">No journal entries.</p>';
         } else {
-          journalContent.innerHTML = entries.map(entry => `
-            <div style="padding: 1rem; border-bottom: 1px solid #f0f0f0;">
-              <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                <strong>${formatDate(entry.date)}</strong>
-                <span class="muted">${entry.hours}h</span>
+          journalContent.innerHTML = entries.map(entry => {
+            return `
+              <div style="padding: 1rem; border-bottom: 1px solid #f0f0f0;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                  <strong>${formatDate(entry.date)}</strong>
+                  <span class="muted">${entry.hours}h</span>
+                </div>
+                <div style="margin: 0;">${renderMarkdown(entry.content)}</div>
+                ${entry.tools ? `<p class="muted" style="margin: 0.5rem 0 0 0; font-size: 0.85rem;"><strong>Tools:</strong> ${escapeHtml(entry.tools)}</p>` : ''}
               </div>
-              <p style="margin: 0;">${escapeHtml(entry.content)}</p>
-              ${entry.tools ? `<p class="muted" style="margin: 0.5rem 0 0 0; font-size: 0.85rem;"><strong>Tools:</strong> ${escapeHtml(entry.tools)}</p>` : ''}
-            </div>
-          `).join('');
+            `;
+          }).join('');
         }
       } catch (error) {
         console.error('Failed to load journal entries:', error);

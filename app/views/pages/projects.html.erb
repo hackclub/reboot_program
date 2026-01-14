@@ -235,8 +235,9 @@
       </div>
       
       <div class="form-group">
-        <label class="form__label" for="journal_content">What did you work on? * <span style="font-size: 0.85rem; color: #999;">(markdown supported)</span></label>
-        <textarea class="form__input form__textarea" id="journal_content" rows="4" placeholder="Describe your progress... (markdown supported)" required></textarea>
+        <label class="form__label" for="journal_content">What did you work on? * <span style="font-size: 0.85rem; color: #999;">(markdown supported - drag & drop images)</span></label>
+        <textarea class="form__input form__textarea" id="journal_content" rows="6" placeholder="Describe your progress... (drag & drop images here)" required style="min-height: 150px;"></textarea>
+        <div id="upload-status" style="font-size: 0.85rem; margin-top: 4px;"></div>
       </div>
       
       <div class="form-group">
@@ -450,6 +451,7 @@
   
   function closeJournalModal() {
     journalModal?.classList.add('modal--hidden');
+    journalForm?.reset();
   }
   
   journalBtn?.addEventListener('click', openJournalModal);
@@ -461,17 +463,138 @@
   
   journalModal?.querySelector('.modal__backdrop')?.addEventListener('click', closeJournalModal);
 
-  // Renders a single journal entry as HTML.
+  const contentTextarea = document.getElementById('journal_content');
+  const uploadStatus = document.getElementById('upload-status');
+
+  const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'video/mp4', 'video/x-msvideo', 'video/quicktime'];
+  const MAX_FILE_SIZE = 50 * 1024 * 1024;
+
+  function isValidFile(file) {
+    const extension = file.name.toLowerCase().split('.').pop();
+    const validExtensions = ['png', 'jpg', 'jpeg', 'mp4', 'avi', 'mov'];
+    return ALLOWED_TYPES.includes(file.type) && validExtensions.includes(extension) && file.size <= MAX_FILE_SIZE;
+  }
+
+  async function uploadFile(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await fetch('/api/v1/uploads', {
+      method: 'POST',
+      headers: {
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content
+      },
+      credentials: 'same-origin',
+      body: formData
+    });
+
+    if (!response.ok) {
+      const data = await response.json();
+      throw new Error(data.error || 'Upload failed');
+    }
+
+    const data = await response.json();
+    return data.url;
+  }
+
+  function insertTextAtCursor(textarea, text) {
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const before = textarea.value.substring(0, start);
+    const after = textarea.value.substring(end);
+    textarea.value = before + text + after;
+    textarea.selectionStart = textarea.selectionEnd = start + text.length;
+    textarea.focus();
+  }
+
+  async function handleFileDrop(files) {
+    const validFiles = Array.from(files).filter(isValidFile);
+    
+    if (validFiles.length === 0) {
+      uploadStatus.innerHTML = '<span style="color: #dc3545;">Invalid file type. Allowed: PNG, JPG, MP4, AVI, MOV (max 50MB)</span>';
+      setTimeout(() => { uploadStatus.innerHTML = ''; }, 3000);
+      return;
+    }
+
+    for (const file of validFiles) {
+      const isVideo = file.type.startsWith('video/');
+      const placeholder = isVideo ? `![Uploading ${file.name}...]()` : `![Uploading ${file.name}...]()`;
+      insertTextAtCursor(contentTextarea, placeholder);
+      uploadStatus.innerHTML = `<span style="color: #666;">Uploading ${file.name}...</span>`;
+
+      try {
+        const url = await uploadFile(file);
+        const markdown = isVideo ? `[${file.name}](${url})` : `![${file.name}](${url})`;
+        contentTextarea.value = contentTextarea.value.replace(placeholder, markdown);
+        uploadStatus.innerHTML = `<span style="color: #28a745;">Uploaded ${file.name}</span>`;
+      } catch (error) {
+        contentTextarea.value = contentTextarea.value.replace(placeholder, '');
+        uploadStatus.innerHTML = `<span style="color: #dc3545;">Failed: ${error.message}</span>`;
+      }
+    }
+
+    setTimeout(() => { uploadStatus.innerHTML = ''; }, 3000);
+  }
+
+  contentTextarea?.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    contentTextarea.style.borderColor = '#f25f2c';
+    contentTextarea.style.background = '#fff5f0';
+  });
+
+  contentTextarea?.addEventListener('dragleave', (e) => {
+    e.preventDefault();
+    contentTextarea.style.borderColor = '';
+    contentTextarea.style.background = '';
+  });
+
+  contentTextarea?.addEventListener('drop', (e) => {
+    e.preventDefault();
+    contentTextarea.style.borderColor = '';
+    contentTextarea.style.background = '';
+    if (e.dataTransfer.files.length > 0) {
+      handleFileDrop(e.dataTransfer.files);
+    }
+  });
+
+  contentTextarea?.addEventListener('paste', (e) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+
+    const files = [];
+    for (const item of items) {
+      if (item.kind === 'file') {
+        const file = item.getAsFile();
+        if (file) files.push(file);
+      }
+    }
+
+    if (files.length > 0) {
+      e.preventDefault();
+      handleFileDrop(files);
+    }
+  });
+
+  function renderMarkdown(text) {
+    let html = escapeHtml(text);
+    html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" style="max-width: 100%; border-radius: 4px; margin: 4px 0;">');
+    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
+    html = html.replace(/\n/g, '<br>');
+    return html;
+  }
+
   function renderJournalEntry(entry) {
     const date = new Date(entry.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     const toolsHtml = entry.tools ? `<p class="journal-entry__tools muted"><strong>Tools:</strong> ${escapeHtml(entry.tools)}</p>` : '';
+    const contentHtml = renderMarkdown(entry.content);
+
     return `
       <div class="journal-entry" data-id="${entry.id}">
         <div class="journal-entry__header">
           <span class="journal-entry__date">${date}</span>
           <span class="journal-entry__hours">${entry.hours}h</span>
         </div>
-        <p class="journal-entry__content">${escapeHtml(entry.content)}</p>
+        <div class="journal-entry__content">${contentHtml}</div>
         ${toolsHtml}
       </div>
     `;

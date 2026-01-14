@@ -58,11 +58,9 @@ class Api::V1::JournalEntriesController < ApplicationController
   end
 
   def entry_params
-    params.require(:journal_entry).permit(:date, :hours, :content, :tools)
+    params.require(:journal_entry).permit(:date, :hours, :content, :tools, media_urls: [])
   end
 
-  # @param entry [JournalEntry] the entry to serialize
-  # @return [Hash] JSON-friendly hash
   def entry_response(entry)
     {
       id: entry.id,
@@ -71,6 +69,7 @@ class Api::V1::JournalEntriesController < ApplicationController
       hours: entry.hours,
       content: entry.content,
       tools: entry.tools,
+      media_urls: entry.media_urls || [],
       created_at: entry.created_at,
       updated_at: entry.updated_at
     }

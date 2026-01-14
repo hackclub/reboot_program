@@ -134,7 +134,7 @@
             <strong><%= entry.date.strftime("%b %d, %Y") %></strong>
             <span class="muted"><%= entry.hours %>h</span>
           </div>
-          <p style="margin: 0;"><%= entry.content %></p>
+          <div style="margin: 0;"><%= render_markdown(entry.content) %></div>
           <% if entry.tools.present? %>
             <p class="muted" style="margin: 0.5rem 0 0 0; font-size: 0.85rem;"><strong>Tools:</strong> <%= entry.tools %></p>
           <% end %>
