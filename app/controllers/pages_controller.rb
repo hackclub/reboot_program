@@ -217,6 +217,6 @@ class PagesController < ActionController::Base
   end
 
   def project_params
-    params.require(:project).permit(:name, :description, :code_url, :playable_url, :hours, :hackatime_project_name)
+    params.require(:project).permit(:name, :description, :code_url, :playable_url, :screenshot_url, :hours, hackatime_project_names: [])
   end
 end

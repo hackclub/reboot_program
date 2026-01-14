@@ -13,7 +13,7 @@
              class="project-row <%= index.odd? ? 'project-row--alt' : '' %> <%= project == @selected_project ? 'project-row--selected' : '' %>">
             <div class="project-row__title"><%= project.name %></div>
             <div class="pill pill--status"><%= project.status.humanize %></div>
-            <div class="pill pill--time"><%= project.total_hours.to_i %>h</div>
+            <div class="pill pill--time"><%= project.total_hours.round(1) %>h</div>
           </a>
         <% end %>
         <button id="create-project-btn" class="btn btn--primary btn--block" style="margin-top: 8px;">+ New Project</button>
@@ -80,7 +80,7 @@
                       <div><strong><%= name %></strong> (Hackatime)</div>
                       <div>
                         <% hours = HackatimeService.fetch_project_hours(@selected_project.user.slack_id, name, start_date: Rails.env.development? ? 1.month.ago.to_date.iso8601 : "2026-01-05") rescue 0 %>
-                        <%= hours.to_i %>h
+                        <%= (hours || 0).round(1) %>h
                       </div>
                       <div>—</div>
                     </div>
@@ -90,15 +90,15 @@
                 <% if @selected_project.journal_entries.any? %>
                   <div class="tracking-row">
                     <div><strong>Journal</strong> (<%= @selected_project.journal_entries.count %> entries)</div>
-                    <div><%= @selected_project.journal_entries.sum(:hours).to_i %>h</div>
+                    <div><%= (@selected_project.journal_entries.sum(:hours) || 0).round(1) %>h</div>
                     <div>—</div>
                   </div>
                 <% end %>
                 
                 <div class="tracking-row" style="font-weight: 600; background-color: #f9f9f9;">
                   <div><%= @selected_project.name %></div>
-                  <div><%= @selected_project.total_hours.to_i %>h</div>
-                  <div><%= @selected_project.status == 'approved' ? "#{@selected_project.approved_hours.to_i}h" : "—" %></div>
+                  <div><%= @selected_project.total_hours.round(1) %>h</div>
+                  <div><%= @selected_project.status == 'approved' ? "#{(@selected_project.approved_hours || 0).round(1)}h" : "—" %></div>
                 </div>
               </div>
             </div>

@@ -69,7 +69,7 @@
         <div style="margin-bottom: 1rem;">
           <label style="display: block; font-weight: 600; margin-bottom: 4px; color: #999; font-size: 0.85rem;">Hours Source</label>
           <% if @project.uses_hackatime? %>
-            <span>Hackatime: <strong><%= @project.hackatime_project_name %></strong></span>
+            <span>Hackatime: <strong><%= @project.hackatime_project_names.join(", ") %></strong></span>
           <% else %>
             <span>Manual Journal</span>
           <% end %>
@@ -81,7 +81,7 @@
         
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
           <div class="card" style="text-align: center; padding: 1rem;">
-            <div style="font-size: 2rem; font-weight: 700;"><%= @project.hours.to_f.round(2) %></div>
+            <div style="font-size: 2rem; font-weight: 700;"><%= @project.total_hours.to_f.round(2) %></div>
             <div class="muted">Raw Hours</div>
           </div>
           <div class="card" style="text-align: center; padding: 1rem;">
@@ -100,7 +100,7 @@
 
           <form id="approve-form" style="margin-bottom: 1rem;">
             <label style="display: block; font-weight: 600; margin-bottom: 4px;">Approved Hours</label>
-            <input type="number" id="approve_hours" value="<%= @project.hours.to_f.round(2) %>" min="0" step="0.5" 
+            <input type="number" id="approve_hours" value="<%= @project.total_hours.to_f.round(2) %>" min="0" step="0.5"
                    style="width: 100%; padding: 8px 12px; border: 1px solid #e0e0e0; border-radius: 6px; margin-bottom: 0.5rem;">
             
             <label style="display: block; font-weight: 600; margin-bottom: 4px;">Reason</label>
@@ -189,7 +189,8 @@
   });
 
   rejectBtn?.addEventListener('click', async () => {
-    if (!confirm('Are you sure you want to reject this project?')) return;
+    const reason = prompt('Please provide a reason for rejection:');
+    if (!reason) return;
 
     rejectBtn.disabled = true;
     rejectBtn.textContent = 'Rejecting...';
@@ -198,10 +199,12 @@
       const response = await fetch(`/api/v1/admin/projects/${projectId}/reject`, {
         method: 'POST',
         headers: {
+          'Content-Type': 'application/json',
           'Accept': 'application/json',
           'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content
         },
-        credentials: 'same-origin'
+        credentials: 'same-origin',
+        body: JSON.stringify({ user_reason: reason })
       });
 
       if (response.ok) {

@@ -3,6 +3,7 @@
 class JournalEntry < ApplicationRecord
   belongs_to :project
 
+  validates :project, presence: true
   validates :date, presence: true
   validates :hours, presence: true, numericality: { greater_than: 0, less_than_or_equal_to: 24 }
   validates :content, presence: true

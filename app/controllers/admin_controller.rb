@@ -1,5 +1,10 @@
 # Admin controller for managing projects, users, and orders.
 class AdminController < ActionController::Base
+  include ActionController::Cookies
+  include ActionController::RequestForgeryProtection
+  include Authenticatable
+
+  helper ApplicationHelper
   layout "application"
   before_action :require_admin
 

@@ -22,8 +22,12 @@ class Project < ApplicationRecord
   # Total hours from all sources (Hackatime + journal entries).
   # @return [Decimal] sum of hours
   def total_hours
-    journal_hours = journal_entries.sum(:hours) || 0
-    hours + journal_hours
+    if uses_hackatime?
+      journal_hours = journal_entries.sum(:hours) || 0
+      hours + journal_hours
+    else
+      hours
+    end
   end
 
   # Syncs hours from Hackatime API if linked.
@@ -31,7 +35,7 @@ class Project < ApplicationRecord
   # @return [Boolean] true if synced successfully
   def sync_hackatime_hours!
     return false unless uses_hackatime?
-    return false unless user.slack_id.present?
+    return false unless user&.slack_id.present?
 
     start_date = Rails.env.development? ? 1.month.ago.to_date.iso8601 : "2026-01-05"
 
