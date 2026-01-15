@@ -6,6 +6,6 @@ class AddAuthFieldsToUsers < ActiveRecord::Migration[8.0]
     add_column :users, :uid, :string
 
     add_index :users, :email, unique: true
-    add_index :users, [:provider, :uid], unique: true
+    add_index :users, [ :provider, :uid ], unique: true
   end
 end

@@ -15,9 +15,9 @@ if ENV["HACKCLUB_CLIENT_ID"].present? && ENV["HACKCLUB_CLIENT_SECRET"].present?
   end
 
   # Allow both POST and GET for OAuth
-  OmniAuth.config.allowed_request_methods = [:post, :get]
+  OmniAuth.config.allowed_request_methods = [ :post, :get ]
   OmniAuth.config.silence_get_warning = true
-  
+
   # Disable origin check (CSRF) - session cookie handles auth security
   OmniAuth.config.request_validation_phase = nil
 else

@@ -44,13 +44,13 @@ class CdnUploadService
 
     valid = case @file.content_type
     when "image/png"
-      header&.bytes&.first(8) == [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]
+      header&.bytes&.first(8) == [ 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A ]
     when "image/jpeg"
-      header&.bytes&.first(2) == [0xFF, 0xD8]
+      header&.bytes&.first(2) == [ 0xFF, 0xD8 ]
     when "video/mp4"
       header&.include?("ftyp")
     when "video/x-msvideo"
-      header&.bytes&.first(4) == [0x52, 0x49, 0x46, 0x46]
+      header&.bytes&.first(4) == [ 0x52, 0x49, 0x46, 0x46 ]
     when "video/quicktime"
       header&.include?("moov") || header&.include?("ftyp")
     else
@@ -69,7 +69,7 @@ class CdnUploadService
     response = Faraday.post("https://cdn.hackclub.com/api/v3/new") do |req|
       req.headers["Authorization"] = "Bearer #{CDN_API_TOKEN}"
       req.headers["Content-Type"] = "application/json"
-      req.body = [data_url].to_json
+      req.body = [ data_url ].to_json
     end
 
     raise UploadError, "CDN upload failed: #{response.status}" unless response.success?

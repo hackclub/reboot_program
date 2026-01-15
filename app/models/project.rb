@@ -53,7 +53,7 @@ class Project < ApplicationRecord
     true
   end
 
-  # Checks if project can be submitted for review.
+   # Checks if project can be submitted for review.
    # @return [Boolean] true if pending, rejected, or approved (for new hours)
    def can_request_review?
      status.in?(%w[pending rejected approved])
@@ -70,7 +70,7 @@ class Project < ApplicationRecord
     update!(status: "in-review", submitted_at: Time.current)
   end
 
-  # Approves project with given hours and credits user's balance.
+   # Approves project with given hours and credits user's balance.
    # First approval sends to YSWS Airtable; re-approvals update existing record.
    # Awards CURRENCY_PER_HOUR (50) per approved hour delta.
    # @param hours [Numeric] approved hours to add in this round
@@ -95,7 +95,7 @@ class Project < ApplicationRecord
          user_reason: user_reason.presence,
          reviewed_at: Time.current.iso8601
        }
-       
+
        update!(
          status: "approved",
          approved_hours: new_total_hours,
@@ -105,7 +105,7 @@ class Project < ApplicationRecord
          approval_history: (approval_history || []).push(approval_entry),
          review_history: (review_history || []).push(review_entry)
        )
-       
+
        currency_delta = hours * CURRENCY_PER_HOUR
        user.update!(balance: user.balance + currency_delta)
       end
