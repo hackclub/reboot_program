@@ -70,6 +70,7 @@ Rails.application.routes.draw do
             post :approve
             post :reject
           end
+          resources :journal_entries, only: [ :index, :show ]
         end
       end
     end

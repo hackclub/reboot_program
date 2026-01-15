@@ -291,7 +291,7 @@
       journalContent.innerHTML = '<p class="muted">Loading...</p>';
 
       try {
-        const response = await fetch(`/api/v1/projects/${projectId}/journal_entries`, {
+        const response = await fetch(`/api/v1/admin/projects/${projectId}/journal_entries`, {
           headers: { 'Accept': 'application/json' },
           credentials: 'same-origin'
         });
