@@ -39,6 +39,11 @@ class Api::V1::JournalEntriesController < ApplicationController
 
   # DELETE /api/v1/projects/:project_id/journal_entries/:id
   def destroy
+    if @project.status == "approved"
+      render json: { error: "Cannot delete journal entries from approved projects" }, status: :forbidden
+      return
+    end
+
     @entry.destroy
     head :no_content
   end

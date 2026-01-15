@@ -39,6 +39,11 @@ class Api::V1::ProjectsController < ApplicationController
 
   # DELETE /api/v1/projects/:id
   def destroy
+    if @project.status == "approved"
+      render json: { error: "Cannot delete approved projects" }, status: :forbidden
+      return
+    end
+
     @project.destroy
     head :no_content
   end

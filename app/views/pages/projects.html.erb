@@ -25,7 +25,7 @@
       <% end %>
     </aside>
 
-    <section class="project-detail card">
+    <section class="project-detail card" data-project-status="<%= @selected_project&.status %>">
       <% if @selected_project %>
         <header class="project-detail__header">
            <h2 class="project-detail__title"><%= @selected_project.name %></h2>
@@ -126,13 +126,16 @@
               </div>
             <% end %>
 
-            <% if @selected_project.status == 'in-review' && @selected_project.user_reason.present? %>
-              <div class="detail-group">
-                <div class="detail-subtitle">Previous Rejection Reason</div>
-                <div class="review-card review-card--rejected" style="margin-top: 8px;">
-                  <p><%= @selected_project.user_reason %></p>
+            <% if @selected_project.status == 'in-review' %>
+              <% last_rejection = @selected_project.review_history&.reverse&.find { |r| r['type'] == 'rejected' } %>
+              <% if last_rejection&.dig('user_reason').present? %>
+                <div class="detail-group">
+                  <div class="detail-subtitle">Previous Rejection Reason</div>
+                  <div class="review-card review-card--rejected" style="margin-top: 8px;">
+                    <p><%= last_rejection['user_reason'] %></p>
+                  </div>
                 </div>
-              </div>
+              <% end %>
             <% end %>
 
             <div style="margin-top: 2rem;">
@@ -449,6 +452,27 @@
   .form-group textarea {
     width: 100% !important;
   }
+
+  .delete-journal-btn {
+    background: #ff4757;
+    color: white;
+    border: none;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .delete-journal-btn:hover {
+    background: #ff3838;
+    transform: scale(1.05);
+  }
+
+  .delete-journal-btn:active {
+    transform: scale(0.98);
+  }
 </style>
 
 <script>
@@ -605,12 +629,19 @@
     const date = new Date(entry.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     const toolsHtml = entry.tools ? `<p class="journal-entry__tools muted"><strong>Tools:</strong> ${escapeHtml(entry.tools)}</p>` : '';
     const contentHtml = renderMarkdown(entry.content);
+    const isApproved = document.querySelector('[data-project-status]')?.dataset.projectStatus === 'approved';
+    const deleteButtonHtml = isApproved 
+      ? '' 
+      : `<button type="button" class="delete-journal-btn" data-entry-id="${entry.id}">Delete</button>`;
 
     return `
       <div class="journal-entry" data-id="${entry.id}">
         <div class="journal-entry__header">
-          <span class="journal-entry__date">${date}</span>
-          <span class="journal-entry__hours">${entry.hours}h</span>
+          <div>
+            <span class="journal-entry__date">${date}</span>
+            <span class="journal-entry__hours">${entry.hours}h</span>
+          </div>
+          ${deleteButtonHtml}
         </div>
         <div class="journal-entry__content">${contentHtml}</div>
         ${toolsHtml}
@@ -645,11 +676,44 @@
         document.getElementById('quick-journal-btn')?.addEventListener('click', openJournalModal);
       } else {
         journalEntriesList.innerHTML = entries.map(renderJournalEntry).join('');
+        attachDeleteHandlers();
       }
-    } catch (error) {
+      } catch (error) {
       console.error('Failed to load journal entries:', error);
-    }
-  }
+      }
+      }
+
+      function attachDeleteHandlers() {
+      document.querySelectorAll('.delete-journal-btn').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const entryId = btn.dataset.entryId;
+        if (!confirm('Delete this journal entry?')) return;
+
+        try {
+          const response = await fetch(`/api/v1/projects/${PROJECT_ID}/journal_entries/${entryId}`, {
+            method: 'DELETE',
+            headers: {
+              'Accept': 'application/json',
+              'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content
+            },
+            credentials: 'same-origin'
+          });
+
+          if (response.ok) {
+            loadJournalEntries();
+            window.location.reload();
+          } else {
+            const data = await response.json();
+            alert(data.error || 'Failed to delete journal entry.');
+          }
+        } catch (error) {
+          console.error('Failed to delete:', error);
+          alert('Failed to delete journal entry.');
+        }
+      });
+      });
+      }
 
   const viewJournalModal = document.getElementById('view-journal-modal');
   const viewJournalBtn = document.getElementById('view-journal-btn');
@@ -948,8 +1012,21 @@
    });
 
   const deleteProjectBtn = document.getElementById('delete-project-btn');
+  const projectStatus = document.querySelector('[data-project-status]')?.dataset.projectStatus;
+  
+  if (projectStatus === 'approved') {
+    deleteProjectBtn.disabled = true;
+    deleteProjectBtn.title = 'Cannot delete approved projects';
+    deleteProjectBtn.style.opacity = '0.5';
+    deleteProjectBtn.style.cursor = 'not-allowed';
+  }
   
   deleteProjectBtn?.addEventListener('click', async () => {
+    if (projectStatus === 'approved') {
+      alert('Cannot delete approved projects');
+      return;
+    }
+
     if (!confirm('Are you sure you want to delete this project? This action cannot be undone.')) {
       return;
     }
@@ -969,7 +1046,8 @@
       if (response.ok) {
         window.location.href = '/projects';
       } else {
-        alert('Failed to delete project.');
+        const data = await response.json();
+        alert(data.error || 'Failed to delete project.');
         deleteProjectBtn.disabled = false;
         deleteProjectBtn.textContent = 'Delete';
       }
