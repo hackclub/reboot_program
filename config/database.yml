@@ -11,8 +11,10 @@ development:
   database: reboot_development
 
 test:
-  <<: *default
-  database: reboot_test
+  adapter: sqlite3
+  database: db/test.sqlite3
+  pool: 5
+  timeout: 5000
 
 production:
   <<: *default

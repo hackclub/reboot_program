@@ -54,6 +54,11 @@ group :development, :test do
   gem "rubocop-rails-omakase", require: false
 end
 
+group :test do
+  # SQLite for faster tests without external database
+  gem "sqlite3"
+end
+
 gem "norairrecord", "~> 0.5.1"
 gem "faraday", "~> 1.10"  # norairrecord requires Faraday 1.x API
 
