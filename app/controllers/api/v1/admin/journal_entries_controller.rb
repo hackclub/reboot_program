@@ -2,7 +2,7 @@ class Api::V1::Admin::JournalEntriesController < ApplicationController
   before_action :authenticate_user!
   before_action :require_admin!
   before_action :set_project
-  before_action :set_journal_entry, only: [:show]
+  before_action :set_journal_entry, only: [ :show ]
 
   def index
     @entries = @project.journal_entries.order(date: :desc)

@@ -19,8 +19,8 @@ class Airtable::ShopOrderSyncJob < Airtable::BaseSyncJob
     {
       "Name" => order.name,
       "status" => order.status,
-      "user_id" => order.user&.airtable_id ? [order.user.airtable_id] : nil,
-      "item_id" => order.shop_item&.airtable_id ? [order.shop_item.airtable_id] : nil,
+      "user_id" => order.user&.airtable_id ? [ order.user.airtable_id ] : nil,
+      "item_id" => order.shop_item&.airtable_id ? [ order.shop_item.airtable_id ] : nil
     }.compact
   end
 end

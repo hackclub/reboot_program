@@ -75,35 +75,83 @@ class AdminController < ActionController::Base
     @item_suggestions = ItemSuggestion.includes(:user).order(created_at: :desc)
   end
 
+  # GET /admin/jobs
+  # Displays Solid Queue job statistics and recent jobs.
+  def jobs
+    @ready_jobs = SolidQueue::ReadyExecution.count
+    @scheduled_jobs = SolidQueue::ScheduledExecution.count
+    @failed_jobs = SolidQueue::FailedExecution.count
+    @completed_jobs = SolidQueue::Job.where.not(finished_at: nil).count
+
+    @recent_ready = SolidQueue::ReadyExecution.includes(:job).order(created_at: :desc).limit(20)
+    @recent_failed = SolidQueue::FailedExecution.includes(:job).order(created_at: :desc).limit(20)
+    @recent_completed = SolidQueue::Job.where.not(finished_at: nil).order(finished_at: :desc).limit(20)
+    @recent_scheduled = SolidQueue::ScheduledExecution.includes(:job).order(scheduled_at: :asc).limit(20)
+  end
+
+  # POST /admin/jobs/:id/retry
+  # Retries a failed job by re-enqueuing it.
+  def retry_job
+    failed = SolidQueue::FailedExecution.find_by(id: params[:id])
+    if failed
+      failed.retry
+      redirect_to admin_jobs_path, flash: { success: "Job re-enqueued" }
+    else
+      redirect_to admin_jobs_path, flash: { error: "Failed job not found" }
+    end
+  end
+
+  # DELETE /admin/jobs/:id
+  # Discards a failed job permanently.
+  def discard_job
+    failed = SolidQueue::FailedExecution.find_by(id: params[:id])
+    if failed
+      failed.discard
+      redirect_to admin_jobs_path, flash: { success: "Job discarded" }
+    else
+      redirect_to admin_jobs_path, flash: { error: "Failed job not found" }
+    end
+  end
+
+  # POST /admin/jobs/run_airtable_sync
+  # Enqueues all Airtable sync jobs to run immediately.
+  def run_airtable_sync
+    Airtable::UserSyncJob.perform_later
+    Airtable::ShopOrderSyncJob.perform_later
+    Airtable::ShopItemPullJob.perform_later
+
+    redirect_to admin_jobs_path, flash: { success: "All Airtable sync jobs enqueued" }
+  end
+
   SHOP_ITEMS = [
     { name: "Keyboard", variants: [
       { label: "Standard grant - Redragon K668", key: "standard", bolts: 500, grant: 50 },
       { label: "Quality grant - YUNZII AL80", key: "quality", bolts: 1100, grant: 110 },
       { label: "Advanced grant - Lemokey P1 HE", key: "advanced", bolts: 1700, grant: 170 },
       { label: "Professional grant", key: "professional", bolts: 2200, grant: 220 }
-    ]},
+    ] },
     { name: "Mouse", variants: [
       { label: "Standard grant - Logitech G305 Lightspeed", key: "standard", bolts: 300, grant: 30 },
       { label: "Quality grant - Razer DeathAdder", key: "quality", bolts: 500, grant: 50 },
       { label: "Advanced grant - G309 LIGHTSPEED", key: "advanced", bolts: 1000, grant: 100 },
       { label: "Professional grant - MX Master 4", key: "professional", bolts: 1600, grant: 160 }
-    ]},
+    ] },
     { name: "Monitor", variants: [
       { label: "Standard grant", key: "standard", bolts: 500, grant: 50 },
       { label: "Quality grant - Dell 24 Monitor SE2425HM", key: "quality", bolts: 1100, grant: 110 },
       { label: "Advanced grant - ViewSonic VX3276-MHD", key: "advanced", bolts: 1700, grant: 180 },
       { label: "Professional grant - SANSUI 32-Inch WQHD", key: "professional", bolts: 2300, grant: 230 }
-    ]},
+    ] },
     { name: "Headphones", variants: [
       { label: "Standard grant", key: "standard", bolts: 500, grant: 50 },
       { label: "Quality grant", key: "quality", bolts: 1100, grant: 110 },
       { label: "Professional grant", key: "professional", bolts: 2400, grant: 240 }
-    ]},
+    ] },
     { name: "Webcam", variants: [
       { label: "Standard grant", key: "standard", bolts: 500, grant: 50 },
       { label: "Quality grant", key: "quality", bolts: 1400, grant: 140 },
       { label: "Professional grant", key: "professional", bolts: 2300, grant: 230 }
-    ]}
+    ] }
   ]
 
   private

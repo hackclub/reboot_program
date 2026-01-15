@@ -1,0 +1,16 @@
+{
+  "ignored_warnings": [
+    {
+      "warning_type": "Mass Assignment",
+      "fingerprint": "edfe0b320c6481e9f13cfa5431b6133a579a42f3c204156bc5ec8eb5e894727e",
+      "check_name": "PermitAttributes",
+      "message": "Potentially dangerous key allowed for mass assignment",
+      "file": "app/controllers/api/v1/admin/users_controller.rb",
+      "line": 64,
+      "code": "params.require(:user).permit(:role, :idv_verified)",
+      "note": "Safe: Controller requires admin role via require_admin! and prevents self-role-change"
+    }
+  ],
+  "updated": "2026-01-15",
+  "brakeman_version": "7.0.2"
+}
