@@ -26,6 +26,10 @@ Rails.application.routes.draw do
   get "admin/projects/:id", to: "admin#project_detail", as: :admin_project
   get "admin/users", to: "admin#users", as: :admin_users
   get "admin/shop", to: "admin#shop", as: :admin_shop
+  get "admin/jobs", to: "admin#jobs", as: :admin_jobs
+  post "admin/jobs/:id/retry", to: "admin#retry_job", as: :admin_retry_job
+  delete "admin/jobs/:id", to: "admin#discard_job", as: :admin_discard_job
+  post "admin/jobs/run_airtable_sync", to: "admin#run_airtable_sync", as: :admin_run_airtable_sync
 
   # OmniAuth callbacks (OmniAuth middleware handles POST /auth/:provider)
   get "auth/:provider/callback", to: "sessions#create"
