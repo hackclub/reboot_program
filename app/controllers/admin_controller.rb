@@ -72,6 +72,7 @@ class AdminController < ActionController::Base
   def shop
     @shop_items = SHOP_ITEMS
     @shop_orders = ShopOrder.includes(:user, :shop_item).order(created_at: :desc)
+    @item_suggestions = ItemSuggestion.includes(:user).order(created_at: :desc)
   end
 
   SHOP_ITEMS = [

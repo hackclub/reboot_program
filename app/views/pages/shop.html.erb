@@ -16,7 +16,7 @@
       <h3 class="shop-heading">Category</h3>
       <ul class="shop-category-list">
         <% categories_active = [ "Keyboard", "Mouse", "Monitor", "Headphones", "Webcam" ] %>
-        <% categories_soon = [ "Chair", "PC Components", "Desktop Accessories", "Suggest Something!" ] %>
+        <% categories_soon = [ "Chair", "PC Components", "Desktop Accessories" ] %>
         <% categories_active.each_with_index do |cat, idx| %>
           <li>
             <button class="shop-category-item <%= 'is-active' if idx == 0 %>" data-target="cat-<%= cat.downcase %>">
@@ -35,6 +35,11 @@
             </button>
           </li>
         <% end %>
+        <li>
+          <button class="shop-category-item" id="suggest-something-btn" type="button" style="background: #f25f2c; color: white; border: none;">
+            <span class="shop-category-item__label">Suggest Something!</span>
+          </button>
+        </li>
       </ul>
     </aside>
 
@@ -221,3 +226,94 @@
     .shop-modal__price { display: inline-flex; align-items: center; gap: 8px; background: #efd1a4; padding: 8px 12px; border-radius: 12px; width: fit-content; }
   </style>
 </div>
+
+<div id="suggest-item-modal" class="modal modal--hidden" data-user-balance="<%= @current_user.balance.to_i %>">
+  <div class="modal__backdrop"></div>
+  <div class="modal__content card">
+    <div class="modal__header">
+      <h3 class="modal__title">Suggest an Item</h3>
+      <button type="button" class="modal__close" aria-label="Close">&times;</button>
+    </div>
+    <div class="suggest-modal__body">
+      <% if @item_suggestions.any? %>
+        <div class="suggest-modal__requests" style="margin-bottom: 1.5rem; border-bottom: 1px solid #e0e0e0; padding-bottom: 1rem;">
+          <h4 style="margin: 0 0 0.75rem; font-size: 0.95rem; color: #666;">Your Suggestions</h4>
+          <div style="display: flex; flex-direction: column; gap: 0.5rem; max-height: 150px; overflow-y: auto;">
+            <% @item_suggestions.each do |suggestion| %>
+              <div style="display: flex; justify-content: space-between; align-items: center; background: #f9f9f9; padding: 8px 12px; border-radius: 6px;">
+                <div style="flex: 1; min-width: 0;">
+                  <span style="font-weight: 600; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><%= suggestion.item_name %></span>
+                  <a href="<%= suggestion.item_link %>" target="_blank" rel="noopener" style="font-size: 0.85rem; color: #667eea; text-decoration: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;">View Link ↗</a>
+                </div>
+                <% status_colors = { "pending" => "#f0ad4e", "added" => "#5cb85c", "rejected" => "#d9534f" } %>
+                <span style="background: <%= status_colors[suggestion.status] || '#999' %>; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 600; text-transform: capitalize;">
+                  <%= suggestion.status %>
+                </span>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <%= form_with url: suggest_item_path, method: :post, local: true, id: "suggest-item-form" do %>
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Item Name *</label>
+            <input type="text" name="item_name" placeholder="e.g. Logitech StreamCam" style="width: 100%; padding: 8px 12px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 0.9rem;" required>
+          </div>
+
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Item Link *</label>
+            <input type="url" name="item_link" placeholder="https://amazon.com/..." style="width: 100%; padding: 8px 12px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 0.9rem;" required>
+          </div>
+
+          <div style="background: #fff3e0; border: 1px solid #ffcc80; padding: 12px; border-radius: 8px; display: flex; align-items: center; gap: 8px;">
+            <img src="https://files.slack.com/files-pri/T09V59WQY1E-F0A793FGJ2V/bolt.png?pub_secret=7acc4044c5" alt="bolts" class="bolt-icon" style="width: 20px; height: 20px;">
+            <span style="font-weight: 600;">This will cost you 30 bolts</span>
+          </div>
+
+          <% if @current_user.balance < 30 %>
+            <div style="background: #fdecea; border: 1px solid #f5c2c7; color: #842029; padding: 8px 12px; border-radius: 8px;">
+              Not enough bolts! You need <strong><%= 30 - @current_user.balance.to_i %></strong> more.
+            </div>
+            <button type="submit" class="btn btn--primary btn--block" disabled>Submit Suggestion</button>
+          <% else %>
+            <button type="submit" class="btn btn--primary btn--block">Submit Suggestion</button>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    const suggestBtn = document.getElementById('suggest-something-btn');
+    const suggestModal = document.getElementById('suggest-item-modal');
+    const suggestClose = suggestModal?.querySelector('.modal__close');
+    const suggestBackdrop = suggestModal?.querySelector('.modal__backdrop');
+
+    function openSuggestModal(e) {
+      e.stopPropagation();
+      if (suggestModal) {
+        suggestModal.classList.remove('modal--hidden');
+        suggestModal.querySelector('input')?.focus();
+      }
+    }
+
+    function closeSuggestModal() {
+      if (suggestModal) {
+        suggestModal.classList.add('modal--hidden');
+      }
+    }
+
+    suggestBtn?.addEventListener('click', openSuggestModal);
+    suggestClose?.addEventListener('click', closeSuggestModal);
+    suggestBackdrop?.addEventListener('click', closeSuggestModal);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && suggestModal && !suggestModal.classList.contains('modal--hidden')) {
+        closeSuggestModal();
+      }
+    });
+  })();
+</script>

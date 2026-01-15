@@ -72,7 +72,7 @@
    * - Visually toggles the active state
    */
   function initShopPage() {
-    const buttons = document.querySelectorAll(".shop-category-item");
+    const buttons = document.querySelectorAll(".shop-category-item[data-target]");
     const panels = document.querySelectorAll(".shop-item-detail");
     if (!buttons.length || !panels.length) return;
 

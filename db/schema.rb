@@ -10,9 +10,20 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_14_030812) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_15_202746) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "item_suggestions", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "item_name", null: false
+    t.string "item_link", null: false
+    t.string "status", default: "pending", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["status"], name: "index_item_suggestions_on_status"
+    t.index ["user_id"], name: "index_item_suggestions_on_user_id"
+  end
 
   create_table "journal_entries", force: :cascade do |t|
     t.bigint "project_id", null: false
@@ -105,6 +116,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_14_030812) do
     t.index ["role"], name: "index_users_on_role"
   end
 
+  add_foreign_key "item_suggestions", "users"
   add_foreign_key "journal_entries", "projects"
   add_foreign_key "projects", "users"
   add_foreign_key "shop_orders", "shop_items"

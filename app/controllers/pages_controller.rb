@@ -106,7 +106,39 @@ class PagesController < ActionController::Base
   def shop
     require_auth or return
     @shop_items = ShopItem.where(status: [ "active", "in stock", "stock", nil, "" ]).order(:cost)
-    # Renders app/views/pages/shop.html.erb by default
+    @item_suggestions = @current_user.item_suggestions.order(created_at: :desc)
+  end
+
+  def suggest_item
+    require_auth or return
+
+    cost = ItemSuggestion::COST
+
+    if @current_user.balance < cost
+      redirect_to shop_path, flash: { error: "Not enough bolts! You need #{cost} bolts to suggest an item." }
+      return
+    end
+
+    item_name = params[:item_name].to_s.strip
+    item_link = params[:item_link].to_s.strip
+
+    if item_name.blank? || item_link.blank?
+      redirect_to shop_path, flash: { error: "Item name and link are required." }
+      return
+    end
+
+    ActiveRecord::Base.transaction do
+      @current_user.update!(balance: @current_user.balance - cost)
+      @current_user.item_suggestions.create!(
+        item_name: item_name,
+        item_link: item_link,
+        status: "pending"
+      )
+    end
+
+    redirect_to shop_path, flash: { success: "Item suggestion submitted! #{cost} bolts deducted." }
+  rescue ActiveRecord::RecordInvalid => e
+    redirect_to shop_path, flash: { error: "Suggestion failed: #{e.message}" }
   end
 
   # POST /shop/purchase

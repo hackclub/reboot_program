@@ -10,6 +10,7 @@ Rails.application.routes.draw do
   post "projects/:id/request_review", to: "pages#request_review", as: :request_project_review
   get "shop", to: "pages#shop", as: :shop
   post "shop/purchase", to: "pages#purchase", as: :purchase
+  post "shop/suggest_item", to: "pages#suggest_item", as: :suggest_item
   get "purchases", to: "pages#purchases", as: :purchases
   get "faq", to: "pages#faq", as: :faq
   delete "signout", to: "pages#signout", as: :signout
@@ -65,6 +66,7 @@ Rails.application.routes.draw do
         resources :users, only: [ :index, :show, :update, :destroy ]
         resources :shop_orders, only: [ :index, :show, :update ]
         resources :shop_items, only: [ :index, :show, :create, :update, :destroy ]
+        resources :item_suggestions, only: [ :update ]
         resources :projects, only: [] do
           member do
             post :approve

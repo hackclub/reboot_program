@@ -2,6 +2,7 @@
 class User < ApplicationRecord
   has_many :shop_orders, dependent: :destroy
   has_many :projects, dependent: :destroy
+  has_many :item_suggestions, dependent: :destroy
 
   ROLES = %w[user admin].freeze
 
