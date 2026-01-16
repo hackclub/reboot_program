@@ -4,6 +4,8 @@ class SeedGrantShopItems < ActiveRecord::Migration[8.0]
       { category: "Keyboard", variants: [
         { key: "standard", name: "Standard grant - Redragon K668", cost: 500, grant: 50,
           image_url: "https://files.slack.com/files-pri/T09V59WQY1E-F0A7ER52G1Z/618a_b25mkl._ac_sl1500_-removebg-preview.png?pub_secret=1320d4d467" },
+        { key: "aula_f75", name: "AULA F75", cost: 789, grant: 79,
+          image_url: "" },
         { key: "quality", name: "Quality grant - YUNZII AL80", cost: 1100, grant: 110,
           image_url: "https://files.slack.com/files-pri/T09V59WQY1E-F0A75QDL9RV/1-1_ce938024-87eb-49c3-8c5d-b5cc0d707dba-removebg-preview.png?pub_secret=c90aae67c7" },
         { key: "advanced", name: "Advanced grant - Lemokey P1 HE", cost: 1700, grant: 170,

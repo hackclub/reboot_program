@@ -826,6 +826,10 @@ a.project-row:hover {
   background: #e6f6ef;
   color: #0c6b4a;
 }
+.shop-variant__pill--aula_f75 {
+  background: #e6f6ef;
+  color: #0c6b4a;
+}
 
 @media (max-width: 900px) {
   .shop-layout {
