@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_16_000000) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_16_001731) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -74,7 +74,13 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_16_000000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "airtable_id"
+    t.string "category"
+    t.string "variant_key"
+    t.decimal "grant_amount", precision: 10, scale: 2
     t.index ["airtable_id"], name: "index_shop_items_on_airtable_id", unique: true
+    t.index ["category", "variant_key"], name: "index_shop_items_on_category_and_variant_key", unique: true
+    t.index ["category"], name: "index_shop_items_on_category"
+    t.index ["variant_key"], name: "index_shop_items_on_variant_key"
   end
 
   create_table "shop_orders", force: :cascade do |t|
