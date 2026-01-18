@@ -164,8 +164,8 @@ class PagesController < ActionController::Base
       shipping_bolts = (shipping_dollars * 10).round
 
       valid_categories = %w[keyboard mouse monitor headphones webcam]
-      bolts_map = { "standard" => 500, "quality" => 1100, "advanced" => 1700, "professional" => 2300 }
-      grant_map = { "standard" => 50, "quality" => 110, "advanced" => 170, "professional" => 230 }
+      bolts_map = { "standard" => 500, "quality" => 1100, "advanced" => 1700, "professional" => 2300, "aula_f75" => 789 }
+      grant_map = { "standard" => 50, "quality" => 110, "advanced" => 170, "professional" => 230, "aula_f75" => 79 }
 
       unless valid_categories.include?(category.downcase) && bolts_map.key?(variant)
         redirect_to shop_path, flash: { error: "Invalid item selection" }
