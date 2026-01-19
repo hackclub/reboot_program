@@ -830,6 +830,26 @@ a.project-row:hover {
   background: #e6f6ef;
   color: #0c6b4a;
 }
+.shop-variant__pill--wireless_microphone {
+  background: #f3ecd8;
+  color: #6b4f1d;
+}
+.shop-variant__pill--zunmos_gaming_chair {
+  background: #f3ecd8;
+  color: #6b4f1d;
+}
+.shop-variant__pill--gtplayer_gaming_chair {
+  background: #f3ecd8;
+  color: #6b4f1d;
+}
+.shop-variant__pill--razer_iskur_v2_x {
+  background: #f3ecd8;
+  color: #6b4f1d;
+}
+.shop-variant__pill--corsair_t3_rush {
+  background: #f3ecd8;
+  color: #6b4f1d;
+}
 
 @media (max-width: 900px) {
   .shop-layout {
