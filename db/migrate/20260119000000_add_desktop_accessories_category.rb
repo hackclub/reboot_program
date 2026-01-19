@@ -6,7 +6,7 @@ class AddDesktopAccessoriesCategory < ActiveRecord::Migration[8.0]
         'Desktop Accessories',
         'wireless_microphone',
         'Wireless Microphone - Generic',
-        1800,
+        180,
         18,
         'https://files.slack.com/files-pri/T09V59WQY1E-F0A9M0KQYD8/71zjmpyficl._ac_sl1500_-removebg-preview.png?pub_secret=d51d8d4182',
         'active',
