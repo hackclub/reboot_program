@@ -15,8 +15,8 @@
     <aside class="shop-categories card">
       <h3 class="shop-heading">Category</h3>
       <ul class="shop-category-list">
-        <% categories_active = [ "Keyboard", "Mouse", "Monitor", "Headphones", "Webcam" ] %>
-        <% categories_soon = [ "Chair", "PC Components", "Desktop Accessories" ] %>
+        <% categories_active = [ "Keyboard", "Mouse", "Monitor", "Headphones", "Webcam", "Desktop Accessories" ] %>
+        <% categories_soon = [ "Chair", "PC Components" ] %>
         <% categories_active.each_with_index do |cat, idx| %>
           <li>
             <button class="shop-category-item <%= 'is-active' if idx == 0 %>" data-target="cat-<%= cat.downcase %>">
@@ -85,13 +85,16 @@
               ['Quality grant - Elgato Facecam MK.2', 'quality'],
               ['Professional grant - Insta360 Link 2 + Tripod Bundle', 'professional']
             ] %>
+            <% desktop_accessories_variants = [
+              ['Wireless Microphone - Generic', 'wireless_microphone']
+            ] %>
             <% other_variants = [
               ['Standard grant', 'standard'],
               ['Quality grant', 'quality'],
               ['Advanced grant', 'advanced'],
               ['Professional grant', 'professional']
             ] %>
-            <% variants = (cat == 'Keyboard' ? keyboard_variants : (cat == 'Mouse' ? mouse_variants : (cat == 'Monitor' ? monitor_variants : (cat == 'Headphones' ? headphones_variants : (cat == 'Webcam' ? webcam_variants : other_variants))))) %>
+            <% variants = (cat == 'Keyboard' ? keyboard_variants : (cat == 'Mouse' ? mouse_variants : (cat == 'Monitor' ? monitor_variants : (cat == 'Headphones' ? headphones_variants : (cat == 'Webcam' ? webcam_variants : (cat == 'Desktop Accessories' ? desktop_accessories_variants : other_variants)))))) %>
             <% images_for_keyboard = [
               'https://files.slack.com/files-pri/T09V59WQY1E-F0A7ER52G1Z/618a_b25mkl._ac_sl1500_-removebg-preview.png?pub_secret=1320d4d467',
               'https://files.slack.com/files-pri/T09V59WQY1E-F0AA2PHL7UG/61t79eueq2l._ac_sl1500_-removebg-preview.png?pub_secret=0d213ad699',
@@ -121,15 +124,19 @@
               'https://files.slack.com/files-pri/T09V59WQY1E-F0A7N1ARELS/61j7cbovgwl._ac_sl1500_-removebg-preview.png?pub_secret=0c3a335e34',
               'https://files.slack.com/files-pri/T09V59WQY1E-F0A7FLAH1QT/2300_9fee1f64-961e-4081-8b3b-fab7d75f1d89.png-removebg-preview.png?pub_secret=fae045f047'
             ] if cat == 'Webcam' %>
+            <% images_for_desktop_accessories = [
+              'https://files.slack.com/files-pri/T09V59WQY1E-F0A9M0KQYD8/71zjmpyficl._ac_sl1500_-removebg-preview.png?pub_secret=d51d8d4182'
+            ] if cat == 'Desktop Accessories' %>
             <% variants.each_with_index do |(label_text, key), variant_idx| %>
               <% img_src = (
-                (cat == 'Keyboard' && images_for_keyboard && images_for_keyboard[variant_idx]) ||
-                (cat == 'Mouse' && images_for_mouse && images_for_mouse[variant_idx]) ||
-                (cat == 'Monitor' && images_for_monitor && images_for_monitor[variant_idx]) ||
-                (cat == 'Headphones' && images_for_headphones && images_for_headphones[variant_idx]) ||
-                (cat == 'Webcam' && images_for_webcam && images_for_webcam[variant_idx]) ||
-                '/images/signin/hackclub.svg'
-              ) %>
+                 (cat == 'Keyboard' && images_for_keyboard && images_for_keyboard[variant_idx]) ||
+                 (cat == 'Mouse' && images_for_mouse && images_for_mouse[variant_idx]) ||
+                 (cat == 'Monitor' && images_for_monitor && images_for_monitor[variant_idx]) ||
+                 (cat == 'Headphones' && images_for_headphones && images_for_headphones[variant_idx]) ||
+                 (cat == 'Webcam' && images_for_webcam && images_for_webcam[variant_idx]) ||
+                 (cat == 'Desktop Accessories' && images_for_desktop_accessories && images_for_desktop_accessories[variant_idx]) ||
+                 '/images/signin/hackclub.svg'
+               ) %>
               <% keyboard_bolts_map = { 'standard' => 500, 'quality' => 1100, 'advanced' => 1700, 'professional' => 2200, 'aula_f75' => 789 } %>
               <% keyboard_grant_map = { 'standard' => 50, 'quality' => 110, 'advanced' => 170, 'professional' => 220, 'aula_f75' => 79 } %>
               <% mouse_bolts_map = { 'standard' => 300, 'quality' => 500, 'advanced' => 1000, 'professional' => 1600 } %>
@@ -141,9 +148,11 @@
               <% headphones_bolts_map = { 'standard' => 500, 'quality' => 1100, 'professional' => 2400 } %>
               <% webcam_grant_map = { 'standard' => 50, 'quality' => 140, 'professional' => 230 } %>
               <% webcam_bolts_map = { 'standard' => 500, 'quality' => 1400, 'professional' => 2300 } %>
+              <% desktop_accessories_grant_map = { 'wireless_microphone' => 18 } %>
+              <% desktop_accessories_bolts_map = { 'wireless_microphone' => 1800 } %>
               <% other_grant_map = { 'standard' => 50, 'quality' => 110, 'advanced' => 170, 'professional' => 230 } %>
-              <% bolts_map = (cat == 'Keyboard' ? keyboard_bolts_map : (cat == 'Mouse' ? mouse_bolts_map : (cat == 'Monitor' ? monitor_bolts_map : (cat == 'Headphones' ? headphones_bolts_map : (cat == 'Webcam' ? webcam_bolts_map : other_bolts_map))))) %>
-              <% grant_amount = (cat == 'Keyboard' ? keyboard_grant_map[key] : (cat == 'Mouse' ? mouse_grant_map[key] : (cat == 'Monitor' ? monitor_grant_map[key] : (cat == 'Headphones' ? headphones_grant_map[key] : (cat == 'Webcam' ? webcam_grant_map[key] : other_grant_map[key]))))) || 0 %>
+              <% bolts_map = (cat == 'Keyboard' ? keyboard_bolts_map : (cat == 'Mouse' ? mouse_bolts_map : (cat == 'Monitor' ? monitor_bolts_map : (cat == 'Headphones' ? headphones_bolts_map : (cat == 'Webcam' ? webcam_bolts_map : (cat == 'Desktop Accessories' ? desktop_accessories_bolts_map : other_bolts_map)))))) %>
+              <% grant_amount = (cat == 'Keyboard' ? keyboard_grant_map[key] : (cat == 'Mouse' ? mouse_grant_map[key] : (cat == 'Monitor' ? monitor_grant_map[key] : (cat == 'Headphones' ? headphones_grant_map[key] : (cat == 'Webcam' ? webcam_grant_map[key] : (cat == 'Desktop Accessories' ? desktop_accessories_grant_map[key] : other_grant_map[key])))))) || 0 %>
               <% base_bolts = bolts_map[key] || 0 %>
               <% price = base_bolts %>
               <% desc_text = "This item provide a #{grant_amount}$ HCB card grant to spend on a #{cat}" %>
