@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_19_000400) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_20_234054) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -238,9 +238,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_19_000400) do
     t.string "last_name"
     t.date "birthday"
     t.decimal "balance", precision: 10, scale: 2, default: "0.0"
-    t.string "hackatime_uid"
     t.index ["email"], name: "index_users_on_email", unique: true
-    t.index ["hackatime_uid"], name: "index_users_on_hackatime_uid", unique: true
     t.index ["provider", "uid"], name: "index_users_on_provider_and_uid", unique: true
     t.index ["role"], name: "index_users_on_role"
   end

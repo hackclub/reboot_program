@@ -86,7 +86,8 @@
               ['Professional grant - Insta360 Link 2 + Tripod Bundle', 'professional']
             ] %>
             <% desktop_accessories_variants = [
-              ['Wireless Microphone - Generic', 'wireless_microphone']
+              ['Wireless Microphone - Generic', 'wireless_microphone'],
+              ['TP-Link Nano AC600', 'tp_link_nano_ac600']
             ] %>
             <% chair_variants = [
               ['ZUNMOS Gaming Chair', 'zunmos_gaming_chair'],
@@ -131,7 +132,8 @@
               'https://files.slack.com/files-pri/T09V59WQY1E-F0A7FLAH1QT/2300_9fee1f64-961e-4081-8b3b-fab7d75f1d89.png-removebg-preview.png?pub_secret=fae045f047'
             ] if cat == 'Webcam' %>
             <% images_for_desktop_accessories = [
-              'https://files.slack.com/files-pri/T09V59WQY1E-F0A9M0KQYD8/71zjmpyficl._ac_sl1500_-removebg-preview.png?pub_secret=d51d8d4182'
+              'https://files.slack.com/files-pri/T09V59WQY1E-F0A9M0KQYD8/71zjmpyficl._ac_sl1500_-removebg-preview.png?pub_secret=d51d8d4182',
+              'https://files.slack.com/files-pri/T09V59WQY1E-F0A9X3TH6CE/51oi6lrnicl._ac_sl1276_-removebg-preview.png?pub_secret=b6eefcf2ee'
             ] if cat == 'Desktop Accessories' %>
             <% images_for_chair = [
               'https://files.slack.com/files-pri/T09V59WQY1E-F0A9QM9RTU4/617ebrgozal._ac_sl1500_-removebg-preview.png?pub_secret=6083a75eb3',
@@ -161,8 +163,8 @@
               <% headphones_bolts_map = { 'standard' => 500, 'quality' => 1100, 'professional' => 2400 } %>
               <% webcam_grant_map = { 'standard' => 50, 'quality' => 140, 'professional' => 230 } %>
               <% webcam_bolts_map = { 'standard' => 500, 'quality' => 1400, 'professional' => 2300 } %>
-              <% desktop_accessories_grant_map = { 'wireless_microphone' => 18 } %>
-              <% desktop_accessories_bolts_map = { 'wireless_microphone' => 180 } %>
+              <% desktop_accessories_grant_map = { 'wireless_microphone' => 18, 'tp_link_nano_ac600' => 18 } %>
+              <% desktop_accessories_bolts_map = { 'wireless_microphone' => 180, 'tp_link_nano_ac600' => 180 } %>
               <% chair_grant_map = { 'zunmos_gaming_chair' => 95, 'gtplayer_gaming_chair' => 130, 'razer_iskur_v2_x' => 300, 'corsair_t3_rush' => 350 } %>
               <% chair_bolts_map = { 'zunmos_gaming_chair' => 950, 'gtplayer_gaming_chair' => 1300, 'razer_iskur_v2_x' => 3000, 'corsair_t3_rush' => 3500 } %>
               <% other_grant_map = { 'standard' => 50, 'quality' => 110, 'advanced' => 170, 'professional' => 230 } %>
