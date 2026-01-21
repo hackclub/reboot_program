@@ -164,8 +164,8 @@ class PagesController < ActionController::Base
       shipping_bolts = (shipping_dollars * 10).round
 
       valid_categories = %w[keyboard mouse monitor headphones webcam desktop\ accessories chair]
-      bolts_map = { "standard" => 500, "quality" => 1100, "advanced" => 1700, "professional" => 2300, "aula_f75" => 789, "wireless_microphone" => 180, "zunmos_gaming_chair" => 950, "gtplayer_gaming_chair" => 1300, "razer_iskur_v2_x" => 3000, "corsair_t3_rush" => 3500 }
-      grant_map = { "standard" => 50, "quality" => 110, "advanced" => 170, "professional" => 230, "aula_f75" => 79, "wireless_microphone" => 18, "zunmos_gaming_chair" => 95, "gtplayer_gaming_chair" => 130, "razer_iskur_v2_x" => 300, "corsair_t3_rush" => 350 }
+      bolts_map = { "standard" => 500, "quality" => 1100, "advanced" => 1700, "professional" => 2300, "aula_f75" => 789, "wireless_microphone" => 180, "tp_link_nano_ac600" => 180, "laptop_cooling_pad" => 130, "zunmos_gaming_chair" => 950, "gtplayer_gaming_chair" => 1300, "razer_iskur_v2_x" => 3000, "corsair_t3_rush" => 3500 }
+      grant_map = { "standard" => 50, "quality" => 110, "advanced" => 170, "professional" => 230, "aula_f75" => 79, "wireless_microphone" => 18, "tp_link_nano_ac600" => 18, "laptop_cooling_pad" => 13, "zunmos_gaming_chair" => 95, "gtplayer_gaming_chair" => 130, "razer_iskur_v2_x" => 300, "corsair_t3_rush" => 350 }
 
       unless valid_categories.include?(category.downcase) && bolts_map.key?(variant)
         redirect_to shop_path, flash: { error: "Invalid item selection" }
