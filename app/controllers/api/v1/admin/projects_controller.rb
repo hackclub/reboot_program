@@ -44,6 +44,23 @@ class Api::V1::Admin::ProjectsController < ApplicationController
     render json: { success: true, project: project_response(@project) }
   end
 
+  def destroy
+    user = @project.user
+    approved_hours = @project.approved_hours || 0
+
+    Project.transaction do
+      if approved_hours > 0
+        bolts_to_revoke = approved_hours * Project::CURRENCY_PER_HOUR
+        new_balance = [ user.balance - bolts_to_revoke, 0 ].max
+        user.update!(balance: new_balance)
+      end
+
+      @project.destroy!
+    end
+
+    render json: { success: true, bolts_revoked: approved_hours * Project::CURRENCY_PER_HOUR }
+  end
+
   private
 
   def set_project

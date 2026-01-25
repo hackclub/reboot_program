@@ -16,6 +16,8 @@
     <a href="/admin/projects" style="padding: 8px 16px; border-bottom: 2px solid #f25f2c; color: #f25f2c; text-decoration: none; font-weight: 600;">Projects</a>
     <a href="/admin/users" style="padding: 8px 16px; border-bottom: 2px solid transparent; color: #999; text-decoration: none; font-weight: 600;">Users</a>
     <a href="/admin/shop" style="padding: 8px 16px; border-bottom: 2px solid transparent; color: #999; text-decoration: none; font-weight: 600;">Shop</a>
+    <a href="/admin/jobs" style="padding: 8px 16px; border-bottom: 2px solid transparent; color: #999; text-decoration: none; font-weight: 600;">Jobs</a>
+    <a href="/admin/stats" style="padding: 8px 16px; border-bottom: 2px solid transparent; color: #999; text-decoration: none; font-weight: 600;">Stats</a>
   </div>
 
   <div class="card" style="padding: 2rem;">
@@ -123,6 +125,22 @@
         <% end %>
       </div>
     </div>
+
+    <div style="border-top: 1px solid #e0e0e0; margin-top: 2rem; padding-top: 1.5rem;">
+      <h3 style="margin: 0 0 1rem 0; color: #c62828;">Danger Zone</h3>
+      <div style="display: flex; align-items: center; gap: 1rem;">
+        <button type="button" id="delete-project-btn" class="btn" style="background: #c62828; color: white; border: none;">
+          Delete Project
+        </button>
+        <span class="muted" style="font-size: 0.9rem;">
+          <% if @project.approved_hours.to_f > 0 %>
+            This will revoke <strong><%= (@project.approved_hours * Project::CURRENCY_PER_HOUR).to_i %> bolts</strong> from the user.
+          <% else %>
+            No bolts to revoke.
+          <% end %>
+        </span>
+      </div>
+    </div>
   </div>
 
   <% if @project.journal_entries.any? %>
@@ -219,6 +237,43 @@
     } finally {
       rejectBtn.disabled = false;
       rejectBtn.textContent = 'Reject';
+    }
+  });
+
+  const deleteBtn = document.getElementById('delete-project-btn');
+  deleteBtn?.addEventListener('click', async () => {
+    const confirmed = confirm('Are you sure you want to delete this project? This action cannot be undone.');
+    if (!confirmed) return;
+
+    deleteBtn.disabled = true;
+    deleteBtn.textContent = 'Deleting...';
+
+    try {
+      const response = await fetch(`/api/v1/admin/projects/${projectId}`, {
+        method: 'DELETE',
+        headers: {
+          'Accept': 'application/json',
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content
+        },
+        credentials: 'same-origin'
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.bolts_revoked > 0) {
+          alert(`Project deleted. ${data.bolts_revoked} bolts revoked from user.`);
+        }
+        window.location.href = '/admin/projects';
+      } else {
+        const data = await response.json();
+        alert(data.error || 'Failed to delete project.');
+      }
+    } catch (error) {
+      console.error('Failed to delete:', error);
+      alert('Failed to delete project.');
+    } finally {
+      deleteBtn.disabled = false;
+      deleteBtn.textContent = 'Delete Project';
     }
   });
 </script>

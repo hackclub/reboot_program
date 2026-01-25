@@ -72,7 +72,7 @@ Rails.application.routes.draw do
         resources :shop_orders, only: [ :index, :show, :update ]
         resources :shop_items, only: [ :index, :show, :create, :update, :destroy ]
         resources :item_suggestions, only: [ :update ]
-        resources :projects, only: [] do
+        resources :projects, only: [ :destroy ] do
           member do
             post :approve
             post :reject
