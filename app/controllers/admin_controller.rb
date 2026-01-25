@@ -49,8 +49,15 @@ class AdminController < ActionController::Base
     page = params[:page].to_i > 0 ? params[:page].to_i : 1
     per_page = 50
     @query = params[:q].to_s.strip
+    @sort = params[:sort].to_s.strip
 
     @all_users = User.order(created_at: :desc)
+
+    if @sort == "most_bolts"
+      @all_users = @all_users.order(balance: :desc)
+    elsif @sort == "least_bolts"
+      @all_users = @all_users.order(balance: :asc)
+    end
 
     if @query.present?
       q_like = "%#{@query}%"
@@ -73,6 +80,51 @@ class AdminController < ActionController::Base
     @shop_items = SHOP_ITEMS
     @shop_orders = ShopOrder.includes(:user, :shop_item).order(created_at: :desc)
     @item_suggestions = ItemSuggestion.includes(:user).order(created_at: :desc)
+  end
+
+  def stats
+    @total_projects = Project.count
+    @pending_projects = Project.where(status: "pending").count
+    @in_review_projects = Project.where(status: "in-review").count
+    @approved_projects = Project.where(status: "approved").count
+    @rejected_projects = Project.where(status: "rejected").count
+
+    @total_logged_hours = Project.sum(:hours)
+    @total_approved_hours = Project.sum(:approved_hours)
+    @pending_hours = Project.where(status: "in-review").sum(:hours)
+
+    @total_bolts_awarded = @total_approved_hours * Project::CURRENCY_PER_HOUR
+    @total_bolts_in_circulation = User.sum(:balance)
+    @total_bolts_spent = @total_bolts_awarded - @total_bolts_in_circulation
+
+    @total_users = User.count
+    @admin_users = User.where(role: "admin").count
+    @verified_users = User.where(idv_verified: true).count
+    @users_with_projects = User.joins(:projects).distinct.count
+    @users_with_approved_projects = User.joins(:projects).where(projects: { status: "approved" }).distinct.count
+
+    @total_orders = ShopOrder.count
+    @pending_orders = ShopOrder.where(status: "pending").count
+    @fulfilled_orders = ShopOrder.where(status: "fulfilled").count
+    @total_grant_value = ShopOrder.joins(:shop_item).sum("shop_items.grant_amount")
+    @orders_by_category = ShopOrder.joins(:shop_item)
+                                   .group("shop_items.category")
+                                   .count
+                                   .sort_by { |_, v| -v }
+
+    @total_journal_entries = JournalEntry.count
+    @total_journal_hours = JournalEntry.sum(:hours)
+
+    @top_users_by_hours = Project.where("approved_hours > 0")
+                                 .joins(:user)
+                                 .group("users.id", "users.slack_username", "users.email")
+                                 .sum(:approved_hours)
+                                 .sort_by { |_, v| -v }
+                                 .first(10)
+
+    @top_users_by_balance = User.where("balance > 0")
+                                .order(balance: :desc)
+                                .limit(10)
   end
 
   # GET /admin/jobs

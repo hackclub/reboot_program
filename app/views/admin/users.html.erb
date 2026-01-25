@@ -17,21 +17,30 @@
     <a href="/admin/users" style="padding: 8px 16px; border-bottom: 2px solid #f25f2c; color: #f25f2c; text-decoration: none; font-weight: 600;">Users</a>
     <a href="/admin/shop" style="padding: 8px 16px; border-bottom: 2px solid transparent; color: #999; text-decoration: none; font-weight: 600;">Shop</a>
     <a href="/admin/jobs" style="padding: 8px 16px; border-bottom: 2px solid transparent; color: #999; text-decoration: none; font-weight: 600;">Jobs</a>
+    <a href="/admin/stats" style="padding: 8px 16px; border-bottom: 2px solid transparent; color: #999; text-decoration: none; font-weight: 600;">Stats</a>
   </div>
 
-  <form action="/admin/users" method="get" class="search-form">
-    <input
-      type="text"
-      name="q"
-      value="<%= @query %>"
-      placeholder="Search username, email, or role"
-      class="search-input"
-    >
-    <button type="submit" class="btn btn--primary">Search</button>
-    <% if @query.present? %>
-      <a href="/admin/users" class="btn btn--ghost">Clear</a>
-    <% end %>
-  </form>
+  <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 1rem;">
+    <form action="/admin/users" method="get" class="search-form" style="flex: 1;">
+      <input
+        type="text"
+        name="q"
+        value="<%= @query %>"
+        placeholder="Search username, email, or role"
+        class="search-input"
+      >
+      <input type="hidden" name="sort" value="<%= @sort %>">
+      <button type="submit" class="btn btn--primary">Search</button>
+      <% if @query.present? %>
+        <a href="/admin/users<%= @sort.present? ? "?sort=#{@sort}" : "" %>" class="btn btn--ghost">Clear</a>
+      <% end %>
+    </form>
+    <select onchange="window.location.href = '/admin/users?sort=' + this.value<%= @query.present? ? " + '&q=#{ERB::Util.url_encode(@query)}'" : "" %>" style="padding: 8px 12px; border: 1px solid #e0e0e0; border-radius: 6px; background: white; font-size: 0.9rem;">
+      <option value="">Bolts: Default</option>
+      <option value="most_bolts" <%= 'selected' if @sort == 'most_bolts' %>>Bolts: Most</option>
+      <option value="least_bolts" <%= 'selected' if @sort == 'least_bolts' %>>Bolts: Least</option>
+    </select>
+  </div>
 
   <h1 class="page-title">Users (<%= @total_users %>)</h1>
 

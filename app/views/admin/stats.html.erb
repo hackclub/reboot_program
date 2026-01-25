@@ -1,0 +1,189 @@
+<% content_for :title, "Admin • Stats" %>
+<% content_for :page, "admin" %>
+
+<header class="topbar">
+  <nav class="nav">
+    <a class="nav__item" href="/projects">← Back to Projects</a>
+    <a class="nav__item nav__item--active" href="/admin">Admin</a>
+  </nav>
+  <div class="topbar__right">
+    <span class="muted">Admin: <%= @current_user.slack_username || @current_user.email %></span>
+  </div>
+</header>
+
+<main class="container">
+  <div style="display: flex; gap: 1rem; margin-bottom: 2rem; border-bottom: 1px solid #e0e0e0; padding-bottom: 1rem;">
+    <a href="/admin/projects" style="padding: 8px 16px; border-bottom: 2px solid transparent; color: #999; text-decoration: none; font-weight: 600;">Projects</a>
+    <a href="/admin/users" style="padding: 8px 16px; border-bottom: 2px solid transparent; color: #999; text-decoration: none; font-weight: 600;">Users</a>
+    <a href="/admin/shop" style="padding: 8px 16px; border-bottom: 2px solid transparent; color: #999; text-decoration: none; font-weight: 600;">Shop</a>
+    <a href="/admin/jobs" style="padding: 8px 16px; border-bottom: 2px solid transparent; color: #999; text-decoration: none; font-weight: 600;">Jobs</a>
+    <a href="/admin/stats" style="padding: 8px 16px; border-bottom: 2px solid #f25f2c; color: #f25f2c; text-decoration: none; font-weight: 600;">Stats</a>
+  </div>
+
+  <h1 class="page-title" style="margin-bottom: 2rem;">Platform Statistics</h1>
+
+  <h2 style="margin: 0 0 1rem; font-size: 1.25rem;">Projects</h2>
+  <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; margin-bottom: 2rem;">
+    <div style="background: #f5f5f5; padding: 1.5rem; border-radius: 8px; text-align: center;">
+      <div style="font-size: 2rem; font-weight: 700; color: #333;"><%= @total_projects %></div>
+      <div style="color: #666; font-size: 0.9rem;">Total Projects</div>
+    </div>
+    <div style="background: #fff3e0; padding: 1.5rem; border-radius: 8px; text-align: center;">
+      <div style="font-size: 2rem; font-weight: 700; color: #ef6c00;"><%= @pending_projects %></div>
+      <div style="color: #666; font-size: 0.9rem;">Pending</div>
+    </div>
+    <div style="background: #e3f2fd; padding: 1.5rem; border-radius: 8px; text-align: center;">
+      <div style="font-size: 2rem; font-weight: 700; color: #1565c0;"><%= @in_review_projects %></div>
+      <div style="color: #666; font-size: 0.9rem;">In Review</div>
+    </div>
+    <div style="background: #e8f5e9; padding: 1.5rem; border-radius: 8px; text-align: center;">
+      <div style="font-size: 2rem; font-weight: 700; color: #2e7d32;"><%= @approved_projects %></div>
+      <div style="color: #666; font-size: 0.9rem;">Approved</div>
+    </div>
+    <div style="background: #ffebee; padding: 1.5rem; border-radius: 8px; text-align: center;">
+      <div style="font-size: 2rem; font-weight: 700; color: #c62828;"><%= @rejected_projects %></div>
+      <div style="color: #666; font-size: 0.9rem;">Rejected</div>
+    </div>
+  </div>
+
+  <h2 style="margin: 0 0 1rem; font-size: 1.25rem;">Hours</h2>
+  <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem;">
+    <div style="background: #f5f5f5; padding: 1.5rem; border-radius: 8px; text-align: center;">
+      <div style="font-size: 2rem; font-weight: 700; color: #333;"><%= number_with_precision(@total_logged_hours, precision: 1) %></div>
+      <div style="color: #666; font-size: 0.9rem;">Total Logged Hours</div>
+    </div>
+    <div style="background: #e8f5e9; padding: 1.5rem; border-radius: 8px; text-align: center;">
+      <div style="font-size: 2rem; font-weight: 700; color: #2e7d32;"><%= number_with_precision(@total_approved_hours, precision: 1) %></div>
+      <div style="color: #666; font-size: 0.9rem;">Approved Hours</div>
+    </div>
+    <div style="background: #e3f2fd; padding: 1.5rem; border-radius: 8px; text-align: center;">
+      <div style="font-size: 2rem; font-weight: 700; color: #1565c0;"><%= number_with_precision(@pending_hours, precision: 1) %></div>
+      <div style="color: #666; font-size: 0.9rem;">Pending Review Hours</div>
+    </div>
+    <div style="background: #ede7f6; padding: 1.5rem; border-radius: 8px; text-align: center;">
+      <div style="font-size: 2rem; font-weight: 700; color: #512da8;"><%= number_with_precision(@total_journal_hours, precision: 1) %></div>
+      <div style="color: #666; font-size: 0.9rem;">Journal Hours (<%= @total_journal_entries %> entries)</div>
+    </div>
+  </div>
+
+  <h2 style="margin: 0 0 1rem; font-size: 1.25rem;">Bolts (Currency)</h2>
+  <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem;">
+    <div style="background: #e8f5e9; padding: 1.5rem; border-radius: 8px; text-align: center;">
+      <div style="font-size: 2rem; font-weight: 700; color: #2e7d32;"><%= number_with_delimiter(@total_bolts_awarded.to_i) %></div>
+      <div style="color: #666; font-size: 0.9rem;">Total Bolts Awarded</div>
+    </div>
+    <div style="background: #e3f2fd; padding: 1.5rem; border-radius: 8px; text-align: center;">
+      <div style="font-size: 2rem; font-weight: 700; color: #1565c0;"><%= number_with_delimiter(@total_bolts_in_circulation.to_i) %></div>
+      <div style="color: #666; font-size: 0.9rem;">Bolts in User Wallets</div>
+    </div>
+    <div style="background: #fff3e0; padding: 1.5rem; border-radius: 8px; text-align: center;">
+      <div style="font-size: 2rem; font-weight: 700; color: #ef6c00;"><%= number_with_delimiter(@total_bolts_spent.to_i) %></div>
+      <div style="color: #666; font-size: 0.9rem;">Bolts Spent</div>
+    </div>
+  </div>
+
+  <h2 style="margin: 0 0 1rem; font-size: 1.25rem;">Users</h2>
+  <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; margin-bottom: 2rem;">
+    <div style="background: #f5f5f5; padding: 1.5rem; border-radius: 8px; text-align: center;">
+      <div style="font-size: 2rem; font-weight: 700; color: #333;"><%= @total_users %></div>
+      <div style="color: #666; font-size: 0.9rem;">Total Users</div>
+    </div>
+    <div style="background: #ede7f6; padding: 1.5rem; border-radius: 8px; text-align: center;">
+      <div style="font-size: 2rem; font-weight: 700; color: #512da8;"><%= @admin_users %></div>
+      <div style="color: #666; font-size: 0.9rem;">Admins</div>
+    </div>
+    <div style="background: #e8f5e9; padding: 1.5rem; border-radius: 8px; text-align: center;">
+      <div style="font-size: 2rem; font-weight: 700; color: #2e7d32;"><%= @verified_users %></div>
+      <div style="color: #666; font-size: 0.9rem;">IDV Verified</div>
+    </div>
+    <div style="background: #e3f2fd; padding: 1.5rem; border-radius: 8px; text-align: center;">
+      <div style="font-size: 2rem; font-weight: 700; color: #1565c0;"><%= @users_with_projects %></div>
+      <div style="color: #666; font-size: 0.9rem;">With Projects</div>
+    </div>
+    <div style="background: #fff3e0; padding: 1.5rem; border-radius: 8px; text-align: center;">
+      <div style="font-size: 2rem; font-weight: 700; color: #ef6c00;"><%= @users_with_approved_projects %></div>
+      <div style="color: #666; font-size: 0.9rem;">With Approved Projects</div>
+    </div>
+  </div>
+
+  <h2 style="margin: 0 0 1rem; font-size: 1.25rem;">Shop & Grants</h2>
+  <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem;">
+    <div style="background: #f5f5f5; padding: 1.5rem; border-radius: 8px; text-align: center;">
+      <div style="font-size: 2rem; font-weight: 700; color: #333;"><%= @total_orders %></div>
+      <div style="color: #666; font-size: 0.9rem;">Total Orders</div>
+    </div>
+    <div style="background: #fff3e0; padding: 1.5rem; border-radius: 8px; text-align: center;">
+      <div style="font-size: 2rem; font-weight: 700; color: #ef6c00;"><%= @pending_orders %></div>
+      <div style="color: #666; font-size: 0.9rem;">Pending Orders</div>
+    </div>
+    <div style="background: #e8f5e9; padding: 1.5rem; border-radius: 8px; text-align: center;">
+      <div style="font-size: 2rem; font-weight: 700; color: #2e7d32;"><%= @fulfilled_orders %></div>
+      <div style="color: #666; font-size: 0.9rem;">Fulfilled Orders</div>
+    </div>
+    <div style="background: #e3f2fd; padding: 1.5rem; border-radius: 8px; text-align: center;">
+      <div style="font-size: 2rem; font-weight: 700; color: #1565c0;">$<%= number_with_delimiter(@total_grant_value.to_i) %></div>
+      <div style="color: #666; font-size: 0.9rem;">Total Grant Value</div>
+    </div>
+  </div>
+
+  <% if @orders_by_category.any? %>
+    <h3 style="margin: 0 0 1rem; font-size: 1rem; color: #666;">Orders by Category</h3>
+    <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 2rem;">
+      <% @orders_by_category.each do |category, count| %>
+        <div style="background: #f5f5f5; padding: 0.75rem 1.25rem; border-radius: 6px;">
+          <strong><%= category || "Uncategorized" %></strong>: <%= count %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem;">
+    <% if @top_users_by_hours.any? %>
+      <div>
+        <h2 style="margin: 0 0 1rem; font-size: 1.25rem;">Top Users by Approved Hours</h2>
+        <div class="admin-table">
+          <div style="display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 1rem; padding: 12px 16px; background: #e8f5e9; font-weight: 600; border-radius: 8px 8px 0 0; font-size: 0.9rem;">
+            <div>#</div>
+            <div>User</div>
+            <div>Hours</div>
+          </div>
+          <% @top_users_by_hours.each_with_index do |((user_id, username, email), hours), index| %>
+            <div style="display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 1rem; padding: 12px 16px; border-bottom: 1px solid #e0e0e0; align-items: center;">
+              <div><strong><%= index + 1 %></strong></div>
+              <div>
+                <a href="/admin/users?q=<%= username || email %>" style="color: #1565c0; text-decoration: none;">
+                  <%= username || email || "User ##{user_id}" %>
+                </a>
+              </div>
+              <div style="color: #2e7d32; font-weight: 600;"><%= number_with_precision(hours, precision: 1) %></div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <% if @top_users_by_balance.any? %>
+      <div>
+        <h2 style="margin: 0 0 1rem; font-size: 1.25rem;">Top Users by Bolt Balance</h2>
+        <div class="admin-table">
+          <div style="display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 1rem; padding: 12px 16px; background: #e3f2fd; font-weight: 600; border-radius: 8px 8px 0 0; font-size: 0.9rem;">
+            <div>#</div>
+            <div>User</div>
+            <div>Balance</div>
+          </div>
+          <% @top_users_by_balance.each_with_index do |user, index| %>
+            <div style="display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 1rem; padding: 12px 16px; border-bottom: 1px solid #e0e0e0; align-items: center;">
+              <div><strong><%= index + 1 %></strong></div>
+              <div>
+                <a href="/admin/users?q=<%= user.slack_username || user.email %>" style="color: #1565c0; text-decoration: none;">
+                  <%= user.slack_username || user.email || "User ##{user.id}" %>
+                </a>
+              </div>
+              <div style="color: #1565c0; font-weight: 600;"><%= number_with_delimiter(user.balance.to_i) %></div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</main>
