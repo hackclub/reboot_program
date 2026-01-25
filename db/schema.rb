@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_20_234056) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_25_175039) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -92,6 +92,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_20_234056) do
     t.integer "shop_item_id", null: false
     t.string "airtable_id"
     t.datetime "synced_at"
+    t.decimal "cost", precision: 10, scale: 2, default: "0.0"
     t.index ["airtable_id"], name: "index_shop_orders_on_airtable_id", unique: true
     t.index ["shop_item_id"], name: "index_shop_orders_on_shop_item_id"
     t.index ["user_id"], name: "index_shop_orders_on_user_id"

@@ -29,7 +29,8 @@ class Api::V1::ShopController < ApplicationController
       @order = current_user.shop_orders.create!(
         shop_item: item,
         name: item.name,
-        status: "pending"
+        status: "pending",
+        cost: item.cost
       )
     end
 

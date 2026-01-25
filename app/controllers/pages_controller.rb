@@ -197,7 +197,8 @@ class PagesController < ActionController::Base
       @current_user.shop_orders.create!(
         shop_item: shop_item,
         name: name,
-        status: "pending"
+        status: "pending",
+        cost: cost
       )
     end
 
