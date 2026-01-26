@@ -83,13 +83,45 @@
         
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
           <div class="card" style="text-align: center; padding: 1rem;">
-            <div style="font-size: 2rem; font-weight: 700;"><%= @project.total_hours.to_f.round(2) %></div>
+            <div style="font-size: 2rem; font-weight: 700;" id="raw-hours-display"><%= @project.total_hours.to_f.round(2) %></div>
             <div class="muted">Raw Hours</div>
           </div>
           <div class="card" style="text-align: center; padding: 1rem;">
-            <div style="font-size: 2rem; font-weight: 700;"><%= @project.approved_hours.to_f.round(2) %></div>
+            <div style="font-size: 2rem; font-weight: 700;" id="approved-hours-display"><%= @project.approved_hours.to_f.round(2) %></div>
             <div class="muted">Approved Hours</div>
           </div>
+        </div>
+
+        <div style="background: #f8f9fa; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem;">
+          <h4 style="margin: 0 0 1rem 0; color: #666;">Override Project</h4>
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+            <div>
+              <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 0.9rem;">Raw Hours</label>
+              <input type="number" id="override_hours" value="<%= @project.hours.to_f.round(2) %>" min="0" step="0.01"
+                     style="width: 100%; padding: 8px 12px; border: 1px solid #e0e0e0; border-radius: 6px;">
+            </div>
+            <div>
+              <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 0.9rem;">Approved Hours</label>
+              <input type="number" id="override_approved_hours" value="<%= @project.approved_hours.to_f.round(2) %>" min="0" step="0.01"
+                     style="width: 100%; padding: 8px 12px; border: 1px solid #e0e0e0; border-radius: 6px;">
+            </div>
+            <div>
+              <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 0.9rem;">Status</label>
+              <select id="override_status" style="width: 100%; padding: 8px 12px; border: 1px solid #e0e0e0; border-radius: 6px;">
+                <option value="">-- No change --</option>
+                <option value="pending" <%= 'selected' if @project.status == 'pending' %>>Pending</option>
+                <option value="in-review" <%= 'selected' if @project.status == 'in-review' %>>In Review</option>
+                <option value="approved" <%= 'selected' if @project.status == 'approved' %>>Approved</option>
+                <option value="rejected" <%= 'selected' if @project.status == 'rejected' %>>Rejected</option>
+              </select>
+            </div>
+          </div>
+          <p class="muted" style="margin: 0.75rem 0 0; font-size: 0.85rem;">
+            Changing approved hours will adjust user bolts (50 bolts/hour). Setting status to Rejected will revoke all approved hours.
+          </p>
+          <button type="button" id="override-hours-btn" class="btn btn--primary" style="margin-top: 1rem; width: 100%;">
+            Save Changes
+          </button>
         </div>
 
         <% if @project.status == "in-review" %>
@@ -237,6 +269,62 @@
     } finally {
       rejectBtn.disabled = false;
       rejectBtn.textContent = 'Reject';
+    }
+  });
+
+  const overrideBtn = document.getElementById('override-hours-btn');
+  overrideBtn?.addEventListener('click', async () => {
+    const hours = parseFloat(document.getElementById('override_hours').value);
+    const approvedHours = parseFloat(document.getElementById('override_approved_hours').value);
+    const status = document.getElementById('override_status').value;
+
+    const payload = { hours, approved_hours: approvedHours };
+    if (status) {
+      payload.status = status;
+      if (status === 'rejected') {
+        if (!confirm('Setting status to Rejected will revoke all approved hours and bolts. Continue?')) {
+          return;
+        }
+      }
+    }
+
+    overrideBtn.disabled = true;
+    overrideBtn.textContent = 'Saving...';
+
+    try {
+      const response = await fetch(`/api/v1/admin/projects/${projectId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify(payload)
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        document.getElementById('raw-hours-display').textContent = data.project.hours;
+        document.getElementById('approved-hours-display').textContent = data.project.approved_hours;
+        
+        let message = 'Project updated successfully.';
+        if (data.bolts_delta !== 0) {
+          const sign = data.bolts_delta > 0 ? '+' : '';
+          message += ` User bolts: ${sign}${data.bolts_delta} (new balance: ${data.new_user_balance})`;
+        }
+        alert(message);
+        window.location.reload();
+      } else {
+        const data = await response.json();
+        alert(data.error || data.errors?.join(', ') || 'Failed to update project.');
+      }
+    } catch (error) {
+      console.error('Failed to update project:', error);
+      alert('Failed to update project.');
+    } finally {
+      overrideBtn.disabled = false;
+      overrideBtn.textContent = 'Save Changes';
     }
   });
 

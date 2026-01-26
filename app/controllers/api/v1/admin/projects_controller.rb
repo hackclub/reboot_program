@@ -44,6 +44,49 @@ class Api::V1::Admin::ProjectsController < ApplicationController
     render json: { success: true, project: project_response(@project) }
   end
 
+  def update
+    user = @project.user
+    old_approved_hours = @project.approved_hours || 0
+    new_approved_hours = params[:approved_hours].present? ? params[:approved_hours].to_f : old_approved_hours
+    new_status = params[:status]
+    bolts_delta = 0
+
+    Project.transaction do
+      if new_status == "rejected" && @project.status != "rejected"
+        new_approved_hours = 0
+        bolts_delta = -old_approved_hours * Project::CURRENCY_PER_HOUR
+      elsif new_approved_hours != old_approved_hours
+        hours_delta = new_approved_hours - old_approved_hours
+        bolts_delta = hours_delta * Project::CURRENCY_PER_HOUR
+      end
+
+      if bolts_delta != 0
+        new_balance = [ user.balance + bolts_delta, 0 ].max
+        user.update!(balance: new_balance)
+      end
+
+      update_attrs = {}
+      update_attrs[:hours] = params[:hours].to_f if params[:hours].present?
+      update_attrs[:approved_hours] = new_approved_hours if params[:approved_hours].present? || new_status == "rejected"
+      update_attrs[:status] = new_status if new_status.present?
+
+      unless @project.update(update_attrs)
+        raise ActiveRecord::Rollback
+      end
+    end
+
+    if @project.errors.any?
+      render json: { errors: @project.errors.full_messages }, status: :unprocessable_entity
+    else
+      render json: {
+        success: true,
+        project: project_response(@project),
+        bolts_delta: bolts_delta,
+        new_user_balance: user.reload.balance
+      }
+    end
+  end
+
   def destroy
     user = @project.user
     approved_hours = @project.approved_hours || 0
@@ -62,6 +105,10 @@ class Api::V1::Admin::ProjectsController < ApplicationController
   end
 
   private
+
+  def project_params
+    params.permit(:hours, :approved_hours)
+  end
 
   def set_project
     @project = Project.find(params[:id])
