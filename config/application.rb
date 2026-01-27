@@ -29,7 +29,7 @@ module Backend
     config.api_only = false
 
     # Session store for OAuth callbacks
-    config.session_store :cookie_store, key: "_reboot_session"
+    config.session_store :cookie_store, key: "_reboot_program_session_v2"
     config.middleware.use ActionDispatch::Cookies
     config.middleware.use config.session_store, config.session_options
   end
