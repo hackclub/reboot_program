@@ -78,7 +78,7 @@ class Airtable::YswsSubmissionJob < ApplicationJob
       "First Name" => user_info[:first_name] || user.first_name,
       "Last Name" => user_info[:last_name] || user.last_name,
       "Email" => user_info[:email] || user.email,
-      "Screenshot" => project.screenshot_url,
+      "Screenshot" => project.screenshot_url.present? ? [{ url: project.screenshot_url }] : nil,
       "Description" => project.description,
       "GitHub Username" => user_info[:github_username] || user.slack_username,
       "Address (Line 1)" => user_info.dig(:address, :line1),
