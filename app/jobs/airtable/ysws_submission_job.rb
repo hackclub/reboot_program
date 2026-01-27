@@ -43,19 +43,21 @@ class Airtable::YswsSubmissionJob < ApplicationJob
     return nil if result.nil?
 
     identity = result["identity"] || {}
+    primary_address = identity["addresses"]&.find { |a| a["primary"] } || identity["addresses"]&.first || {}
+
     {
-      email: identity["email"],
+      email: identity["primary_email"],
       first_name: identity["first_name"],
       last_name: identity["last_name"],
       birthday: identity["birthday"],
       github_username: identity["github_username"],
       address: {
-        line1: identity.dig("address", "line1"),
-        line2: identity.dig("address", "line2"),
-        city: identity.dig("address", "city"),
-        state: identity.dig("address", "state"),
-        country: identity.dig("address", "country"),
-        zip: identity.dig("address", "zip")
+        line1: primary_address["line_1"],
+        line2: primary_address["line_2"],
+        city: primary_address["city"],
+        state: primary_address["state"],
+        country: primary_address["country"],
+        zip: primary_address["postal_code"]
       }
     }.with_indifferent_access
   end
