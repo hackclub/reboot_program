@@ -5,7 +5,11 @@ class Airtable::YswsSubmissionJob < ApplicationJob
 
   # @param project_id [Integer] the approved project ID
   def perform(project_id)
-    project = Project.find(project_id)
+    project = Project.find_by(id: project_id)
+    unless project
+      Rails.logger.warn("YswsSubmissionJob: Project #{project_id} not found, skipping")
+      return
+    end
     user = project.user
 
     unless project.status == "approved"
