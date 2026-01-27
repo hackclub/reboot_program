@@ -75,6 +75,25 @@ class AdminController < ActionController::Base
     @users = @all_users.offset(offset).limit(per_page)
   end
 
+  def user_detail
+    @user = User.includes(:projects).find(params[:id])
+  rescue ActiveRecord::RecordNotFound
+    redirect_to admin_users_path, flash: { error: "User not found" }
+  end
+
+  def update_user_balance
+    @user = User.find(params[:id])
+    new_balance = params[:balance].to_f
+
+    if @user.update(balance: new_balance)
+      redirect_to admin_user_detail_path(@user), flash: { success: "User balance updated successfully." }
+    else
+      redirect_to admin_user_detail_path(@user), flash: { error: "Failed to update balance." }
+    end
+  rescue ActiveRecord::RecordNotFound
+    redirect_to admin_users_path, flash: { error: "User not found" }
+  end
+
   # GET /admin/shop
   def shop
     @shop_items = SHOP_ITEMS

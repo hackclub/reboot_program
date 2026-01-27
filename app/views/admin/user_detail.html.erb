@@ -1,0 +1,148 @@
+<% content_for :title, "Admin • #{@user.slack_username || @user.email}" %>
+<% content_for :page, "admin" %>
+
+<header class="topbar">
+  <nav class="nav">
+    <a class="nav__item" href="/admin/users">← Back to Users</a>
+    <a class="nav__item nav__item--active" href="/admin">Admin</a>
+  </nav>
+  <div class="topbar__right">
+    <span class="muted">Admin: <%= @current_user.slack_username || @current_user.email %></span>
+  </div>
+</header>
+
+<main class="container" style="max-width: 900px;">
+  <div style="display: flex; gap: 1rem; margin-bottom: 2rem; border-bottom: 1px solid #e0e0e0; padding-bottom: 1rem;">
+    <a href="/admin/projects" style="padding: 8px 16px; border-bottom: 2px solid transparent; color: #999; text-decoration: none; font-weight: 600;">Projects</a>
+    <a href="/admin/users" style="padding: 8px 16px; border-bottom: 2px solid #f25f2c; color: #f25f2c; text-decoration: none; font-weight: 600;">Users</a>
+    <a href="/admin/shop" style="padding: 8px 16px; border-bottom: 2px solid transparent; color: #999; text-decoration: none; font-weight: 600;">Shop</a>
+    <a href="/admin/jobs" style="padding: 8px 16px; border-bottom: 2px solid transparent; color: #999; text-decoration: none; font-weight: 600;">Jobs</a>
+    <a href="/admin/stats" style="padding: 8px 16px; border-bottom: 2px solid transparent; color: #999; text-decoration: none; font-weight: 600;">Stats</a>
+  </div>
+
+  <div class="card" style="padding: 2rem;">
+    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1.5rem;">
+      <div>
+        <h1 style="margin: 0 0 0.5rem 0;"><%= @user.slack_username || @user.email %></h1>
+        <p class="muted" style="margin: 0;">
+          <%= @user.email %>
+          • Created <%= time_ago_in_words(@user.created_at) %> ago
+        </p>
+      </div>
+      <span class="pill pill--user" style="font-size: 1rem; padding: 6px 12px; <%= @user.admin? ? 'background: #ff6b6b; color: white;' : 'background: #e0e0e0; color: #666;' %>"><%= @user.role.humanize %></span>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+      <div>
+        <h3 style="margin: 0 0 1rem 0; color: #666;">User Details</h3>
+        
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; font-weight: 600; margin-bottom: 4px; color: #999; font-size: 0.85rem;">Email</label>
+          <p style="margin: 0;"><%= @user.email %></p>
+        </div>
+
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; font-weight: 600; margin-bottom: 4px; color: #999; font-size: 0.85rem;">Slack Username</label>
+          <p style="margin: 0;"><%= @user.slack_username || "—" %></p>
+        </div>
+
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; font-weight: 600; margin-bottom: 4px; color: #999; font-size: 0.85rem;">Role</label>
+          <p style="margin: 0;"><%= @user.role.humanize %></p>
+        </div>
+
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; font-weight: 600; margin-bottom: 4px; color: #999; font-size: 0.85rem;">IDV Verified</label>
+          <p style="margin: 0;">
+            <% if @user.idv_verified? %>
+              <span style="background: #c8e6c9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; font-weight: 600;">✓ Verified</span>
+            <% else %>
+              <span style="background: #ffccbc; color: #d84315; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; font-weight: 600;">✗ Not Verified</span>
+            <% end %>
+          </p>
+        </div>
+      </div>
+
+      <div>
+        <h3 style="margin: 0 0 1rem 0; color: #666;">Manual Bolt Override</h3>
+        
+        <form action="/admin/users/<%= @user.id %>/update_balance" method="POST" style="display: flex; flex-direction: column; gap: 1rem;">
+          <input type="hidden" name="_method" value="PATCH">
+          <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+          
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #666;">Current Balance</label>
+            <div style="font-size: 1.5rem; font-weight: 700; color: #2e7d32;">
+              <%= @user.balance.to_i %>
+              <img src="https://files.slack.com/files-pri/T09V59WQY1E-F0A793FGJ2V/bolt.png?pub_secret=7acc4044c5" alt="bolt" style="height: 1.2em; display: inline; margin-left: 8px;">
+            </div>
+          </div>
+
+          <div>
+            <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #666;">New Balance</label>
+            <input
+              type="number"
+              name="balance"
+              id="new_balance"
+              value="<%= @user.balance.to_f.round(2) %>"
+              min="0"
+              step="0.01"
+              style="width: 100%; padding: 12px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 1rem;"
+            >
+          </div>
+
+          <div style="background: #fffacd; border-left: 4px solid #f0ad4e; padding: 12px; border-radius: 4px; font-size: 0.9rem; color: #856404;">
+            ⚠️ <strong>Warning:</strong> This will directly override the user's balance. Use with caution!
+          </div>
+
+          <button type="submit" class="btn btn--primary" style="width: 100%; margin-top: 1rem;">
+            Update Balance
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <div style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid #e0e0e0;">
+      <h3 style="margin: 0 0 1rem 0; color: #666;">Projects (<%= @user.projects.count %>)</h3>
+
+      <% if @user.projects.any? %>
+        <div class="admin-table">
+          <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 1rem; padding: 12px 16px; background: #f9f9f7; font-weight: 600; border-radius: 8px 8px 0 0; font-size: 0.9rem;">
+            <div>Project Name</div>
+            <div>Status</div>
+            <div>Hours</div>
+            <div>Approved Hours</div>
+          </div>
+
+          <% @user.projects.order(created_at: :desc).each do |project| %>
+            <a href="/admin/projects/<%= project.id %>" style="text-decoration: none; color: inherit;">
+              <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 1rem; padding: 12px 16px; border-bottom: 1px solid #e0e0e0; align-items: center; cursor: pointer; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='#f5f5f5'" onmouseout="this.style.backgroundColor='transparent'">
+                <div>
+                  <strong><%= project.name %></strong>
+                </div>
+                <div>
+                  <span class="pill pill--<%= project.status %>" style="padding: 4px 8px; font-size: 0.85rem;">
+                    <%= project.status.humanize %>
+                  </span>
+                </div>
+                <div>
+                  <%= project.hours.to_f.round(2) %>
+                </div>
+                <div>
+                  <strong><%= project.approved_hours.to_f.round(2) %></strong>
+                  <% if project.approved_hours > 0 %>
+                    <span style="color: #2e7d32; font-size: 0.85rem;">
+                      (+<%= (project.approved_hours * 50).to_i %> bolts)
+                    </span>
+                  <% end %>
+                </div>
+              </div>
+            </a>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="muted">No projects yet.</p>
+      <% end %>
+    </div>
+  </div>
+</main>

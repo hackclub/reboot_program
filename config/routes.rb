@@ -25,6 +25,8 @@ Rails.application.routes.draw do
   get "admin/projects", to: "admin#projects", as: :admin_projects
   get "admin/projects/:id", to: "admin#project_detail", as: :admin_project
   get "admin/users", to: "admin#users", as: :admin_users
+  get "admin/users/:id", to: "admin#user_detail", as: :admin_user_detail
+  patch "admin/users/:id/update_balance", to: "admin#update_user_balance", as: :admin_update_user_balance
   get "admin/shop", to: "admin#shop", as: :admin_shop
   get "admin/jobs", to: "admin#jobs", as: :admin_jobs
   get "admin/stats", to: "admin#stats", as: :admin_stats
