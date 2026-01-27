@@ -5,7 +5,7 @@ if ENV["HACKCLUB_CLIENT_ID"].present? && ENV["HACKCLUB_CLIENT_SECRET"].present?
     provider :hack_club,
              ENV["HACKCLUB_CLIENT_ID"],
              ENV["HACKCLUB_CLIENT_SECRET"],
-             scope: "openid profile email name slack_id verification_status",
+             scope: "openid profile email name slack_id verification_status basic_info address",
              staging: false
   end
 
