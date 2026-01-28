@@ -116,8 +116,13 @@
               </select>
             </div>
           </div>
+          <div style="margin-top: 1rem;">
+            <label style="display: block; font-weight: 600; margin-bottom: 4px; font-size: 0.9rem;">Screenshot URL</label>
+            <input type="text" id="override_screenshot_url" value="<%= @project.screenshot_url || '' %>" placeholder="https://..."
+                   style="width: 100%; padding: 8px 12px; border: 1px solid #e0e0e0; border-radius: 6px;">
+          </div>
           <p class="muted" style="margin: 0.75rem 0 0; font-size: 0.85rem;">
-            Changing approved hours will adjust user bolts (50 bolts/hour). Setting status to Rejected will revoke all approved hours.
+            Changing approved hours will adjust user bolts (50 bolts/hour). Setting status to Rejected will revoke all approved hours. Updating screenshot will sync to Airtable on next cron job.
           </p>
           <button type="button" id="override-hours-btn" class="btn btn--primary" style="margin-top: 1rem; width: 100%;">
             Save Changes
@@ -277,6 +282,7 @@
     const hours = parseFloat(document.getElementById('override_hours').value);
     const approvedHours = parseFloat(document.getElementById('override_approved_hours').value);
     const status = document.getElementById('override_status').value;
+    const screenshotUrl = document.getElementById('override_screenshot_url').value.trim();
 
     const payload = { hours, approved_hours: approvedHours };
     if (status) {
@@ -286,6 +292,9 @@
           return;
         }
       }
+    }
+    if (screenshotUrl) {
+      payload.screenshot_url = screenshotUrl;
     }
 
     overrideBtn.disabled = true;

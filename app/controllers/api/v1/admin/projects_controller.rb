@@ -50,6 +50,7 @@ class Api::V1::Admin::ProjectsController < ApplicationController
     new_approved_hours = params[:approved_hours].present? ? params[:approved_hours].to_f : old_approved_hours
     new_status = params[:status]
     bolts_delta = 0
+    screenshot_changed = params[:screenshot_url].present? && params[:screenshot_url] != @project.screenshot_url
 
     Project.transaction do
       if new_status == "rejected" && @project.status != "rejected"
@@ -69,10 +70,15 @@ class Api::V1::Admin::ProjectsController < ApplicationController
       update_attrs[:hours] = params[:hours].to_f if params[:hours].present?
       update_attrs[:approved_hours] = new_approved_hours if params[:approved_hours].present? || new_status == "rejected"
       update_attrs[:status] = new_status if new_status.present?
+      update_attrs[:screenshot_url] = params[:screenshot_url] if params[:screenshot_url].present?
 
       unless @project.update(update_attrs)
         raise ActiveRecord::Rollback
       end
+    end
+
+    if screenshot_changed && @project.status == "approved" && @project.ysws_airtable_id.present?
+      Airtable::YswsSubmissionJob.perform_later(@project.id)
     end
 
     if @project.errors.any?
