@@ -30,11 +30,7 @@
         <header class="project-detail__header">
            <h2 class="project-detail__title"><%= @selected_project.name %></h2>
            <div class="project-detail__actions">
-             <% if @selected_project.status == 'pending' %>
-               <button id="journal-btn" class="btn">Write Journal</button>
-             <% else %>
-               <button class="btn" disabled>Write Journal</button>
-             <% end %>
+              <button id="journal-btn" class="btn">Write Journal</button>
              <% if @selected_project.status.in?(%w[pending rejected]) %>
                <button id="edit-ship-btn" class="btn">Edit Ship</button>
              <% else %>
@@ -109,20 +105,23 @@
               </div>
             <% end %>
             
-            <% if @selected_project.status == 'pending' %>
+            <% if @selected_project.journal_entries.any? || @selected_project.status == 'pending' %>
               <div class="detail-group">
                 <div class="detail-subtitle">Journal Entries</div>
-                <div id="journal-entries-list" class="journal-entries">
-                  <p class="muted">No journal entries yet. <button type="button" id="quick-journal-btn" class="link-btn">Add one</button>.</p>
-                </div>
-              </div>
-            <% elsif @selected_project.journal_entries.any? %>
-              <div class="detail-group">
-                <div class="detail-subtitle">Journal Entries</div>
-                <p class="muted">
-                  <strong><%= @selected_project.journal_entries.count %> entries</strong>
-                  <button type="button" id="view-journal-btn" class="link-btn" style="margin-left: 8px;">View Entries</button>
-                </p>
+                <% if @selected_project.status == 'pending' %>
+                  <div id="journal-entries-list" class="journal-entries">
+                    <% if @selected_project.journal_entries.any? %>
+                      <p class="muted"><strong><%= @selected_project.journal_entries.count %> entries</strong></p>
+                    <% else %>
+                      <p class="muted">No journal entries yet. <button type="button" id="quick-journal-btn" class="link-btn">Add one</button>.</p>
+                    <% end %>
+                  </div>
+                <% else %>
+                  <p class="muted">
+                    <strong><%= @selected_project.journal_entries.count %> entries</strong>
+                    <button type="button" id="view-journal-btn" class="link-btn" style="margin-left: 8px;">View Entries</button>
+                  </p>
+                <% end %>
               </div>
             <% end %>
 
