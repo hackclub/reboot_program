@@ -165,8 +165,66 @@ class PagesController < ActionController::Base
       shipping_bolts = (shipping_dollars * 10).round
 
       valid_categories = %w[keyboard mouse monitor headphones webcam desktop\ accessories chair]
-      bolts_map = { "standard" => 500, "quality" => 1100, "advanced" => 1700, "professional" => 2300, "aula_f75" => 789, "millso_usb_microphone" => 160, "wireless_microphone" => 180, "tp_link_nano_ac600" => 180, "laptop_cooling_pad" => 130, "redragon_k580_vata" => 700, "zunmos_gaming_chair" => 950, "gtplayer_gaming_chair" => 1300, "razer_iskur_v2_x" => 3000, "corsair_t3_rush" => 3500 }
-      grant_map = { "standard" => 50, "quality" => 110, "advanced" => 170, "professional" => 230, "aula_f75" => 79, "millso_usb_microphone" => 16, "wireless_microphone" => 18, "tp_link_nano_ac600" => 18, "laptop_cooling_pad" => 13, "redragon_k580_vata" => 70, "zunmos_gaming_chair" => 95, "gtplayer_gaming_chair" => 130, "razer_iskur_v2_x" => 300, "corsair_t3_rush" => 350 }
+
+      keyboard_bolts_map = { "standard" => 500, "quality" => 1100, "advanced" => 1700, "professional" => 2200, "aula_f75" => 789, "redragon_k580_vata" => 700 }
+      keyboard_grant_map = { "standard" => 50, "quality" => 110, "advanced" => 170, "professional" => 220, "aula_f75" => 79, "redragon_k580_vata" => 70 }
+
+      mouse_bolts_map = { "standard" => 300, "quality" => 500, "advanced" => 1000, "professional" => 1600 }
+      mouse_grant_map = { "standard" => 30, "quality" => 50, "advanced" => 100, "professional" => 160 }
+
+      monitor_bolts_map = { "standard" => 500, "quality" => 1100, "advanced" => 1700, "professional" => 2300 }
+      monitor_grant_map = { "standard" => 50, "quality" => 110, "advanced" => 180, "professional" => 230 }
+
+      headphones_bolts_map = { "standard" => 500, "quality" => 1100, "professional" => 2400 }
+      headphones_grant_map = { "standard" => 50, "quality" => 110, "professional" => 240 }
+
+      webcam_bolts_map = { "standard" => 500, "quality" => 1400, "professional" => 2300 }
+      webcam_grant_map = { "standard" => 50, "quality" => 140, "professional" => 230 }
+
+      desktop_accessories_bolts_map = { "millso_usb_microphone" => 160, "wireless_microphone" => 180, "tp_link_nano_ac600" => 180, "laptop_cooling_pad" => 130 }
+      desktop_accessories_grant_map = { "millso_usb_microphone" => 16, "wireless_microphone" => 18, "tp_link_nano_ac600" => 18, "laptop_cooling_pad" => 13 }
+
+      chair_bolts_map = { "zunmos_gaming_chair" => 950, "gtplayer_gaming_chair" => 1300, "razer_iskur_v2_x" => 3000, "corsair_t3_rush" => 3500 }
+      chair_grant_map = { "zunmos_gaming_chair" => 95, "gtplayer_gaming_chair" => 130, "razer_iskur_v2_x" => 300, "corsair_t3_rush" => 350 }
+
+      category_lower = category.downcase
+      bolts_map = case category_lower
+      when "keyboard"
+        keyboard_bolts_map
+      when "mouse"
+        mouse_bolts_map
+      when "monitor"
+        monitor_bolts_map
+      when "headphones"
+        headphones_bolts_map
+      when "webcam"
+        webcam_bolts_map
+      when "desktop accessories"
+        desktop_accessories_bolts_map
+      when "chair"
+        chair_bolts_map
+      else
+        {}
+      end
+
+      grant_map = case category_lower
+      when "keyboard"
+        keyboard_grant_map
+      when "mouse"
+        mouse_grant_map
+      when "monitor"
+        monitor_grant_map
+      when "headphones"
+        headphones_grant_map
+      when "webcam"
+        webcam_grant_map
+      when "desktop accessories"
+        desktop_accessories_grant_map
+      when "chair"
+        chair_grant_map
+      else
+        {}
+      end
 
       unless valid_categories.include?(category.downcase) && bolts_map.key?(variant)
         redirect_to shop_path, flash: { error: "Invalid item selection" }
