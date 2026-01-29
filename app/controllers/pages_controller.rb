@@ -110,14 +110,15 @@ class PagesController < ActionController::Base
   end
 
   def suggest_item
-    require_auth or return
+     require_auth or return
 
-    cost = ItemSuggestion::COST
+     cost = ItemSuggestion::COST
 
-    if @current_user.balance < cost
-      redirect_to shop_path, flash: { error: "Not enough bolts! You need #{cost} bolts to suggest an item." }
-      return
-    end
+     @current_user.reload
+     if @current_user.balance.to_i < cost
+       redirect_to shop_path, flash: { error: "Not enough bolts! You need #{cost} bolts to suggest an item." }
+       return
+     end
 
     item_name = params[:item_name].to_s.strip
     item_link = params[:item_link].to_s.strip
@@ -187,10 +188,11 @@ class PagesController < ActionController::Base
       end
     end
 
-    if @current_user.balance < cost
-      redirect_to shop_path, flash: { error: "Not enough bolts!" }
-      return
-    end
+    @current_user.reload
+     if @current_user.balance.to_i < cost
+       redirect_to shop_path, flash: { error: "Not enough bolts!" }
+       return
+     end
 
     ActiveRecord::Base.transaction do
       @current_user.update!(balance: @current_user.balance - cost)
