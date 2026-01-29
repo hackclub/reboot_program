@@ -110,7 +110,7 @@
        const grant = Number(modal.dataset.grant || 0);
        const name = modal.dataset.itemName || "Item";
        const qty = Math.max(1, Number(modalQty?.value || 1));
-       const shippingDollars = Number(document.getElementById('shop-modal-shipping')?.value || 0);
+       const shippingDollars = Math.max(0, Number(document.getElementById('shop-modal-shipping')?.value || 0));
        const shippingBolts = Math.round(shippingDollars * 10); // 50 bolts = $5, so 10 bolts = $1
        const itemBolts = baseBolts * qty;
        const totalBolts = itemBolts + shippingBolts;
@@ -188,8 +188,21 @@
     // React to quantity and shipping changes
     modalQty?.addEventListener("input", updateModalTotals);
     modalQty?.addEventListener("change", updateModalTotals);
-    document.getElementById('shop-modal-shipping')?.addEventListener("input", updateModalTotals);
-    document.getElementById('shop-modal-shipping')?.addEventListener("change", updateModalTotals);
+    const shippingInput = document.getElementById('shop-modal-shipping');
+    shippingInput?.addEventListener("input", (e) => {
+      const val = Number(e.target.value);
+      if (val < 0) {
+        e.target.value = "0";
+      }
+      updateModalTotals();
+    });
+    shippingInput?.addEventListener("change", (e) => {
+      const val = Number(e.target.value);
+      if (val < 0) {
+        e.target.value = "0";
+      }
+      updateModalTotals();
+    });
 
     modalClose?.addEventListener("click", closeModal);
     modalBackdrop?.addEventListener("click", closeModal);

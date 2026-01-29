@@ -160,7 +160,7 @@ class PagesController < ActionController::Base
       category = params[:category].to_s.strip
       variant = params[:variant].to_s.strip.downcase
       quantity = [ [ params[:quantity].to_i, 1 ].max, 1 ].min
-      shipping_dollars = (params[:shipping_dollars].to_f || 0)
+      shipping_dollars = [ (params[:shipping_dollars].to_f || 0), 0 ].max
       shipping_bolts = (shipping_dollars * 10).round
 
       valid_categories = %w[keyboard mouse monitor headphones webcam desktop\ accessories chair]
