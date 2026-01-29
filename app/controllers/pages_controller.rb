@@ -175,8 +175,8 @@ class PagesController < ActionController::Base
       monitor_bolts_map = { "standard" => 500, "quality" => 1100, "advanced" => 1700, "professional" => 2300 }
       monitor_grant_map = { "standard" => 50, "quality" => 110, "advanced" => 180, "professional" => 230 }
 
-      headphones_bolts_map = { "standard" => 500, "quality" => 1100, "professional" => 2400 }
-      headphones_grant_map = { "standard" => 50, "quality" => 110, "professional" => 240 }
+      headphones_bolts_map = { "razer_blackshark_v2_x" => 400, "standard" => 500, "quality" => 1100, "professional" => 2400 }
+      headphones_grant_map = { "razer_blackshark_v2_x" => 40, "standard" => 50, "quality" => 110, "professional" => 240 }
 
       webcam_bolts_map = { "standard" => 500, "quality" => 1400, "professional" => 2300 }
       webcam_grant_map = { "standard" => 50, "quality" => 140, "professional" => 230 }

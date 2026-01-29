@@ -77,6 +77,7 @@
               ['Professional grant - SANSUI 32-Inch WQHD', 'professional']
             ] %>
             <% headphones_variants = [
+              ['Razer BlackShark V2 X', 'razer_blackshark_v2_x'],
               ['Standard grant - TOZO HT3', 'standard'],
               ['Quality grant - Soundcore Life Q30', 'quality'],
               ['Professional grant - AirPods Pro 3', 'professional']
@@ -126,6 +127,7 @@
               'https://files.slack.com/files-pri/T09V59WQY1E-F0A7R7B1EHJ/71tgy5mzewl._ac_sl1500_-removebg-preview.png?pub_secret=3222c0235f'
             ] if cat == 'Monitor' %>
             <% images_for_headphones = [
+              'https://files.slack.com/files-pri/T09V59WQY1E-F0ABXT50XPW/51frjhb7xol._sl1001_-removebg-preview.png?pub_secret=92af7c9c64',
               'https://files.slack.com/files-pri/T09V59WQY1E-F0A7MSCHU9Y/61loj4pkq9l._ac_sl1500_-removebg-preview.png?pub_secret=4fb9286809',
               'https://files.slack.com/files-pri/T09V59WQY1E-F0A7MSWHNN6/a3028013_product_image_01_v1_c44d6360-d58c-4b7f-8bbd-badb130ac318_3838x.png-removebg-preview.png?pub_secret=21fa71aa8e',
               'https://files.slack.com/files-pri/T09V59WQY1E-F0A7N00MX0S/61solmqssll._ac_sl1500_-removebg-preview.png?pub_secret=1a0a6173df'
@@ -165,8 +167,8 @@
               <% monitor_bolts_map = { 'standard' => 500, 'quality' => 1100, 'advanced' => 1700, 'professional' => 2300 } %>
               <% monitor_grant_map = { 'standard' => 50, 'quality' => 110, 'advanced' => 180, 'professional' => 230 } %>
               <% other_bolts_map = { 'standard' => 500, 'quality' => 1100, 'advanced' => 1700, 'professional' => 2300 } %>
-              <% headphones_grant_map = { 'standard' => 50, 'quality' => 110, 'professional' => 240 } %>
-              <% headphones_bolts_map = { 'standard' => 500, 'quality' => 1100, 'professional' => 2400 } %>
+              <% headphones_grant_map = { 'razer_blackshark_v2_x' => 40, 'standard' => 50, 'quality' => 110, 'professional' => 240 } %>
+              <% headphones_bolts_map = { 'razer_blackshark_v2_x' => 400, 'standard' => 500, 'quality' => 1100, 'professional' => 2400 } %>
               <% webcam_grant_map = { 'standard' => 50, 'quality' => 140, 'professional' => 230 } %>
               <% webcam_bolts_map = { 'standard' => 500, 'quality' => 1400, 'professional' => 2300 } %>
               <% desktop_accessories_grant_map = { 'millso_usb_microphone' => 16, 'wireless_microphone' => 18, 'tp_link_nano_ac600' => 18, 'laptop_cooling_pad' => 13 } %>

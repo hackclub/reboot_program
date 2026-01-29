@@ -12,7 +12,7 @@ class SeedGrantShopItems < ActiveRecord::Migration[8.0]
           image_url: "https://files.slack.com/files-pri/T09V59WQY1E-F0A7F2PV2HH/lemokey-p1-he-wireless-custom-gaming-keyboard-black-aluminum-frame-gateron-double-rail-magnetic-nebula-switch-shine-through-double-shot-pbt-keycaps-version-removebg-preview.png?pub_secret=192f3a7612" },
         { key: "professional", name: "Professional grant - Logitech G715", cost: 2200, grant: 220,
           image_url: "https://files.slack.com/files-pri/T09V59WQY1E-F0A7MF33W1G/g715-gallery-2-removebg-preview.png?pub_secret=097bb6bd73" }
-      ]},
+      ] },
       { category: "Mouse", variants: [
         { key: "standard", name: "Standard grant - Logitech G305 Lightspeed", cost: 300, grant: 30,
           image_url: "https://files.slack.com/files-pri/T09V59WQY1E-F0A8FV4J6D6/51sg9blsmtl._ac_sl1500_-removebg-preview.png?pub_secret=74f57a6d05" },
@@ -22,7 +22,7 @@ class SeedGrantShopItems < ActiveRecord::Migration[8.0]
           image_url: "https://files.slack.com/files-pri/T09V59WQY1E-F0A8G2W1SL8/g309-lightspeed-wireless-mouse-white-gallery-1-removebg-preview.png?pub_secret=6c9a8f14ef" },
         { key: "professional", name: "Professional grant - MX Master 4", cost: 1600, grant: 160,
           image_url: "https://files.slack.com/files-pri/T09V59WQY1E-F0A8G33U1C0/mx-master-4-black-top-angle-gallery-1-removebg-preview.png?pub_secret=ec87f2385a" }
-      ]},
+      ] },
       { category: "Monitor", variants: [
         { key: "standard", name: "Standard grant", cost: 500, grant: 50,
           image_url: "https://files.slack.com/files-pri/T09V59WQY1E-F0A793DR88Z/10740609.png?pub_secret=edffb80446" },
@@ -32,15 +32,17 @@ class SeedGrantShopItems < ActiveRecord::Migration[8.0]
           image_url: "https://files.slack.com/files-pri/T09V59WQY1E-F0A7R6G417W/71kwnok18dl._ac_sl1500_-removebg-preview.png?pub_secret=cb9559cf58" },
         { key: "professional", name: "Professional grant - SANSUI 32-Inch WQHD", cost: 2300, grant: 230,
           image_url: "https://files.slack.com/files-pri/T09V59WQY1E-F0A7R7B1EHJ/71tgy5mzewl._ac_sl1500_-removebg-preview.png?pub_secret=3222c0235f" }
-      ]},
+      ] },
       { category: "Headphones", variants: [
+        { key: "razer_blackshark_v2_x", name: "Razer BlackShark V2 X", cost: 400, grant: 40,
+          image_url: "https://files.slack.com/files-pri/T09V59WQY1E-F0ABXT50XPW/51frjhb7xol._sl1001_-removebg-preview.png?pub_secret=92af7c9c64" },
         { key: "standard", name: "Standard grant - TOZO HT3", cost: 500, grant: 50,
           image_url: "https://files.slack.com/files-pri/T09V59WQY1E-F0A7MSCHU9Y/61loj4pkq9l._ac_sl1500_-removebg-preview.png?pub_secret=4fb9286809" },
         { key: "quality", name: "Quality grant - Soundcore Life Q30", cost: 1100, grant: 110,
           image_url: "https://files.slack.com/files-pri/T09V59WQY1E-F0A7MSWHNN6/a3028013_product_image_01_v1_c44d6360-d58c-4b7f-8bbd-badb130ac318_3838x.png-removebg-preview.png?pub_secret=21fa71aa8e" },
         { key: "professional", name: "Professional grant - AirPods Pro 3", cost: 2400, grant: 240,
           image_url: "https://files.slack.com/files-pri/T09V59WQY1E-F0A7N00MX0S/61solmqssll._ac_sl1500_-removebg-preview.png?pub_secret=1a0a6173df" }
-      ]},
+      ] },
       { category: "Webcam", variants: [
         { key: "standard", name: "Standard grant - EMEET 1080P", cost: 500, grant: 50,
           image_url: "https://files.slack.com/files-pri/T09V59WQY1E-F0A7JHN68SZ/61z8ekkuicl._ac_sl1419_-removebg-preview.png?pub_secret=9c212fcd15" },
@@ -48,7 +50,7 @@ class SeedGrantShopItems < ActiveRecord::Migration[8.0]
           image_url: "https://files.slack.com/files-pri/T09V59WQY1E-F0A7N1ARELS/61j7cbovgwl._ac_sl1500_-removebg-preview.png?pub_secret=0c3a335e34" },
         { key: "professional", name: "Professional grant - Insta360 Link 2 + Tripod Bundle", cost: 2300, grant: 230,
           image_url: "https://files.slack.com/files-pri/T09V59WQY1E-F0A7FLAH1QT/2300_9fee1f64-961e-4081-8b3b-fab7d75f1d89.png-removebg-preview.png?pub_secret=fae045f047" }
-      ]}
+      ] }
     ]
 
     grant_items.each do |category_data|
