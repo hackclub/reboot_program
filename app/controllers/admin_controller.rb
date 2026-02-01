@@ -134,12 +134,14 @@ class AdminController < ActionController::Base
     @total_journal_entries = JournalEntry.count
     @total_journal_hours = JournalEntry.sum(:hours)
 
-    @top_users_by_hours = Project.where("approved_hours > 0")
-                                 .joins(:user)
-                                 .group("users.id", "users.slack_username", "users.email")
-                                 .sum(:approved_hours)
-                                 .sort_by { |_, v| -v }
-                                 .first(10)
+    @top_users_by_hours = Project.where(status: "approved")
+                                  .where("approved_hours > 0")
+                                  .joins(:user)
+                                  .where.not(users: { role: "admin" })
+                                  .group("users.id")
+                                  .order(Arel.sql("SUM(projects.approved_hours) DESC"))
+                                  .limit(10)
+                                  .pluck("users.id", "users.slack_username", "users.email", Arel.sql("SUM(projects.approved_hours)"))
 
     @top_users_by_balance = User.where("balance > 0")
                                 .order(balance: :desc)
