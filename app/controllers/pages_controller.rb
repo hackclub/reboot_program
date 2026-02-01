@@ -181,8 +181,8 @@ class PagesController < ActionController::Base
       webcam_bolts_map = { "standard" => 500, "quality" => 1400, "professional" => 2300 }
       webcam_grant_map = { "standard" => 50, "quality" => 140, "professional" => 230 }
 
-      desktop_accessories_bolts_map = { "millso_usb_microphone" => 160, "wireless_microphone" => 180, "tp_link_nano_ac600" => 180, "laptop_cooling_pad" => 130, "bambu_labs_a1_mini" => 2190, "bambu_labs_a1" => 2990 }
-      desktop_accessories_grant_map = { "millso_usb_microphone" => 16, "wireless_microphone" => 18, "tp_link_nano_ac600" => 18, "laptop_cooling_pad" => 13, "bambu_labs_a1_mini" => 219, "bambu_labs_a1" => 299 }
+      desktop_accessories_bolts_map = { "millso_usb_microphone" => 160, "wireless_microphone" => 180, "tp_link_nano_ac600" => 180, "laptop_cooling_pad" => 130, "bambu_labs_a1_mini" => 2190, "bambu_labs_a1" => 2990, "tp_link_ac1200_router" => 350 }
+      desktop_accessories_grant_map = { "millso_usb_microphone" => 16, "wireless_microphone" => 18, "tp_link_nano_ac600" => 18, "laptop_cooling_pad" => 13, "bambu_labs_a1_mini" => 219, "bambu_labs_a1" => 299, "tp_link_ac1200_router" => 35 }
 
       chair_bolts_map = { "zunmos_gaming_chair" => 950, "gtplayer_gaming_chair" => 1300, "razer_iskur_v2_x" => 3000, "corsair_t3_rush" => 3500 }
       chair_grant_map = { "zunmos_gaming_chair" => 95, "gtplayer_gaming_chair" => 130, "razer_iskur_v2_x" => 300, "corsair_t3_rush" => 350 }
