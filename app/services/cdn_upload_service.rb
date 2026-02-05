@@ -8,10 +8,10 @@ class CdnUploadService
     video/quicktime
   ].freeze
   MAX_FILE_SIZE = 50.megabytes
-  CDN_API_TOKEN = "beans".freeze
 
   class UploadError < StandardError; end
   class InvalidFileError < StandardError; end
+  class QuotaExceededError < StandardError; end
 
   def initialize(file)
     @file = file
@@ -23,6 +23,10 @@ class CdnUploadService
   end
 
   private
+
+  def cdn_api_token
+    Rails.application.credentials&.cdn || ENV["CDN"]
+  end
 
   def validate_file!
     raise InvalidFileError, "No file provided" unless @file.present?
@@ -62,23 +66,32 @@ class CdnUploadService
 
   def upload_to_cdn
     @file.rewind
-    file_data = @file.read
-    base64_data = Base64.strict_encode64(file_data)
-    data_url = "data:#{@file.content_type};base64,#{base64_data}"
 
-    response = Faraday.post("https://cdn.hackclub.com/api/v3/new") do |req|
-      req.headers["Authorization"] = "Bearer #{CDN_API_TOKEN}"
-      req.headers["Content-Type"] = "application/json"
-      req.body = [ data_url ].to_json
+    conn = Faraday.new do |f|
+      f.request :multipart
+      f.adapter Faraday.default_adapter
     end
 
-    raise UploadError, "CDN upload failed: #{response.status}" unless response.success?
+    response = conn.post("https://cdn.hackclub.com/api/v4/upload") do |req|
+      req.headers["Authorization"] = "Bearer #{cdn_api_token}"
+      req.body = {
+        file: Faraday::Multipart::FilePart.new(
+          @file.tempfile,
+          @file.content_type,
+          @file.original_filename
+        )
+      }
+    end
 
-    result = JSON.parse(response.body)
-    files = result["files"]
-
-    raise UploadError, "No files returned from CDN" if files.blank?
-
-    files.first["deployedUrl"]
+    case response.status
+    when 200, 201
+      result = JSON.parse(response.body)
+      result["url"]
+    when 402
+      result = JSON.parse(response.body)
+      raise QuotaExceededError, "Storage quota exceeded: #{result.dig('quota', 'percentage_used')}% used"
+    else
+      raise UploadError, "CDN upload failed: #{response.status}"
+    end
   end
 end

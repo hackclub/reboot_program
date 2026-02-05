@@ -14,6 +14,9 @@ class Api::V1::UploadsController < ApplicationController
     render json: { url: cdn_url }
   rescue CdnUploadService::InvalidFileError => e
     render json: { error: e.message }, status: :unprocessable_entity
+  rescue CdnUploadService::QuotaExceededError => e
+    Rails.logger.error("CDN quota exceeded: #{e.message}")
+    render json: { error: "Storage quota exceeded. Please contact support." }, status: :payment_required
   rescue CdnUploadService::UploadError => e
     Rails.logger.error("CDN upload error: #{e.message}")
     render json: { error: "Upload failed. Please try again." }, status: :service_unavailable
