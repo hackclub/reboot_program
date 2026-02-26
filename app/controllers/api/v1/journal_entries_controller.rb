@@ -1,6 +1,7 @@
 # API controller for project journal entries.
 class Api::V1::JournalEntriesController < ApplicationController
   before_action :authenticate_user!
+  before_action :check_shipping_deadline, only: [ :create, :update ]
   before_action :set_project
   before_action :set_journal_entry, only: [ :show, :update, :destroy ]
 

@@ -1,6 +1,7 @@
 # API controller for user projects.
 class Api::V1::ProjectsController < ApplicationController
   before_action :authenticate_user!
+  before_action :check_shipping_deadline, only: [ :create, :update, :request_review ]
   before_action :set_project, only: [ :show, :update, :destroy, :request_review, :sync_hackatime ]
 
   # GET /api/v1/projects
