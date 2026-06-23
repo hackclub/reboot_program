@@ -57,7 +57,7 @@ end
 
 
 gem "norairrecord", "~> 0.5.1"
-gem "faraday", "~> 1.10"  # norairrecord requires Faraday 1.x API
+gem "faraday", "~> 2.14"  # norairrecord requires Faraday 1.x API
 
 # Authentication
 gem "jwt"
